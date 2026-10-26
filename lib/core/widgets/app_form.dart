@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
@@ -79,11 +80,16 @@ class AppChoiceChips<T> extends StatelessWidget {
                 }
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 170),
-                curve: Curves.easeOut,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                duration: Motion.duration(context, Motion.micro),
+                curve: Motion.easeOut,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: active ? color.withValues(alpha: 0.13) : Colors.transparent,
+                  color: active
+                      ? color.withValues(alpha: 0.13)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: active
@@ -110,7 +116,9 @@ class AppChoiceChips<T> extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 11.5,
-                          fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight: active
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                           color: active ? color : AppColors.textTertiary,
                         ),
                       ),
@@ -160,7 +168,10 @@ class AppSelectField<T> extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: icon == null ? null : Icon(icon, size: 19),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
       ),
       items: [
         for (final item in items)
@@ -227,10 +238,7 @@ class AppFieldRow extends StatelessWidget {
             GestureDetector(
               onTap: onTrailingTap,
               behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: trailing,
-              ),
+              child: Padding(padding: const EdgeInsets.all(6), child: trailing),
             ),
         ],
       ),

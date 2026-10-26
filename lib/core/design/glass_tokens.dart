@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import 'motion.dart';
 
 /// Optical tokens for the Liquid Glass layer.
 abstract final class GlassTokens {
@@ -16,24 +17,25 @@ abstract final class GlassTokens {
 
   static const double hairline = 1.1;
 
-  static const Duration fast = Duration(milliseconds: 160);
-  static const Duration medium = Duration(milliseconds: 260);
-  static const Duration slow = Duration(milliseconds: 420);
+  static const Duration fast = Motion.exit;
+  static const Duration medium = Motion.standard;
+  static const Duration slow = Motion.sheet;
 
+  /// Overshoot curve. Not for UI entrances. Gesture springs live on the nav bar.
   static const Curve springOut = Cubic(0.16, 1.08, 0.3, 1);
-  static const Curve easeOut = Cubic(0.22, 1, 0.36, 1);
+  static const Curve easeOut = Motion.easeOut;
 
   static LinearGradient rimGradient({double angle = -0.7}) => LinearGradient(
-        begin: Alignment(angle, -1),
-        end: Alignment(-angle, 1),
-        colors: [
-          Colors.white.withValues(alpha: 0.34),
-          Colors.white.withValues(alpha: 0.08),
-          Colors.white.withValues(alpha: 0.03),
-          Colors.white.withValues(alpha: 0.14),
-        ],
-        stops: const [0.0, 0.36, 0.72, 1.0],
-      );
+    begin: Alignment(angle, -1),
+    end: Alignment(-angle, 1),
+    colors: [
+      Colors.white.withValues(alpha: 0.34),
+      Colors.white.withValues(alpha: 0.08),
+      Colors.white.withValues(alpha: 0.03),
+      Colors.white.withValues(alpha: 0.14),
+    ],
+    stops: const [0.0, 0.36, 0.72, 1.0],
+  );
 
   static LinearGradient surfaceGradient({Color? tint, bool strong = false}) {
     final base = tint ?? AppColors.glassTint;
@@ -41,9 +43,15 @@ abstract final class GlassTokens {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        Color.alphaBlend(Colors.white.withValues(alpha: strong ? 0.10 : 0.055), base),
+        Color.alphaBlend(
+          Colors.white.withValues(alpha: strong ? 0.10 : 0.055),
+          base,
+        ),
         base,
-        Color.alphaBlend(AppColors.accent.withValues(alpha: strong ? 0.08 : 0.035), base),
+        Color.alphaBlend(
+          AppColors.accent.withValues(alpha: strong ? 0.08 : 0.035),
+          base,
+        ),
       ],
       stops: const [0.0, 0.52, 1.0],
     );

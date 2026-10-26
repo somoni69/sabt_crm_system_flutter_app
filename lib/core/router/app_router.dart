@@ -20,6 +20,7 @@ import '../../features/smm/presentation/stories_check_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
 import '../../features/tasks/presentation/task_detail_page.dart';
 import '../dependencies.dart';
+import 'motion_page.dart';
 
 /// The router is created once and refreshed by auth transitions. The auth
 /// controller never sets `AsyncLoading` during a sign-in attempt, so the login
@@ -47,76 +48,132 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const SplashPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const SplashPage(),
+        ),
       ),
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const LoginPage(),
+        ),
       ),
       GoRoute(
         path: '/',
-        builder: (context, state) => const AppShell(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const AppShell(),
+        ),
       ),
       GoRoute(
         path: '/tasks/:id',
-        builder: (context, state) => TaskDetailPage(
-          taskId: state.pathParameters['id'] ?? '',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: TaskDetailPage(taskId: state.pathParameters['id'] ?? ''),
         ),
       ),
       GoRoute(
         path: '/projects',
-        builder: (context, state) => const ProjectsPage(standalone: true),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const ProjectsPage(standalone: true),
+        ),
       ),
       GoRoute(
         path: '/projects/:id',
-        builder: (context, state) => ProjectDetailPage(
-          projectId: state.pathParameters['id'] ?? '',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: ProjectDetailPage(projectId: state.pathParameters['id'] ?? ''),
         ),
       ),
       GoRoute(
         path: '/calendar',
-        builder: (context, state) => const CalendarPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const CalendarPage(),
+        ),
       ),
       GoRoute(
         path: '/notifications',
-        builder: (context, state) => const NotificationsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const NotificationsPage(),
+        ),
       ),
       GoRoute(
         path: '/profile',
-        builder: (context, state) => const ProfilePage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const ProfilePage(),
+        ),
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) => const SettingsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const SettingsPage(),
+        ),
       ),
       GoRoute(
         path: '/clients',
-        builder: (context, state) => const ClientsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const ClientsPage(),
+        ),
       ),
       GoRoute(
         path: '/clients/:id',
-        builder: (context, state) => ClientDetailPage(
-          clientId: state.pathParameters['id'] ?? '',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: ClientDetailPage(clientId: state.pathParameters['id'] ?? ''),
         ),
       ),
       GoRoute(
         path: '/employees',
-        builder: (context, state) => const EmployeesPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeesPage(),
+        ),
       ),
       GoRoute(
         path: '/employees/:id',
-        builder: (context, state) => EmployeeDetailPage(
-          employeeId: state.pathParameters['id'] ?? '',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: EmployeeDetailPage(
+            employeeId: state.pathParameters['id'] ?? '',
+          ),
         ),
       ),
       GoRoute(
         path: '/stories-check',
-        builder: (context, state) => const StoriesCheckPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const StoriesCheckPage(),
+        ),
       ),
       GoRoute(
         path: '/web-only',
-        builder: (context, state) => WebOnlyPage(
-          path: state.uri.queryParameters['path'] ?? '/',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: WebOnlyPage(path: state.uri.queryParameters['path'] ?? '/'),
         ),
       ),
     ],

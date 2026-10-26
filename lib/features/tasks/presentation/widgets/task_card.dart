@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_avatar.dart';
@@ -37,7 +38,12 @@ class TaskCard extends StatelessWidget {
     final assignee = task.assignees.isNotEmpty ? task.assignees.first : null;
 
     return AppCard(
-      padding: EdgeInsets.fromLTRB(13, compact ? 12 : 14, 12, compact ? 12 : 14),
+      padding: EdgeInsets.fromLTRB(
+        13,
+        compact ? 12 : 14,
+        12,
+        compact ? 12 : 14,
+      ),
       radius: 18,
       onTap: onTap,
       child: Row(
@@ -79,17 +85,23 @@ class TaskCard extends StatelessWidget {
                           height: 1.3,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.15,
-                          color: task.isDone ? AppColors.textTertiary : AppColors.text,
-                          decoration:
-                              task.isDone ? TextDecoration.lineThrough : null,
+                          color: task.isDone
+                              ? AppColors.textTertiary
+                              : AppColors.text,
+                          decoration: task.isDone
+                              ? TextDecoration.lineThrough
+                              : null,
                           decorationColor: AppColors.textTertiary,
                         ),
                       ),
                     ),
                     if (task.fromFounder) ...[
                       const SizedBox(width: 6),
-                      const Icon(Icons.workspace_premium_rounded,
-                          size: 15, color: AppColors.warning),
+                      const Icon(
+                        Icons.workspace_premium_rounded,
+                        size: 15,
+                        color: AppColors.warning,
+                      ),
                     ],
                   ],
                 ),
@@ -176,7 +188,9 @@ class TaskCard extends StatelessWidget {
                       value: task.progress / 100,
                       minHeight: 3,
                       backgroundColor: AppColors.surface3,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+                      valueColor: const AlwaysStoppedAnimation(
+                        AppColors.accent,
+                      ),
                     ),
                   ),
                 ],
@@ -206,6 +220,7 @@ class _QuickDoneButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final motion = Motion.allowed(context);
     return Semantics(
       button: true,
       label: done ? 'Задача выполнена' : 'Отметить выполненной',
@@ -213,7 +228,8 @@ class _QuickDoneButton extends StatelessWidget {
         onTap: done ? null : onTap,
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: motion ? Motion.micro : Duration.zero,
+          curve: Motion.easeOut,
           width: 34,
           height: 34,
           decoration: BoxDecoration(

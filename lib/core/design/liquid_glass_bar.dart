@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import 'glass_surface.dart';
 import 'glass_tokens.dart';
+import 'motion.dart';
 
 class GlassNavItem {
   const GlassNavItem({
@@ -370,8 +371,8 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     final keyboard =
         MediaQueryData.fromView(View.of(context)).viewInsets.bottom > 0;
     final motion = !_reduceMotion;
-    final slide = motion ? const Duration(milliseconds: 220) : Duration.zero;
-    final fade = motion ? GlassTokens.fast : Duration.zero;
+    final slide = motion ? Motion.sheet : Duration.zero;
+    final fade = motion ? Motion.exit : Duration.zero;
 
     return ExcludeSemantics(
       excluding: keyboard,
@@ -381,7 +382,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
           top: false,
           child: AnimatedSlide(
             duration: slide,
-            curve: Curves.easeOutCubic,
+            curve: Motion.drawer,
             offset: keyboard ? const Offset(0, 1.4) : Offset.zero,
             child: AnimatedOpacity(
               duration: fade,

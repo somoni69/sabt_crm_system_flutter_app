@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../design/motion.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
@@ -79,7 +80,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface2,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         hintStyle: const TextStyle(
           fontFamily: AppTypography.family,
           color: AppColors.textTertiary,
@@ -128,7 +132,9 @@ class AppTheme {
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
       dividerTheme: const DividerThemeData(
@@ -183,7 +189,9 @@ class AppTheme {
         circularTrackColor: AppColors.surface3,
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: WidgetStateProperty.all(AppColors.textTertiary.withValues(alpha: 0.45)),
+        thumbColor: WidgetStateProperty.all(
+          AppColors.textTertiary.withValues(alpha: 0.45),
+        ),
         radius: const Radius.circular(8),
         thickness: WidgetStateProperty.all(3),
       ),
@@ -240,23 +248,7 @@ class _LiquidTransitionsBuilder extends PageTransitionsBuilder {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    if (MediaQuery.disableAnimationsOf(context)) return child;
-
-    final curved = CurvedAnimation(
-      parent: animation,
-      curve: const Cubic(0.22, 1, 0.36, 1),
-      reverseCurve: const Cubic(0.4, 0, 1, 1),
-    );
-
-    return FadeTransition(
-      opacity: curved,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.035),
-          end: Offset.zero,
-        ).animate(curved),
-        child: child,
-      ),
-    );
+    if (!Motion.allowed(context)) return child;
+    return MotionPageTransition(animation: animation, child: child);
   }
 }

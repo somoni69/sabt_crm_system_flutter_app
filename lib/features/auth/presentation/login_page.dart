@@ -8,6 +8,7 @@ import '../../../core/config/app_env.dart';
 import '../../../core/design/brand_mark.dart';
 import '../../../core/design/glass_surface.dart';
 import '../../../core/design/glass_tokens.dart';
+import '../../../core/design/motion.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -67,7 +68,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     try {
-      await ref.read(authControllerProvider.notifier).login(
+      await ref
+          .read(authControllerProvider.notifier)
+          .login(
             email: email,
             password: password,
             twoFactorCode: _needsTwoFactor ? _code.text : null,
@@ -87,7 +90,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (mounted) setState(() => _error = error.message);
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'Не удалось войти. Проверьте соединение и повторите.');
+        setState(
+          () => _error = 'Не удалось войти. Проверьте соединение и повторите.',
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -146,7 +151,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           children: [
                             Text(
                               'ВХОД',
-                              style: AppTypography.overline(color: AppColors.accentBright),
+                              style: AppTypography.overline(
+                                color: AppColors.accentBright,
+                              ),
                             ),
                             const Spacer(),
                             if (AppEnv.isWeb)
@@ -160,7 +167,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          _needsTwoFactor ? 'Подтвердите вход' : 'С возвращением',
+                          _needsTwoFactor
+                              ? 'Подтвердите вход'
+                              : 'С возвращением',
                           style: const TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 26,
@@ -183,15 +192,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOutCubic,
-                          alignment: Alignment.topCenter,
+                        MotionSwap(
                           child: _error == null
-                              ? const SizedBox(width: double.infinity)
+                              ? const SizedBox(
+                                  key: ValueKey('login-clear'),
+                                  width: double.infinity,
+                                )
                               : Padding(
+                                  key: const ValueKey('login-error'),
                                   padding: const EdgeInsets.only(bottom: 14),
-                                  child: InlineError(message: _error!, compact: true),
+                                  child: InlineError(
+                                    message: _error!,
+                                    compact: true,
+                                  ),
                                 ),
                         ),
                         TextField(
@@ -199,7 +212,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           enabled: !_busy,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
-                          autofillHints: const [AutofillHints.username, AutofillHints.email],
+                          autofillHints: const [
+                            AutofillHints.username,
+                            AutofillHints.email,
+                          ],
                           autocorrect: false,
                           enableSuggestions: false,
                           style: const TextStyle(
@@ -209,7 +225,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                           decoration: const InputDecoration(
                             hintText: 'Логин или почта',
-                            prefixIcon: Icon(Icons.alternate_email_rounded, size: 19),
+                            prefixIcon: Icon(
+                              Icons.alternate_email_rounded,
+                              size: 19,
+                            ),
                           ),
                           onSubmitted: (_) => _passwordFocus.requestFocus(),
                         ),
@@ -219,8 +238,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           focusNode: _passwordFocus,
                           enabled: !_busy,
                           obscureText: _obscure,
-                          textInputAction:
-                              _needsTwoFactor ? TextInputAction.next : TextInputAction.done,
+                          textInputAction: _needsTwoFactor
+                              ? TextInputAction.next
+                              : TextInputAction.done,
                           autofillHints: const [AutofillHints.password],
                           style: const TextStyle(
                             fontFamily: AppTypography.family,
@@ -229,10 +249,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                           decoration: InputDecoration(
                             hintText: 'Пароль',
-                            prefixIcon: const Icon(Icons.lock_outline_rounded, size: 19),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline_rounded,
+                              size: 19,
+                            ),
                             suffixIcon: IconButton(
-                              onPressed: () => setState(() => _obscure = !_obscure),
-                              tooltip: _obscure ? 'Показать пароль' : 'Скрыть пароль',
+                              onPressed: () =>
+                                  setState(() => _obscure = !_obscure),
+                              tooltip: _obscure
+                                  ? 'Показать пароль'
+                                  : 'Скрыть пароль',
                               icon: Icon(
                                 _obscure
                                     ? Icons.visibility_outlined
@@ -249,13 +275,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             }
                           },
                         ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 240),
-                          curve: Curves.easeOutCubic,
-                          alignment: Alignment.topCenter,
+                        MotionSwap(
                           child: !_needsTwoFactor
-                              ? const SizedBox(width: double.infinity)
+                              ? const SizedBox(
+                                  key: ValueKey('no-2fa'),
+                                  width: double.infinity,
+                                )
                               : Padding(
+                                  key: const ValueKey('2fa'),
                                   padding: const EdgeInsets.only(top: 12),
                                   child: TextField(
                                     controller: _code,
@@ -278,7 +305,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     decoration: const InputDecoration(
                                       hintText: '000000',
                                       counterText: '',
-                                      prefixIcon: Icon(Icons.shield_outlined, size: 19),
+                                      prefixIcon: Icon(
+                                        Icons.shield_outlined,
+                                        size: 19,
+                                      ),
                                     ),
                                     onSubmitted: (_) => _submit(),
                                   ),
@@ -318,7 +348,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.lock_outline_rounded, size: 12, color: AppColors.textDisabled),
+                      Icon(
+                        Icons.lock_outline_rounded,
+                        size: 12,
+                        color: AppColors.textDisabled,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Sabt CRM · данные под защитой',
@@ -346,12 +380,14 @@ class _ForgotPasswordForm extends ConsumerStatefulWidget {
   final String initialEmail;
 
   @override
-  ConsumerState<_ForgotPasswordForm> createState() => _ForgotPasswordFormState();
+  ConsumerState<_ForgotPasswordForm> createState() =>
+      _ForgotPasswordFormState();
 }
 
 class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
-  late final TextEditingController _email =
-      TextEditingController(text: widget.initialEmail);
+  late final TextEditingController _email = TextEditingController(
+    text: widget.initialEmail,
+  );
   bool _busy = false;
   bool _sent = false;
   String? _error;
@@ -404,10 +440,8 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
           Text(
             'Проверьте ${_email.text.trim()} и перейдите по ссылке из письма, чтобы задать новый пароль.',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textTertiary,
-                  height: 1.5,
-                ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: AppColors.textTertiary, height: 1.5),
           ),
           const SizedBox(height: 22),
           AppButton(
