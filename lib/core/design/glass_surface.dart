@@ -57,10 +57,7 @@ class GlassSurface extends StatelessWidget {
             ),
             child: CustomPaint(
               foregroundPainter: border
-                  ? _GlassRimPainter(
-                      radius: radius,
-                      highlight: strong ? 0.42 : 0.32,
-                    )
+                  ? _GlassRimPainter(radius: radius)
                   : null,
               child: Padding(padding: padding, child: content),
             ),
@@ -116,10 +113,9 @@ class GlassSurface extends StatelessWidget {
 }
 
 class _GlassRimPainter extends CustomPainter {
-  const _GlassRimPainter({required this.radius, required this.highlight});
+  const _GlassRimPainter({required this.radius});
 
   final double radius;
-  final double highlight;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -135,29 +131,11 @@ class _GlassRimPainter extends CustomPainter {
       ..shader = GlassTokens.rimGradient().createShader(rect);
 
     canvas.drawRRect(rrect, stroke);
-
-    // A crisp specular glint on the top-left curve — the physical edge catching
-    // the ambient light.
-    final inset = rect.deflate(2.2);
-    final glint = Path()
-      ..addArc(
-        Rect.fromLTWH(inset.left, inset.top, radius * 2, radius * 2),
-        3.02,
-        0.84,
-      );
-    canvas.drawPath(
-      glint,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = 1.4
-        ..color = Colors.white.withValues(alpha: highlight),
-    );
   }
 
   @override
   bool shouldRepaint(covariant _GlassRimPainter oldDelegate) =>
-      oldDelegate.radius != radius || oldDelegate.highlight != highlight;
+      oldDelegate.radius != radius;
 }
 
 /// A thin luminous rule used inside glass chrome.

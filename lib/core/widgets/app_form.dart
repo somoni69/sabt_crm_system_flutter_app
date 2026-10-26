@@ -21,7 +21,7 @@ class FormSectionLabel extends StatelessWidget {
             style: AppTypography.overline(color: AppColors.textTertiary),
           ),
           const Spacer(),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );

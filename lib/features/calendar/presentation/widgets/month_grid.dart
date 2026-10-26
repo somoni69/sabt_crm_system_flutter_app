@@ -58,7 +58,7 @@ class CalendarMonthBar extends StatelessWidget {
             ),
           ),
         ),
-        if (trailing != null) trailing!,
+        ?trailing,
         const SizedBox(width: 8),
         _Arrow(onTap: onNext, icon: Icons.chevron_right_rounded),
       ],

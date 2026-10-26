@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../design/glass_tokens.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
@@ -244,18 +245,20 @@ class _LiquidTransitionsBuilder extends PageTransitionsBuilder {
 
     final curved = CurvedAnimation(
       parent: animation,
-      curve: const Cubic(0.22, 1, 0.36, 1),
-      reverseCurve: const Cubic(0.4, 0, 1, 1),
+      curve: GlassTokens.easeOut,
+      reverseCurve: GlassTokens.easeOut,
     );
 
-    return FadeTransition(
-      opacity: curved,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.035),
-          end: Offset.zero,
-        ).animate(curved),
-        child: child,
+    return RepaintBoundary(
+      child: FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.035, 0),
+            end: Offset.zero,
+          ).animate(curved),
+          child: child,
+        ),
       ),
     );
   }

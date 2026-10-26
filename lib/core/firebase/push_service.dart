@@ -67,7 +67,7 @@ class PushService {
 
     _onMessageSub = FirebaseMessaging.onMessage.listen(_handleForeground);
     _onOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen(_handleOpened);
-    _onTokenSub = FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+    _onTokenSub = FirebaseMessaging.instance.onRegistered.listen((token) {
       _token = token;
       if (_active) unawaited(_register(token));
     });
@@ -96,11 +96,7 @@ class PushService {
           sound: true,
         );
       }
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token != null && token.isNotEmpty) {
-        _token = token;
-        await _register(token);
-      }
+      await FirebaseMessaging.instance.register();
     } catch (error, stack) {
       debugPrint('PushService.start failed: $error\n$stack');
       await analytics.recordError(error, stack);
@@ -119,7 +115,7 @@ class PushService {
       }
     }
     try {
-      await FirebaseMessaging.instance.deleteToken();
+      await FirebaseMessaging.instance.unregister();
     } catch (_) {}
     _token = null;
   }

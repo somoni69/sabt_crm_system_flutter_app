@@ -57,8 +57,8 @@ class _PressableScaleState extends State<PressableScale> {
             },
       child: AnimatedScale(
         scale: _pressed && animate ? widget.scale : 1,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 110),
+        curve: const Cubic(0.23, 1, 0.32, 1),
         child: widget.child,
       ),
     );

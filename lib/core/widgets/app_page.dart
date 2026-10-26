@@ -48,17 +48,19 @@ class AppPage extends StatelessWidget {
             ? PageInsets.bottomNav(context)
             : PageInsets.bottomPlain(context));
 
-    Widget scroll = CustomScrollView(
-      controller: controller,
-      physics: scrollPhysics ??
-          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      slivers: [
-        SliverPadding(
-          padding: EdgeInsets.only(top: top),
-          sliver: SliverList(delegate: SliverChildListDelegate(slivers)),
-        ),
-        SliverPadding(padding: EdgeInsets.only(bottom: bottom)),
-      ],
+    Widget scroll = RepaintBoundary(
+      child: CustomScrollView(
+        controller: controller,
+        physics: scrollPhysics ??
+            const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        slivers: [
+          SliverPadding(
+            padding: EdgeInsets.only(top: top),
+            sliver: SliverList(delegate: SliverChildListDelegate(slivers)),
+          ),
+          SliverPadding(padding: EdgeInsets.only(bottom: bottom)),
+        ],
+      ),
     );
 
     if (onRefresh != null) {
@@ -141,8 +143,7 @@ class AppHeader extends StatelessWidget {
                   onBack!();
                 },
               )
-            else if (leading != null)
-              leading!,
+            else ?leading,
             if (onBack != null || leading != null) const SizedBox(width: 11),
             Expanded(
               child: Column(
@@ -246,7 +247,7 @@ class PageIntro extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
@@ -269,6 +270,12 @@ Future<T?> showGlassSheet<T>({
     isDismissible: dismissible,
     enableDrag: dismissible,
     useSafeArea: true,
+    sheetAnimationStyle: AnimationStyle(
+      curve: GlassTokens.easeDrawer,
+      reverseCurve: GlassTokens.easeDrawer,
+      duration: GlassTokens.slow,
+      reverseDuration: GlassTokens.medium,
+    ),
     barrierColor: Colors.black.withValues(alpha: 0.62),
     backgroundColor: Colors.transparent,
     builder: (sheetContext) {

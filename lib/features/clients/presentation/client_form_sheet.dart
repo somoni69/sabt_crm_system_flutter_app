@@ -157,7 +157,7 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
       'leadSource': _source.text.trim(),
       'status': _status,
       'interest': _interest,
-      if (potential != null) 'dealPotential': potential,
+      'dealPotential': ?potential,
       if (_nextContact != null) 'nextContactAt': BizDate.toApiIso(_nextContact!),
     };
 

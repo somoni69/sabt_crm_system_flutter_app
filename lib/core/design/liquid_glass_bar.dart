@@ -70,13 +70,13 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     );
     _lift = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 160),
-      reverseDuration: const Duration(milliseconds: 240),
+      duration: const Duration(milliseconds: 140),
+      reverseDuration: const Duration(milliseconds: 180),
     );
     _actionScale = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 130),
-      lowerBound: 0.90,
+      duration: const Duration(milliseconds: 110),
+      lowerBound: 0.92,
       upperBound: 1,
       value: 1,
     );
@@ -356,60 +356,62 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
         onTapCancel: () => _actionScale.forward(),
         child: ScaleTransition(
           scale: _actionScale,
-          child: Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.accent.withValues(alpha: 0.38),
-                  blurRadius: 28,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: GlassSurface(
-              radius: 999,
-              blur: GlassTokens.blurMedium,
-              strong: true,
-              padding: EdgeInsets.zero,
-              glow: false,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.accent.withValues(alpha: 0.92),
-                          AppColors.accentDeep.withValues(alpha: 0.96),
-                        ],
-                      ),
-                    ),
+          child: RepaintBoundary(
+            child: Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.accent.withValues(alpha: 0.38),
+                    blurRadius: 28,
+                    offset: const Offset(0, 10),
                   ),
-                  Icon(widget.actionIcon, color: Colors.white, size: 26),
-                  Positioned(
-                    top: 7,
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      height: 1,
+                ],
+              ),
+              child: GlassSurface(
+                radius: 999,
+                blur: GlassTokens.blurMedium,
+                strong: true,
+                padding: EdgeInsets.zero,
+                glow: false,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
                       decoration: BoxDecoration(
+                        shape: BoxShape.circle,
                         gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withValues(alpha: 0),
-                            Colors.white.withValues(alpha: 0.45),
-                            Colors.white.withValues(alpha: 0),
+                            AppColors.accent.withValues(alpha: 0.92),
+                            AppColors.accentDeep.withValues(alpha: 0.96),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    Icon(widget.actionIcon, color: Colors.white, size: 26),
+                    Positioned(
+                      top: 7,
+                      left: 16,
+                      right: 16,
+                      child: Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white.withValues(alpha: 0),
+                              Colors.white.withValues(alpha: 0.45),
+                              Colors.white.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -29,7 +29,7 @@ extension TaskFeedX on TaskFeed {
         TaskFeed.assigned => 'Я выдал',
       };
 
-  String get cacheKey => 'tasks.${name}';
+  String get cacheKey => 'tasks.$name';
 }
 
 List<TaskModel> parseTasks(dynamic raw) {

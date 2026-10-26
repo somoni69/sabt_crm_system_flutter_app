@@ -187,7 +187,7 @@ class _AppButtonState extends State<AppButton> {
       child: AnimatedScale(
         scale: _pressed && animate ? 0.977 : 1,
         duration: const Duration(milliseconds: 110),
-        curve: Curves.easeOut,
+        curve: GlassTokens.easeOut,
         child: inner,
       ),
     );
@@ -504,7 +504,7 @@ class AppSheetHeader extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null) trailing!,
+        ?trailing,
         if (onClose != null) ...[
           const SizedBox(width: 6),
           AppIconButton(

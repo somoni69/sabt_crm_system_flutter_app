@@ -47,7 +47,7 @@ class AcceptanceItem {
   factory AcceptanceItem.fromJson(Map<String, dynamic> json) => AcceptanceItem(
         id: asStringOr(json['id'], ''),
         text: asStringOr(json['text'], ''),
-        done: asBool(json['done']),
+        done: asBool(json['done'] ?? json['isDone']),
         doneAt: BizDate.parse(json['doneAt']),
       );
 }
@@ -185,7 +185,8 @@ class TaskModel {
     final project = asMap(json['project']);
     final assignee = asMap(json['assignee']);
     final createdBy = asMap(json['createdBy']);
-    final acceptance = asList(json['acceptanceCriteria'])
+    final rawAcceptance = json['acceptanceCriteria'] ?? json['checklist'];
+    final acceptance = asList(rawAcceptance)
         .map(asMap)
         .whereType<Map<String, dynamic>>()
         .map(AcceptanceItem.fromJson)

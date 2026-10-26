@@ -47,8 +47,8 @@ class TasksRepository {
     await deps.api.postJson('/tasks/$taskId/results', body: {
       'type': type,
       'content': content,
-      if (fileName != null) 'fileName': fileName,
-      if (filePath != null) 'filePath': filePath,
+      'fileName': ?fileName,
+      'filePath': ?filePath,
     });
   }
 

@@ -105,8 +105,8 @@ class _AppBannerHostState extends State<AppBannerHost>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 340),
-      reverseDuration: const Duration(milliseconds: 220),
+      duration: GlassTokens.slow,
+      reverseDuration: GlassTokens.fast,
     );
     _slide = Tween<Offset>(
       begin: const Offset(0, -1.15),
@@ -114,9 +114,13 @@ class _AppBannerHostState extends State<AppBannerHost>
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: GlassTokens.springOut,
-      reverseCurve: Curves.easeInCubic,
+      reverseCurve: GlassTokens.easeOut,
     ));
-    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _fade = CurvedAnimation(
+      parent: _controller,
+      curve: GlassTokens.easeOut,
+      reverseCurve: GlassTokens.easeOut,
+    );
     _subscription = widget.service.stream.listen(_enqueue);
   }
 
