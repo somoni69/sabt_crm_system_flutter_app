@@ -1,0 +1,392 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../design/glass_surface.dart';
+import '../design/glass_tokens.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
+import 'app_controls.dart';
+
+abstract final class PageInsets {
+  static double top(BuildContext context) =>
+      MediaQuery.paddingOf(context).top + 92;
+
+  static double bottomNav(BuildContext context) =>
+      MediaQuery.paddingOf(context).bottom + 112;
+
+  static double bottomPlain(BuildContext context) =>
+      MediaQuery.paddingOf(context).bottom + 28;
+}
+
+class AppPage extends StatelessWidget {
+  const AppPage({
+    super.key,
+    required this.header,
+    required this.slivers,
+    this.onRefresh,
+    this.controller,
+    this.bottomPadding,
+    this.floatingAction,
+    this.showBottomBarSpace = true,
+    this.scrollPhysics,
+  });
+
+  final Widget header;
+  final List<Widget> slivers;
+  final Future<void> Function()? onRefresh;
+  final ScrollController? controller;
+  final double? bottomPadding;
+  final Widget? floatingAction;
+  final bool showBottomBarSpace;
+  final ScrollPhysics? scrollPhysics;
+
+  @override
+  Widget build(BuildContext context) {
+    final top = PageInsets.top(context);
+    final bottom = bottomPadding ??
+        (showBottomBarSpace
+            ? PageInsets.bottomNav(context)
+            : PageInsets.bottomPlain(context));
+
+    Widget scroll = CustomScrollView(
+      controller: controller,
+      physics: scrollPhysics ??
+          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.only(top: top),
+          sliver: SliverList(delegate: SliverChildListDelegate(slivers)),
+        ),
+        SliverPadding(padding: EdgeInsets.only(bottom: bottom)),
+      ],
+    );
+
+    if (onRefresh != null) {
+      scroll = RefreshIndicator.adaptive(
+        onRefresh: onRefresh!,
+        edgeOffset: top - 12,
+        color: AppColors.accentBright,
+        backgroundColor: AppColors.surface2,
+        child: scroll,
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          Positioned.fill(child: scroll),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: header,
+              ),
+            ),
+          ),
+          if (floatingAction != null)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: showBottomBarSpace
+                  ? MediaQuery.paddingOf(context).bottom + 94
+                  : MediaQuery.paddingOf(context).bottom + 16,
+              child: floatingAction!,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class AppHeader extends StatelessWidget {
+  const AppHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.leading,
+    this.actions = const [],
+    this.onBack,
+    this.blur = GlassTokens.blurLarge,
+  });
+
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+  final List<Widget> actions;
+  final VoidCallback? onBack;
+  final double blur;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassSurface(
+      radius: 24,
+      blur: blur,
+      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+      child: SizedBox(
+        height: 54,
+        child: Row(
+          children: [
+            if (onBack != null)
+              AppIconButton(
+                icon: Icons.arrow_back_ios_new_rounded,
+                size: 40,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  onBack!();
+                },
+              )
+            else if (leading != null)
+              leading!,
+            if (onBack != null || leading != null) const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 16.5,
+                      height: 1.15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.25,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 11.5,
+                        height: 1.15,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (actions.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < actions.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 7),
+                    actions[i],
+                  ],
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PageIntro extends StatelessWidget {
+  const PageIntro({
+    super.key,
+    required this.overline,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+  });
+
+  final String overline;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  overline.toUpperCase(),
+                  style: AppTypography.overline(color: AppColors.accentBright),
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 7),
+                  Text(
+                    subtitle!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textTertiary,
+                          height: 1.45,
+                        ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+        ],
+      ),
+    );
+  }
+}
+
+Future<T?> showGlassSheet<T>({
+  required BuildContext context,
+  required String title,
+  String? subtitle,
+  required Widget child,
+  List<Widget> actions = const [],
+  bool isScrollControlled = true,
+  double maxHeightFactor = 0.88,
+  bool dismissible = true,
+}) {
+  return showModalBottomSheet<T>(
+    context: context,
+    isScrollControlled: isScrollControlled,
+    isDismissible: dismissible,
+    enableDrag: dismissible,
+    useSafeArea: true,
+    barrierColor: Colors.black.withValues(alpha: 0.62),
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) {
+      final media = MediaQuery.of(sheetContext);
+      final width = media.size.width;
+      final horizontal = width > 620 ? (width - 560) / 2 : 10.0;
+      return Padding(
+        padding: EdgeInsets.only(
+          left: horizontal,
+          right: horizontal,
+          bottom: media.viewInsets.bottom + 10,
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: media.size.height * maxHeightFactor),
+          child: GlassSurface(
+            radius: 28,
+            blur: GlassTokens.blurXl,
+            strong: true,
+            padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 38,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                AppSheetHeader(
+                  title: title,
+                  subtitle: subtitle,
+                  onClose: () => Navigator.of(sheetContext).pop(),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: child,
+                  ),
+                ),
+                if (actions.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  GlassHairline(opacity: 0.10),
+                  const SizedBox(height: 14),
+                  ...actions,
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showConfirmSheet({
+  required BuildContext context,
+  required String title,
+  required String message,
+  String confirmLabel = 'Подтвердить',
+  String cancelLabel = 'Отмена',
+  bool danger = false,
+  required Future<void> Function() onConfirm,
+}) async {
+  var busy = false;
+  await showGlassSheet<void>(
+    context: context,
+    title: title,
+    child: StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    label: cancelLabel,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AppButton(
+                    label: confirmLabel,
+                    variant: danger
+                        ? AppButtonVariant.danger
+                        : AppButtonVariant.primary,
+                    loading: busy,
+                    onPressed: () async {
+                      setState(() => busy = true);
+                      try {
+                        await onConfirm();
+                        if (context.mounted) Navigator.of(context).pop();
+                      } finally {
+                        if (context.mounted) setState(() => busy = false);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    ),
+  );
+}

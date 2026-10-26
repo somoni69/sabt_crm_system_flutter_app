@@ -1,0 +1,446 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/network/api_exception.dart';
+import '../../../core/rbac/permissions.dart';
+import '../../../core/state/app_state.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_avatar.dart';
+import '../../../core/widgets/app_controls.dart';
+import '../../../core/widgets/app_page.dart';
+import '../../../core/widgets/app_surfaces.dart';
+import '../../auth/presentation/auth_controller.dart';
+import '../domain/project.dart';
+import 'projects_providers.dart';
+
+enum _ProjectFilter { active, inProgress, planning, completed, archived }
+
+class ProjectsPage extends ConsumerStatefulWidget {
+  const ProjectsPage({
+    super.key,
+    this.embedded = true,
+    this.standalone = false,
+  });
+
+  final bool embedded;
+  final bool standalone;
+
+  @override
+  ConsumerState<ProjectsPage> createState() => _ProjectsPageState();
+}
+
+class _ProjectsPageState extends ConsumerState<ProjectsPage> {
+  final _search = TextEditingController();
+  _ProjectFilter _filter = _ProjectFilter.active;
+  bool _searchOpen = false;
+  String _query = '';
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  bool _matches(ProjectModel project) {
+    switch (_filter) {
+      case _ProjectFilter.active:
+        if (project.isArchived) return false;
+        break;
+      case _ProjectFilter.inProgress:
+        if (project.status != 'in_progress' || project.isArchived) return false;
+        break;
+      case _ProjectFilter.planning:
+        if (project.status != 'planning' || project.isArchived) return false;
+        break;
+      case _ProjectFilter.completed:
+        if (project.status != 'completed' || project.isArchived) return false;
+        break;
+      case _ProjectFilter.archived:
+        if (!project.isArchived) return false;
+        break;
+    }
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return true;
+    return project.name.toLowerCase().contains(query) ||
+        project.projectType.toLowerCase().contains(query) ||
+        (project.manager?.name ?? '').toLowerCase().contains(query);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider);
+    final canSee = canSeeProjects(user);
+    final async = ref.watch(projectsProvider);
+    final snapshot = async.value;
+    final all = snapshot?.data ?? const <ProjectModel>[];
+    final projects = all.where(_matches).toList();
+    final active = all.where((project) => !project.isArchived).length;
+    final inProgress = all.where((project) => project.status == 'in_progress').length;
+    final planning = all.where((project) => project.status == 'planning').length;
+    final completed = all.where((project) => project.status == 'completed').length;
+    final archived = all.where((project) => project.isArchived).length;
+
+    final error = async.error;
+    final errorMessage =
+        error is ApiException ? error.message : 'Не удалось загрузить проекты';
+
+    Future<void> refresh() async {
+      ref.read(dataRevisionProvider.notifier).bump();
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+    }
+
+    return AppPage(
+      showBottomBarSpace: widget.embedded,
+      header: AppHeader(
+        title: 'Проекты',
+        subtitle: all.isEmpty
+            ? 'Портфель агентства'
+            : '$active активных · $inProgress в работе',
+        onBack: widget.standalone ? () => context.pop() : null,
+        actions: [
+          AppIconButton(
+            icon: _searchOpen ? Icons.close_rounded : Icons.search_rounded,
+            size: 40,
+            onPressed: () {
+              setState(() {
+                _searchOpen = !_searchOpen;
+                if (!_searchOpen) {
+                  _search.clear();
+                  _query = '';
+                }
+              });
+            },
+          ),
+        ],
+      ),
+      onRefresh: canSee ? refresh : null,
+      slivers: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!widget.embedded) ...[
+                const PageIntro(
+                  overline: 'ПОРТФЕЛЬ',
+                  title: 'Проекты',
+                  subtitle: 'Прогресс, команда и нормы по каждому клиенту.',
+                ),
+              ],
+              if (!canSee)
+                const EmptyState(
+                  icon: Icons.lock_outline_rounded,
+                  title: 'Раздел недоступен',
+                  message: 'У вашей роли нет доступа к проектам.',
+                )
+              else ...[
+                if (_searchOpen) ...[
+                  AppSearchField(
+                    controller: _search,
+                    hint: 'Название, тип или менеджер',
+                    autofocus: true,
+                    onChanged: (value) => setState(() => _query = value),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      _ProjectFilterChip(
+                        label: 'Активные',
+                        count: active,
+                        active: _filter == _ProjectFilter.active,
+                        onTap: () => setState(() => _filter = _ProjectFilter.active),
+                      ),
+                      const SizedBox(width: 7),
+                      _ProjectFilterChip(
+                        label: 'В работе',
+                        count: inProgress,
+                        active: _filter == _ProjectFilter.inProgress,
+                        onTap: () =>
+                            setState(() => _filter = _ProjectFilter.inProgress),
+                      ),
+                      const SizedBox(width: 7),
+                      _ProjectFilterChip(
+                        label: 'Планирование',
+                        count: planning,
+                        active: _filter == _ProjectFilter.planning,
+                        onTap: () =>
+                            setState(() => _filter = _ProjectFilter.planning),
+                      ),
+                      const SizedBox(width: 7),
+                      _ProjectFilterChip(
+                        label: 'Завершённые',
+                        count: completed,
+                        active: _filter == _ProjectFilter.completed,
+                        tone: ChipTone.success,
+                        onTap: () =>
+                            setState(() => _filter = _ProjectFilter.completed),
+                      ),
+                      const SizedBox(width: 7),
+                      _ProjectFilterChip(
+                        label: 'Архив',
+                        count: archived,
+                        active: _filter == _ProjectFilter.archived,
+                        onTap: () => setState(() => _filter = _ProjectFilter.archived),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (snapshot?.error != null && all.isEmpty)
+                  InlineError(message: errorMessage, onRetry: refresh)
+                else if (async.isLoading && snapshot == null)
+                  const _ProjectsSkeleton()
+                else if (error != null && snapshot == null)
+                  InlineError(message: errorMessage, onRetry: refresh)
+                else if (projects.isEmpty)
+                  EmptyState(
+                    icon: Icons.workspaces_outline,
+                    title: _query.isEmpty ? 'Здесь пока пусто' : 'Проекты не найдены',
+                    message: _query.isEmpty
+                        ? 'Проекты появятся, когда менеджеры заведут клиентов.'
+                        : 'Измените запрос или выберите другой фильтр.',
+                  )
+                else ...[
+                  if (snapshot?.error != null) ...[
+                    OfflineRibbon(
+                      cachedAt: snapshot?.savedAt,
+                      showRetry: true,
+                      onRetry: refresh,
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  for (final project in projects) ...[
+                    _ProjectCard(project: project),
+                    const SizedBox(height: 10),
+                  ],
+                ],
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProjectFilterChip extends StatelessWidget {
+  const _ProjectFilterChip({
+    required this.label,
+    required this.count,
+    required this.active,
+    required this.onTap,
+    this.tone = ChipTone.accent,
+  });
+
+  final String label;
+  final int count;
+  final bool active;
+  final VoidCallback onTap;
+  final ChipTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppChip(
+      label: '$label · $count',
+      tone: active ? tone : ChipTone.neutral,
+      onTap: onTap,
+    );
+  }
+}
+
+class _ProjectCard extends StatelessWidget {
+  const _ProjectCard({required this.project});
+
+  final ProjectModel project;
+
+  IconData get _icon {
+    if (project.isSmm) return Icons.auto_awesome_rounded;
+    if (project.projectType == 'Лендинг') return Icons.web_asset_rounded;
+    if (project.projectType == 'Телеграм бот') return Icons.smart_toy_outlined;
+    if (project.projectType == 'CRM система') return Icons.dashboard_customize_outlined;
+    if (project.isDev) return Icons.code_rounded;
+    return Icons.folder_outlined;
+  }
+
+  Color get _color {
+    if (project.isSmm) return AppColors.accent;
+    if (project.isDev) return AppColors.ice;
+    return AppColors.info;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final completion = project.taskCount > 0
+        ? project.doneTaskCount / project.taskCount
+        : project.progress / 100;
+    final progress = completion.clamp(0.0, 1.0);
+
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(15, 14, 15, 14),
+      radius: 20,
+      onTap: () => context.push('/projects/${project.id}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SurfaceIcon(icon: _icon, color: _color, size: 44),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      project.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.15,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        AppChip(
+                          label: project.typeLabel,
+                          tone: project.isSmm ? ChipTone.accent : ChipTone.info,
+                          compact: true,
+                        ),
+                        const SizedBox(width: 6),
+                        StatusBadge(status: project.status, label: project.statusFieldLabel),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded,
+                  size: 19, color: AppColors.textTertiary),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(99),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 5,
+                    backgroundColor: AppColors.surface3,
+                    valueColor: AlwaysStoppedAnimation(
+                      progress >= 1 ? AppColors.success : _color,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '${(progress * 100).round()}%',
+                style: AppTypography.number(size: 12, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.task_alt_rounded,
+                  size: 13, color: AppColors.textTertiary),
+              const SizedBox(width: 5),
+              Text(
+                project.taskCount == 0
+                    ? 'Задач пока нет'
+                    : '${project.doneTaskCount} из ${project.taskCount} задач',
+                style: const TextStyle(
+                  fontFamily: AppTypography.family,
+                  fontSize: 10.5,
+                  color: AppColors.textTertiary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              if (project.manager != null) ...[
+                AppAvatar(
+                  name: project.manager!.name,
+                  avatar: project.manager!.avatar,
+                  size: 20,
+                ),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    project.manager!.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 10.5,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+              const Spacer(),
+              if (project.hasActiveAd)
+                const AppChip(
+                  label: 'Реклама',
+                  tone: ChipTone.warning,
+                  compact: true,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectsSkeleton extends StatelessWidget {
+  const _ProjectsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < 4; i++) ...[
+          const AppCard(
+            padding: EdgeInsets.all(15),
+            radius: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SkeletonBox(width: 44, height: 44, radius: 14),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SkeletonBox(width: 180, height: 13),
+                          SizedBox(height: 9),
+                          SkeletonBox(width: 100, height: 10),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 18),
+                SkeletonBox(height: 5, radius: 99),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ],
+    );
+  }
+}
