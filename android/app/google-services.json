@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "619703292379",
+    "project_id": "tjsabt-crm",
+    "storage_bucket": "tjsabt-crm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619703292379:android:7d995461a798e86e7e57fe",
+        "android_client_info": {
+          "package_name": "com.webbrand.sabt_crm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdb9kZ16J7pLqVMJP1uRZ09oOrR9E5DBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619703292379:android:09ed608d3ffc5b2d7e57fe",
+        "android_client_info": {
+          "package_name": "tj.sabt.crm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdb9kZ16J7pLqVMJP1uRZ09oOrR9E5DBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

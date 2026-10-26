@@ -34,17 +34,35 @@ abstract final class AppEnv {
     return '$base/ws';
   }
 
-  // ─── Firebase (all optional; app starts without them) ────────────────
-  static const String firebaseApiKey = String.fromEnvironment('FIREBASE_API_KEY');
-  static const String firebaseProjectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
-  static const String firebaseSenderId = String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
-  static const String firebaseStorageBucket = String.fromEnvironment('FIREBASE_STORAGE_BUCKET');
-  static const String firebaseAndroidAppId = String.fromEnvironment('FIREBASE_ANDROID_APP_ID');
-  static const String firebaseIosAppId = String.fromEnvironment('FIREBASE_IOS_APP_ID');
+  // ─── Firebase (defaults to tjsabt-crm, overridable with --dart-define) ─
+  static const String firebaseApiKey = String.fromEnvironment(
+    'FIREBASE_API_KEY',
+    defaultValue: 'AIzaSyBdb9kZ16J7pLqVMJP1uRZ09oOrR9E5DBM',
+  );
+  static const String firebaseProjectId = String.fromEnvironment(
+    'FIREBASE_PROJECT_ID',
+    defaultValue: 'tjsabt-crm',
+  );
+  static const String firebaseSenderId = String.fromEnvironment(
+    'FIREBASE_MESSAGING_SENDER_ID',
+    defaultValue: '619703292379',
+  );
+  static const String firebaseStorageBucket = String.fromEnvironment(
+    'FIREBASE_STORAGE_BUCKET',
+    defaultValue: 'tjsabt-crm.firebasestorage.app',
+  );
+  static const String firebaseAndroidAppId = String.fromEnvironment(
+    'FIREBASE_ANDROID_APP_ID',
+    defaultValue: '1:619703292379:android:7d995461a798e86e7e57fe',
+  );
+  static const String firebaseIosAppId = String.fromEnvironment(
+    'FIREBASE_IOS_APP_ID',
+    defaultValue: '1:619703292379:ios:c9d221921be19eda7e57fe',
+  );
   static const String firebaseWebAppId = String.fromEnvironment('FIREBASE_WEB_APP_ID');
   static const String firebaseIosBundleId = String.fromEnvironment(
     'FIREBASE_IOS_BUNDLE_ID',
-    defaultValue: 'com.webbrand.sabtCrm',
+    defaultValue: 'tj.sabt.crm',
   );
   static const String firebaseWebVapidKey = String.fromEnvironment('FIREBASE_WEB_VAPID_KEY');
 

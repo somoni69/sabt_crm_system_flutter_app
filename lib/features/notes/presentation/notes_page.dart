@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../../../core/dependencies.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
