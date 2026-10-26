@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
@@ -21,11 +19,140 @@ class GlassNavItem {
   final String label;
 }
 
-/// Liquid glass navigation chrome: a floating capsule with a spring-driven
-/// liquid lens and a detached circular action.
+/// How far the lens may travel past the first or last tab, in tab units.
+const navEdgeOverscroll = 0.25;
+
+/// Capsule width of the moving lens. The upper bound stays at least the
+/// lower bound so a narrow split-screen width cannot throw in [num.clamp].
+double navLensWidth({required double tabWidth, required double lift}) {
+  final grown = tabWidth - 10 + lift * 6;
+  final upper = tabWidth + 2;
+  final maxExtent = upper < 40 ? 40.0 : upper;
+  return grown.clamp(40.0, maxExtent).toDouble();
+}
+
+/// Capsule height of the moving lens.
+double navLensHeight(double lift) => 50 + lift * 4;
+
+/// Maps a finger position in tab units onto the lens position.
 ///
-/// Contract: this is the only translucent layer at this Z-plane. The lens is
-/// a solid tinted capsule, not another [BackdropFilter].
+/// [raw] is `localX / tabWidth - 0.5`, so `0` is the center of the first
+/// tab. Inside the tabs the mapping is linear. Past either end it eases
+/// out and then stops at [navEdgeOverscroll].
+double resistNavPosition(double raw, int itemCount) {
+  if (itemCount < 1) return 0;
+  final max = (itemCount - 1).toDouble();
+  final double curved;
+  if (raw < 0) {
+    final diff = -raw;
+    curved = -(1 - (1 / (diff * 0.5 + 1))) * 0.35;
+  } else if (raw > max) {
+    final diff = raw - max;
+    curved = max + (1 - (1 / (diff * 0.5 + 1))) * 0.35;
+  } else {
+    curved = raw;
+  }
+  final limit = max + navEdgeOverscroll;
+  return curved.clamp(-navEdgeOverscroll, limit).toDouble();
+}
+
+/// Tab index selected when a scrub ends.
+///
+/// A release faster than 1.1 tabs/second biases the landing by 0.4 tab in
+/// the flick direction. The result is always inside `0 .. itemCount - 1`.
+int settleNavIndex({
+  required double position,
+  required double velocityTabs,
+  required int itemCount,
+}) {
+  if (itemCount < 1) return 0;
+  final max = itemCount - 1;
+  final stepped = velocityTabs.abs() > 1.1
+      ? position + velocityTabs.sign * 0.4
+      : position;
+  return stepped.round().clamp(0, max);
+}
+
+/// Converts a pointer fling into tabs/second and caps it.
+///
+/// Only the sign affects [settleNavIndex]. The cap keeps the release spring
+/// from throwing the lens far outside the capsule.
+double navFlingVelocity(double pixelsPerSecond, double tabWidth) {
+  if (tabWidth <= 0 || pixelsPerSecond == 0) return 0;
+  return (pixelsPerSecond / tabWidth).clamp(-3.5, 3.5).toDouble();
+}
+
+final BoxDecoration _lensDecoration = BoxDecoration(
+  gradient: LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      AppColors.accent.withValues(alpha: 0.30),
+      AppColors.accentDeep.withValues(alpha: 0.42),
+    ],
+  ),
+  borderRadius: const BorderRadius.all(Radius.circular(GlassTokens.radiusPill)),
+  border: Border.all(color: AppColors.glassRim, width: GlassTokens.hairline),
+);
+
+const _specularDecoration = BoxDecoration(
+  gradient: LinearGradient(
+    colors: [Color(0x00FFFFFF), Color(0x73FFFFFF), Color(0x00FFFFFF)],
+  ),
+);
+
+final BoxDecoration _actionDecoration = BoxDecoration(
+  shape: BoxShape.circle,
+  gradient: const LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppColors.accent, AppColors.accentDeep],
+  ),
+  border: Border.all(color: AppColors.glassRim, width: GlassTokens.hairline),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.32),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: AppColors.accent.withValues(alpha: 0.28),
+      blurRadius: 16,
+      offset: const Offset(0, 8),
+    ),
+  ],
+);
+
+const _labelStyle = TextStyle(
+  fontFamily: AppTypography.family,
+  fontSize: 9.2,
+  height: 1.1,
+  letterSpacing: 0.1,
+  fontWeight: FontWeight.w500,
+);
+
+const _labelStyleActive = TextStyle(
+  fontFamily: AppTypography.family,
+  fontSize: 9.2,
+  height: 1.1,
+  letterSpacing: 0.1,
+  fontWeight: FontWeight.w600,
+);
+
+const SpringDescription _navSpring = SpringDescription(
+  mass: 1,
+  stiffness: 380,
+  damping: 27,
+);
+
+/// Liquid glass navigation chrome: a floating capsule, a spring-driven
+/// lens, and a detached circular action.
+///
+/// The plate is opaque glass: [AppColors.glassTint] composited on the
+/// canvas, plus the shared rim. It stays on screen over scrolling pages and
+/// the ambient layer, so a live [BackdropFilter] would recomposite every
+/// frame on low-end GPUs. The lens is a solid tinted capsule. The action
+/// is an opaque fill — its previous frost sat under a nearly solid gradient.
 class LiquidGlassNavBar extends StatefulWidget {
   const LiquidGlassNavBar({
     super.key,
@@ -36,6 +163,14 @@ class LiquidGlassNavBar extends StatefulWidget {
     this.actionIcon = Icons.add_rounded,
     this.actionTooltip = 'Создать',
   }) : assert(items.length >= 2 && items.length <= 5);
+
+  /// Lens render box, for tests that need to read its position.
+  @visibleForTesting
+  static const Key lensKey = Key('sabt.glassNav.lens');
+
+  /// Tab capsule render box, for tests that need its bounds.
+  @visibleForTesting
+  static const Key capsuleKey = Key('sabt.glassNav.capsule');
 
   final List<GlassNavItem> items;
   final int selectedIndex;
@@ -54,20 +189,19 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
   late final AnimationController _lift;
   late final AnimationController _actionScale;
 
+  late double _goal;
+  int _motionTicket = 0;
   bool _dragging = false;
-  double _lastX = 0;
-  DateTime _lastTime = DateTime.now();
-  double _velocity = 0;
+  bool _reduceMotion = false;
 
   static const _barHeight = 66.0;
 
   @override
   void initState() {
     super.initState();
-    _position = AnimationController.unbounded(
-      vsync: this,
-      value: widget.selectedIndex.toDouble(),
-    );
+    final initial = _clampedIndex(widget.selectedIndex).toDouble();
+    _goal = initial;
+    _position = AnimationController.unbounded(vsync: this, value: initial);
     _lift = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 160),
@@ -85,9 +219,15 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
   @override
   void didUpdateWidget(covariant LiquidGlassNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedIndex != widget.selectedIndex && !_dragging) {
-      _springTo(widget.selectedIndex);
-    }
+    if (_dragging) return;
+    final indexChanged = oldWidget.selectedIndex != widget.selectedIndex;
+    final countChanged = oldWidget.items.length != widget.items.length;
+    if (!indexChanged && !countChanged) return;
+    final target = _clampedIndex(widget.selectedIndex).toDouble();
+    // A scrub already launched this spring, including its release velocity.
+    // Starting again from didUpdateWidget would zero that velocity.
+    if (_goal == target) return;
+    _springTo(widget.selectedIndex);
   }
 
   @override
@@ -98,102 +238,166 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     super.dispose();
   }
 
+  int _clampedIndex(int index) {
+    final max = widget.items.length - 1;
+    if (max < 0) return 0;
+    return index.clamp(0, max);
+  }
+
+  void _syncMotion(bool reduce) {
+    final turnedOn = reduce && !_reduceMotion;
+    _reduceMotion = reduce;
+    if (!turnedOn) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_reduceMotion) return;
+      _motionTicket++;
+      _lift.value = 0;
+      _actionScale.value = 1;
+      if (_dragging) return;
+      _position
+        ..stop()
+        ..value = _goal;
+    });
+  }
+
   void _springTo(int index, {double velocity = 0}) {
+    final target = _clampedIndex(index).toDouble();
+    _goal = target;
+    if (_reduceMotion) {
+      _motionTicket++;
+      _position.stop();
+      _lift.value = 0;
+      _position.value = target;
+      return;
+    }
+    final ticket = ++_motionTicket;
     final simulation = SpringSimulation(
-      const SpringDescription(mass: 1, stiffness: 380, damping: 27),
+      _navSpring,
       _position.value,
-      index.toDouble(),
+      target,
       velocity,
     );
     _lift.forward();
     _position.animateWith(simulation).whenComplete(() {
-      if (!_dragging && mounted) _lift.reverse();
+      if (ticket != _motionTicket || _dragging || !mounted) return;
+      _lift.reverse();
     });
   }
 
-  void _onTap(double x, double tabWidth) {
-    final index = (x / tabWidth)
-        .floor()
-        .clamp(0, widget.items.length - 1);
-    if (index != widget.selectedIndex) {
-      HapticFeedback.lightImpact();
-      widget.onSelected(index);
+  void _commit(int index, {double velocity = 0, bool heavy = false}) {
+    final target = _clampedIndex(index);
+    if (target != widget.selectedIndex) {
+      if (heavy) {
+        HapticFeedback.mediumImpact();
+      } else {
+        HapticFeedback.lightImpact();
+      }
+      widget.onSelected(target);
     }
-    _springTo(index);
+    _springTo(target, velocity: velocity);
   }
 
-  void _onPanStart(DragStartDetails details) {
+  void _onTap(double x, double tabWidth) {
+    if (tabWidth <= 0) return;
+    final index = (x / tabWidth).floor().clamp(0, widget.items.length - 1);
+    _commit(index);
+  }
+
+  void _trackFinger(double localX, double tabWidth) {
+    if (tabWidth <= 0) return;
+    final raw = localX / tabWidth - 0.5;
+    _position.value = resistNavPosition(raw, widget.items.length);
+  }
+
+  void _onPanStart(DragStartDetails details, double tabWidth) {
     _dragging = true;
-    _lastX = details.localPosition.dx;
-    _lastTime = DateTime.now();
-    _velocity = 0;
+    _motionTicket++;
     _position.stop();
-    _lift.forward();
+    if (!_reduceMotion) _lift.forward();
     HapticFeedback.selectionClick();
+    // The accepting sample is not delivered again as an update. A fast scrub
+    // can be one move plus an up, so the lens has to follow this point too.
+    _trackFinger(details.localPosition.dx, tabWidth);
   }
 
   void _onPanUpdate(DragUpdateDetails details, double tabWidth) {
-    final now = DateTime.now();
-    final dt = now.difference(_lastTime).inMicroseconds / 1000000;
-    final dx = details.localPosition.dx - _lastX;
-    if (dt > 0.001) {
-      _velocity = ui.lerpDouble(_velocity, dx / dt, 0.35) ?? 0;
-    }
-    _lastX = details.localPosition.dx;
-    _lastTime = now;
-
-    final raw = details.localPosition.dx / tabWidth - 0.5;
-    final max = (widget.items.length - 1).toDouble();
-    double clamped = raw;
-    if (raw < 0) {
-      final diff = -raw;
-      clamped = -(1 - (1 / (diff * 0.5 + 1))) * 0.35;
-    } else if (raw > max) {
-      final diff = raw - max;
-      clamped = max + (1 - (1 / (diff * 0.5 + 1))) * 0.35;
-    }
-    _position.value = clamped.clamp(-0.25, max + 0.25);
+    _trackFinger(details.localPosition.dx, tabWidth);
   }
 
   void _onPanEnd(DragEndDetails details, double tabWidth) {
     _dragging = false;
-    final max = widget.items.length - 1;
-    final velocityTabs = details.velocity.pixelsPerSecond.dx / tabWidth;
-    int target = velocityTabs.abs() > 1.1
-        ? (_position.value + velocityTabs.sign * 0.4).round()
-        : _position.value.round();
-    target = target.clamp(0, max);
-    if (target != widget.selectedIndex) {
-      HapticFeedback.mediumImpact();
-      widget.onSelected(target);
+    final velocity = navFlingVelocity(
+      details.velocity.pixelsPerSecond.dx,
+      tabWidth,
+    );
+    final target = settleNavIndex(
+      position: _position.value,
+      velocityTabs: velocity,
+      itemCount: widget.items.length,
+    );
+    _commit(target, velocity: velocity, heavy: true);
+  }
+
+  void _onPanCancel() {
+    if (!_dragging) return;
+    _dragging = false;
+    _springTo(widget.selectedIndex);
+  }
+
+  void _setActionPressed(bool pressed) {
+    if (_reduceMotion) return;
+    if (pressed) {
+      _actionScale.reverse();
+    } else {
+      _actionScale.forward();
     }
-    _springTo(target, velocity: velocityTabs);
+  }
+
+  int _visualIndex(double position) {
+    if (!_dragging) return _clampedIndex(widget.selectedIndex);
+    return settleNavIndex(
+      position: position,
+      velocityTabs: 0,
+      itemCount: widget.items.length,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final reduce = MediaQuery.disableAnimationsOf(context);
+    _syncMotion(MediaQuery.disableAnimationsOf(context));
+    // Scaffold consumes viewInsets on its body, so the bar would never see
+    // the keyboard if it read MediaQuery.viewInsetsOf. The view still has them.
+    final keyboard =
+        MediaQueryData.fromView(View.of(context)).viewInsets.bottom > 0;
+    final motion = !_reduceMotion;
+    final slide = motion ? const Duration(milliseconds: 220) : Duration.zero;
+    final fade = motion ? GlassTokens.fast : Duration.zero;
 
-    return SafeArea(
-      top: false,
-      child: AnimatedSlide(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        offset: keyboard ? const Offset(0, 1.4) : Offset.zero,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 160),
-          opacity: keyboard ? 0 : 1,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: SizedBox(
-              height: _barHeight,
-              child: Row(
-                children: [
-                  Expanded(child: _buildCapsule(reduce)),
-                  const SizedBox(width: 12),
-                  _buildAction(reduce),
-                ],
+    return ExcludeSemantics(
+      excluding: keyboard,
+      child: IgnorePointer(
+        ignoring: keyboard,
+        child: SafeArea(
+          top: false,
+          child: AnimatedSlide(
+            duration: slide,
+            curve: Curves.easeOutCubic,
+            offset: keyboard ? const Offset(0, 1.4) : Offset.zero,
+            child: AnimatedOpacity(
+              duration: fade,
+              opacity: keyboard ? 0 : 1,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: SizedBox(
+                  height: _barHeight,
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildCapsule()),
+                      const SizedBox(width: 12),
+                      _buildAction(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -202,115 +406,174 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     );
   }
 
-  Widget _buildCapsule(bool reduce) {
-    return GlassSurface(
-      radius: 999,
-      blur: GlassTokens.blurLarge,
-      padding: EdgeInsets.zero,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final tabWidth = constraints.maxWidth / widget.items.length;
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTapUp: (details) => _onTap(details.localPosition.dx, tabWidth),
-            onPanStart: _onPanStart,
-            onPanUpdate: (details) => _onPanUpdate(details, tabWidth),
-            onPanEnd: (details) => _onPanEnd(details, tabWidth),
-            child: AnimatedBuilder(
-              animation: Listenable.merge([_position, _lift]),
-              builder: (context, _) {
-                final pos = _position.value;
-                final lift = _lift.value;
-                final centerX = (pos + 0.5) * tabWidth;
-                final dropletWidth =
-                    (tabWidth - 10 + lift * 6).clamp(40.0, tabWidth + 2);
-                final dropletHeight = 50 + lift * 4;
-
-                return Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned(
-                      left: centerX - dropletWidth / 2,
-                      top: (_barHeight - dropletHeight) / 2,
-                      width: dropletWidth,
-                      height: dropletHeight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppColors.accent.withValues(alpha: 0.30),
-                              AppColors.accentDeep.withValues(alpha: 0.42),
+  Widget _buildCapsule() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tabWidth = constraints.maxWidth / widget.items.length;
+        return Stack(
+          key: LiquidGlassNavBar.capsuleKey,
+          fit: StackFit.expand,
+          clipBehavior: Clip.none,
+          children: [
+            const GlassSurface(
+              radius: GlassTokens.radiusPill,
+              blurBackdrop: false,
+              padding: EdgeInsets.zero,
+              child: SizedBox.expand(),
+            ),
+            RepaintBoundary(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(GlassTokens.radiusPill),
+                ),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  excludeFromSemantics: true,
+                  onTapUp: (details) =>
+                      _onTap(details.localPosition.dx, tabWidth),
+                  onPanStart: (details) => _onPanStart(details, tabWidth),
+                  onPanUpdate: (details) => _onPanUpdate(details, tabWidth),
+                  onPanEnd: (details) => _onPanEnd(details, tabWidth),
+                  onPanCancel: _onPanCancel,
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([_position, _lift]),
+                    builder: (context, _) {
+                      final pos = _position.value;
+                      final lift = _reduceMotion ? 0.0 : _lift.value;
+                      final lensWidth = navLensWidth(
+                        tabWidth: tabWidth,
+                        lift: lift,
+                      );
+                      final lensHeight = navLensHeight(lift);
+                      final centerX = (pos + 0.5) * tabWidth;
+                      final visual = _visualIndex(pos);
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned(
+                            left: centerX - lensWidth / 2,
+                            top: (_barHeight - lensHeight) / 2,
+                            width: lensWidth,
+                            height: lensHeight,
+                            child: SizedBox.expand(
+                              key: LiquidGlassNavBar.lensKey,
+                              child: DecoratedBox(
+                                decoration: _lensDecoration,
+                                child: const Stack(
+                                  children: [_SpecularLine(top: 5, inset: 12)],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              for (var i = 0; i < widget.items.length; i++)
+                                Expanded(
+                                  child: _NavTab(
+                                    item: widget.items[i],
+                                    position: pos,
+                                    index: i,
+                                    emphasized: visual == i,
+                                    selected: widget.selectedIndex == i,
+                                    reduceMotion: _reduceMotion,
+                                    onTap: () => _commit(i),
+                                  ),
+                                ),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.20),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.accent.withValues(alpha: 0.28),
-                              blurRadius: 18,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        for (var i = 0; i < widget.items.length; i++)
-                          Expanded(
-                            child: _buildTab(
-                              index: i,
-                              position: pos,
-                              tabWidth: tabWidth,
-                              reduce: reduce,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                );
-              },
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildTab({
-    required int index,
-    required double position,
-    required double tabWidth,
-    required bool reduce,
-  }) {
-    final item = widget.items[index];
+  Widget _buildAction() {
+    return Tooltip(
+      message: widget.actionTooltip,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        label: widget.actionTooltip,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => _setActionPressed(true),
+          onTapUp: (_) {
+            _setActionPressed(false);
+            HapticFeedback.mediumImpact();
+            widget.onAction();
+          },
+          onTapCancel: () => _setActionPressed(false),
+          child: ScaleTransition(
+            scale: _actionScale,
+            child: RepaintBoundary(
+              child: SizedBox(
+                width: 62,
+                height: 62,
+                child: DecoratedBox(
+                  decoration: _actionDecoration,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(widget.actionIcon, color: Colors.white, size: 26),
+                      const _SpecularLine(top: 7, inset: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavTab extends StatelessWidget {
+  const _NavTab({
+    required this.item,
+    required this.position,
+    required this.index,
+    required this.emphasized,
+    required this.selected,
+    required this.reduceMotion,
+    required this.onTap,
+  });
+
+  final GlassNavItem item;
+  final double position;
+  final int index;
+  final bool emphasized;
+  final bool selected;
+  final bool reduceMotion;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     final distance = (position - index).abs().clamp(0.0, 1.0);
     final proximity = 1 - distance;
-    final active = widget.selectedIndex == index;
-    final scale = reduce ? 1.0 : 1 + proximity * 0.09;
-    final color = active
-        ? Colors.white
+    final scale = reduceMotion ? 1.0 : 1 + proximity * 0.09;
+    final color = emphasized
+        ? AppColors.text
         : Color.lerp(
             AppColors.textTertiary,
             AppColors.accentBright,
             proximity * 0.55,
           )!;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (!active) {
-          HapticFeedback.lightImpact();
-          widget.onSelected(index);
-        }
-        _springTo(index);
-      },
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: item.label,
+      onTap: onTap,
+      excludeSemantics: true,
       child: Center(
         child: Transform.scale(
           scale: scale,
@@ -318,7 +581,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                active ? item.activeIcon : item.icon,
+                emphasized ? item.activeIcon : item.icon,
                 size: 20.5,
                 color: color,
               ),
@@ -327,12 +590,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                 item.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: AppTypography.family,
-                  fontSize: 9.2,
-                  height: 1.1,
-                  fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                  letterSpacing: 0.1,
+                style: (emphasized ? _labelStyleActive : _labelStyle).copyWith(
                   color: color,
                 ),
               ),
@@ -342,78 +600,23 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
       ),
     );
   }
+}
 
-  Widget _buildAction(bool reduce) {
-    return Tooltip(
-      message: widget.actionTooltip,
-      child: GestureDetector(
-        onTapDown: (_) => _actionScale.reverse(),
-        onTapUp: (_) {
-          _actionScale.forward();
-          HapticFeedback.mediumImpact();
-          widget.onAction();
-        },
-        onTapCancel: () => _actionScale.forward(),
-        child: ScaleTransition(
-          scale: _actionScale,
-          child: Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.accent.withValues(alpha: 0.38),
-                  blurRadius: 28,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: GlassSurface(
-              radius: 999,
-              blur: GlassTokens.blurMedium,
-              strong: true,
-              padding: EdgeInsets.zero,
-              glow: false,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.accent.withValues(alpha: 0.92),
-                          AppColors.accentDeep.withValues(alpha: 0.96),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Icon(widget.actionIcon, color: Colors.white, size: 26),
-                  Positioned(
-                    top: 7,
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      height: 1,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0),
-                            Colors.white.withValues(alpha: 0.45),
-                            Colors.white.withValues(alpha: 0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+class _SpecularLine extends StatelessWidget {
+  const _SpecularLine({required this.top, required this.inset});
+
+  final double top;
+  final double inset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: top,
+      left: inset,
+      right: inset,
+      child: const DecoratedBox(
+        decoration: _specularDecoration,
+        child: SizedBox(height: 1),
       ),
     );
   }
