@@ -6,18 +6,13 @@ import '../../../../core/design/brand_mark.dart';
 import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// The Sabt glass sphere, alive.
+/// Official Sabt icon on the splash and login screens.
 ///
-/// Three layers, each deliberately cheap:
-/// * entrance — a single spring scale/fade as the mark lands;
-/// * breathing — a slow glow pulse and a 3 px float, so the screen feels
-///   awake while the user types. Transform and opacity only;
-/// * specular sweep — a soft light band crossing the sphere on the same
-///   breathing phase, clipped to the circle.
+/// Entrance is a spring scale and fade. A slow float and halo keep the
+/// screen awake while the user waits or types. The mark itself is the
+/// launcher asset, not a drawn letter.
 ///
-/// All tickers stop under reduced motion and when the route is covered
-/// (the framework's [TickerMode] handles the latter). The whole mark is
-/// a [RepaintBoundary]: its glow never repaints the form behind it.
+/// Tickers stop under reduced motion and when the route is covered.
 class AnimatedBrandMark extends StatefulWidget {
   const AnimatedBrandMark({super.key, this.size = 84});
 
@@ -106,35 +101,7 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
                           ),
                         ),
                       ),
-                      SabtGlassMark(size: size, glow: false),
-                      // Specular sweep, clipped to the sphere.
-                      SizedBox(
-                        width: size * 0.86,
-                        height: size * 0.86,
-                        child: ClipOval(
-                          child: Transform.translate(
-                            offset: Offset(
-                              -size * 0.9 + breath * size * 1.8,
-                              -size * 0.18,
-                            ),
-                            child: Transform.rotate(
-                              angle: -0.5,
-                              child: Container(
-                                width: size * 0.34,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0),
-                                      Colors.white.withValues(alpha: 0.14),
-                                      Colors.white.withValues(alpha: 0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      SabtGlassMark(size: size),
                     ],
                   ),
                 ),
