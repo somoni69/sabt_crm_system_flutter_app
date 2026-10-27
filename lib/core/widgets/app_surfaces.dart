@@ -128,6 +128,130 @@ class AppCard extends StatelessWidget {
   }
 }
 
+/// The single hero/header card standard (project, task, client,
+/// employee, profile, dashboard focus, stories control…).
+///
+/// Replaces the eight hand-rolled `Container(gradient: [0xFF1A2032…]) +
+/// OnDark` copies: the surface comes from [AppPalette.heroGradient], so
+/// it is graphite in dark mode and porcelain in light mode, and the
+/// child always reads the ambient palette. Never build a dark gradient
+/// container by hand again — extend this widget's padding/radius only.
+class AppHeroCard extends StatelessWidget {
+  const AppHeroCard({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.fromLTRB(18, 18, 18, 18),
+    this.radius = 24,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        gradient: context.palette.heroGradient,
+        border: Border.all(color: context.palette.heroBorder),
+        boxShadow: context.palette.heroShadow,
+      ),
+      child: child,
+    );
+  }
+}
+
+/// The single filter-chip standard for list screens (tasks, clients,
+/// projects, notes, dev-board…).
+///
+/// Selected = solid brand violet with white text, unselected = quiet
+/// surface. Replaces the per-page `_FilterChip` copies, which drifted
+/// into two different looks (tinted [AppChip] vs. solid accent box).
+class AppFilterChip extends StatelessWidget {
+  const AppFilterChip({
+    super.key,
+    required this.label,
+    required this.active,
+    required this.onTap,
+    this.count,
+    this.tone = ChipTone.accent,
+  });
+
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  /// Shown as `label · count` when non-null.
+  final int? count;
+
+  /// Semantic tint, used only for the small dot / active colour of
+  /// non-accent filters (danger, warning, success, info).
+  final ChipTone tone;
+
+  Color _toneColor(AppPalette palette) => switch (tone) {
+    ChipTone.accent => palette.controlSelected,
+    ChipTone.success => palette.success,
+    ChipTone.danger => palette.danger,
+    ChipTone.warning => palette.warning,
+    ChipTone.info => palette.info,
+    ChipTone.neutral => palette.controlSelected,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final toneColor = _toneColor(palette);
+    final isBrand = tone == ChipTone.accent || tone == ChipTone.neutral;
+    // Selected is always the brand violet; `tone` survives only as a
+    // small semantic dot, never as a different selected colour.
+    final bg = active ? palette.controlSelected : palette.surface2;
+    final fg = active ? palette.onControlSelected : palette.textSecondary;
+    final borderColor = active ? bg : palette.borderSoft;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isBrand) ...[
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: active ? Colors.white : toneColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              count == null ? label : '$label · $count',
+              style: TextStyle(
+                fontFamily: AppTypography.family,
+                fontSize: 12,
+                fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                color: fg,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class SurfaceIcon extends StatelessWidget {
   const SurfaceIcon({
     super.key,
@@ -183,13 +307,13 @@ class AppChip extends StatelessWidget {
   final VoidCallback? onTap;
 
   Color _colorFor(AppPalette palette) => switch (tone) {
-        ChipTone.neutral => palette.textSecondary,
-        ChipTone.accent => palette.accentBright,
-        ChipTone.success => palette.success,
-        ChipTone.danger => palette.danger,
-        ChipTone.warning => palette.warning,
-        ChipTone.info => palette.info,
-      };
+    ChipTone.neutral => palette.textSecondary,
+    ChipTone.accent => palette.accentBright,
+    ChipTone.success => palette.success,
+    ChipTone.danger => palette.danger,
+    ChipTone.warning => palette.warning,
+    ChipTone.info => palette.info,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +335,10 @@ class AppChip extends StatelessWidget {
             Container(
               width: 5,
               height: 5,
-              decoration: BoxDecoration(color: chipColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: chipColor,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: 6),
           ],
@@ -490,12 +617,14 @@ class InlineError extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.palette.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.palette.danger.withValues(alpha: 0.24)),
+        border: Border.all(
+          color: context.palette.danger.withValues(alpha: 0.24),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-           Padding(
+          Padding(
             padding: EdgeInsets.only(top: 1),
             child: Icon(
               Icons.error_outline_rounded,
@@ -507,11 +636,11 @@ class InlineError extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 13,
                 height: 1.4,
-                color: Color(0xFFFFC9CB),
+                color: context.palette.danger,
               ),
             ),
           ),
@@ -550,11 +679,13 @@ class OfflineRibbon extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.palette.warning.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: context.palette.warning.withValues(alpha: 0.18)),
+        border: Border.all(
+          color: context.palette.warning.withValues(alpha: 0.18),
+        ),
       ),
       child: Row(
         children: [
-           Icon(
+          Icon(
             Icons.cloud_off_rounded,
             size: 15,
             color: context.palette.warning,
@@ -565,18 +696,18 @@ class OfflineRibbon extends StatelessWidget {
               cachedAt == null
                   ? 'Нет сети — показаны сохранённые данные'
                   : 'Нет сети — данные от ${_hhmm(cachedAt!)}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFFFFD79A),
+                color: context.palette.warning,
               ),
             ),
           ),
           if (showRetry && onRetry != null)
             GestureDetector(
               onTap: onRetry,
-              child:  Text(
+              child: Text(
                 'Обновить',
                 style: TextStyle(
                   fontFamily: AppTypography.family,
@@ -661,7 +792,7 @@ class _SkeletonBoxState extends State<SkeletonBox>
             gradient: LinearGradient(
               begin: Alignment(x - 1, 0),
               end: Alignment(x + 1, 0),
-              colors:  [
+              colors: [
                 context.palette.surface2,
                 context.palette.surface3,
                 context.palette.surface2,
@@ -703,7 +834,7 @@ class KeyValueRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style:  TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 13,
                 color: context.palette.textTertiary,
@@ -725,7 +856,7 @@ class KeyValueRow extends StatelessWidget {
           ),
           if (onTap != null) ...[
             const SizedBox(width: 4),
-             Icon(
+            Icon(
               Icons.chevron_right_rounded,
               size: 17,
               color: context.palette.textTertiary,
@@ -776,7 +907,7 @@ class AccentNote extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style:  TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 11,
                 height: 1.45,

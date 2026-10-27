@@ -8,7 +8,6 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_banner.dart';
@@ -518,168 +517,152 @@ class _ClientHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A2032), Color(0xFF111624), Color(0xFF171229)],
-        ),
-        border: Border.all(
-          color: client.callRequested
-              ? context.palette.warning.withValues(alpha: 0.35)
-              : context.palette.borderSoft,
-        ),
-      ),
-      child: OnDark(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SurfaceIcon(
-                  icon: client.isDev
-                      ? Icons.code_rounded
-                      : Icons.auto_awesome_rounded,
-                  color: client.isDev
-                      ? context.palette.ice
-                      : context.palette.accent,
-                  size: 48,
-                  radius: 15,
-                ),
-                const SizedBox(width: 13),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          AppChip(
-                            label: client.statusLabel,
-                            tone: _statusTone,
-                            compact: true,
-                            dot: true,
-                          ),
-                          AppChip(
-                            label: client.interestLabel,
-                            tone: _interestTone,
-                            compact: true,
-                          ),
-                          AppChip(
-                            label: client.directionLabel,
-                            tone: ChipTone.neutral,
-                            compact: true,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 9),
-                      Text(
-                        client.name,
-                        style: TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 23,
-                          height: 1.18,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.4,
-                          color: context.palette.text,
+    return AppHeroCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SurfaceIcon(
+                icon: client.isDev
+                    ? Icons.code_rounded
+                    : Icons.auto_awesome_rounded,
+                color: client.isDev
+                    ? context.palette.ice
+                    : context.palette.accent,
+                size: 48,
+                radius: 15,
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        AppChip(
+                          label: client.statusLabel,
+                          tone: _statusTone,
+                          compact: true,
+                          dot: true,
                         ),
-                      ),
-                      if (client.sphere != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          client.sphere!,
-                          style: TextStyle(
-                            fontFamily: AppTypography.family,
-                            fontSize: 11.5,
-                            color: context.palette.textTertiary,
-                          ),
+                        AppChip(
+                          label: client.interestLabel,
+                          tone: _interestTone,
+                          compact: true,
+                        ),
+                        AppChip(
+                          label: client.directionLabel,
+                          tone: ChipTone.neutral,
+                          compact: true,
                         ),
                       ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (client.callRequested) ...[
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
-                decoration: BoxDecoration(
-                  color: context.palette.warning.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(13),
-                  border: Border.all(
-                    color: context.palette.warning.withValues(alpha: 0.24),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.campaign_outlined,
-                      size: 16,
-                      color: context.palette.warning,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        client.callRequestedByName == null
-                            ? 'Руководитель просит позвонить клиенту'
-                            : '${client.callRequestedByName} просит позвонить клиенту',
-                        style: const TextStyle(
+                    const SizedBox(height: 9),
+                    Text(
+                      client.name,
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 23,
+                        height: 1.18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.4,
+                        color: context.palette.text,
+                      ),
+                    ),
+                    if (client.sphere != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        client.sphere!,
+                        style: TextStyle(
                           fontFamily: AppTypography.family,
-                          fontSize: 11,
-                          height: 1.35,
-                          color: Color(0xFFFFD79A),
+                          fontSize: 11.5,
+                          color: context.palette.textTertiary,
                         ),
                       ),
-                    ),
-                    if (canEdit)
-                      TextButton(
-                        onPressed: busy ? null : onClearRequest,
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          minimumSize: const Size(0, 28),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Text('Снять'),
-                      ),
+                    ],
                   ],
                 ),
               ),
             ],
-            if (client.dealPotential != null && client.dealPotential! > 0) ...[
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+          ),
+          if (client.callRequested) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+              decoration: BoxDecoration(
+                color: context.palette.warning.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(13),
+                border: Border.all(
+                  color: context.palette.warning.withValues(alpha: 0.24),
+                ),
+              ),
+              child: Row(
                 children: [
-                  Text(
-                    Money.somoni(client.dealPotential),
-                    style: AppTypography.number(
-                      size: 27,
-                      color: context.palette.text,
-                    ),
+                  Icon(
+                    Icons.campaign_outlined,
+                    size: 16,
+                    color: context.palette.warning,
                   ),
                   const SizedBox(width: 8),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 4),
+                  Expanded(
                     child: Text(
-                      'потенциал сделки',
+                      client.callRequestedByName == null
+                          ? 'Руководитель просит позвонить клиенту'
+                          : '${client.callRequestedByName} просит позвонить клиенту',
                       style: TextStyle(
                         fontFamily: AppTypography.family,
-                        fontSize: 10.5,
-                        color: context.palette.textTertiary,
+                        fontSize: 11,
+                        height: 1.35,
+                        color: context.palette.warning,
                       ),
                     ),
                   ),
+                  if (canEdit)
+                    TextButton(
+                      onPressed: busy ? null : onClearRequest,
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        minimumSize: const Size(0, 28),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('Снять'),
+                    ),
                 ],
               ),
-            ],
+            ),
           ],
-        ),
+          if (client.dealPotential != null && client.dealPotential! > 0) ...[
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  Money.somoni(client.dealPotential),
+                  style: AppTypography.number(
+                    size: 27,
+                    color: context.palette.text,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    'потенциал сделки',
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 10.5,
+                      color: context.palette.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

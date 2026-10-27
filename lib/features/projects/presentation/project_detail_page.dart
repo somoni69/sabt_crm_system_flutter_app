@@ -6,7 +6,6 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -69,7 +68,6 @@ class ProjectDetailPage extends ConsumerWidget {
               icon: Icons.add_task_rounded,
               size: 40,
               filled: true,
-              color: Colors.white,
               onPressed: () =>
                   showTaskForm(context, ref, projectId: project.id),
               tooltip: 'Задача в проект',
@@ -422,149 +420,134 @@ class _ProjectHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A2032), Color(0xFF111624), Color(0xFF171229)],
-          stops: [0, 0.6, 1],
-        ),
-        border: Border.all(color: context.palette.borderSoft),
-      ),
-      child: OnDark(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SurfaceIcon(
-                  icon: _icon,
-                  color: project.isSmm
-                      ? context.palette.accent
-                      : context.palette.ice,
-                  size: 48,
-                  radius: 15,
-                ),
-                const SizedBox(width: 13),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          AppChip(
-                            label: project.typeLabel,
-                            tone: project.isSmm
-                                ? ChipTone.accent
-                                : ChipTone.info,
-                            compact: true,
-                          ),
-                          StatusBadge(
-                            status: project.status,
-                            label: project.statusFieldLabel,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 9),
-                      Text(
-                        project.name,
-                        style: TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 22,
-                          height: 1.2,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.4,
-                          color: context.palette.text,
+    return AppHeroCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SurfaceIcon(
+                icon: _icon,
+                color: project.isSmm
+                    ? context.palette.accent
+                    : context.palette.ice,
+                size: 48,
+                radius: 15,
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        AppChip(
+                          label: project.typeLabel,
+                          tone: project.isSmm ? ChipTone.accent : ChipTone.info,
+                          compact: true,
                         ),
+                        StatusBadge(
+                          status: project.status,
+                          label: project.statusFieldLabel,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 9),
+                    Text(
+                      project.name,
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 22,
+                        height: 1.2,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.4,
+                        color: context.palette.text,
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (project.description != null &&
-                project.description!.trim().isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                project.description!,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: AppTypography.family,
-                  fontSize: 12,
-                  height: 1.5,
-                  color: context.palette.textTertiary,
+                    ),
+                  ],
                 ),
               ),
             ],
-            const SizedBox(height: 18),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${(completion * 100).round()}',
-                  style: AppTypography.number(
-                    size: 44,
-                    color: completion >= 1
-                        ? context.palette.success
-                        : context.palette.text,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6, left: 2),
-                  child: Text(
-                    '%',
-                    style: AppTypography.number(
-                      size: 16,
-                      color: completion >= 1
-                          ? context.palette.success
-                          : context.palette.textTertiary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    'готовность проекта',
-                    style: TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 11,
-                      color: context.palette.textTertiary,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                if (project.hasActiveAd)
-                  const AppChip(
-                    label: 'Активная реклама',
-                    tone: ChipTone.warning,
-                    compact: true,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: completion.clamp(0.0, 1.0),
-                minHeight: 6,
-                backgroundColor: context.palette.surface3,
-                valueColor: AlwaysStoppedAnimation(
-                  completion >= 1
-                      ? context.palette.success
-                      : context.palette.accent,
-                ),
+          ),
+          if (project.description != null &&
+              project.description!.trim().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              project.description!,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: AppTypography.family,
+                fontSize: 12,
+                height: 1.5,
+                color: context.palette.textTertiary,
               ),
             ),
           ],
-        ),
+          const SizedBox(height: 18),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${(completion * 100).round()}',
+                style: AppTypography.number(
+                  size: 44,
+                  color: completion >= 1
+                      ? context.palette.success
+                      : context.palette.text,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6, left: 2),
+                child: Text(
+                  '%',
+                  style: AppTypography.number(
+                    size: 16,
+                    color: completion >= 1
+                        ? context.palette.success
+                        : context.palette.textTertiary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'готовность проекта',
+                  style: TextStyle(
+                    fontFamily: AppTypography.family,
+                    fontSize: 11,
+                    color: context.palette.textTertiary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              if (project.hasActiveAd)
+                const AppChip(
+                  label: 'Активная реклама',
+                  tone: ChipTone.warning,
+                  compact: true,
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: completion.clamp(0.0, 1.0),
+              minHeight: 6,
+              backgroundColor: context.palette.surface3,
+              valueColor: AlwaysStoppedAnimation(
+                completion >= 1
+                    ? context.palette.success
+                    : context.palette.accent,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -173,21 +173,21 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
                   physics: const BouncingScrollPhysics(),
                   child: Row(
                     children: [
-                      _FilterChip(
+                      AppFilterChip(
                         label: 'Все',
                         count: all.length,
                         active: _filter == _ClientFilter.all,
                         onTap: () => setState(() => _filter = _ClientFilter.all),
                       ),
                       const SizedBox(width: 7),
-                      _FilterChip(
+                      AppFilterChip(
                         label: 'Активные',
                         count: activeCount,
                         active: _filter == _ClientFilter.active,
                         onTap: () => setState(() => _filter = _ClientFilter.active),
                       ),
                       const SizedBox(width: 7),
-                      _FilterChip(
+                      AppFilterChip(
                         label: 'Новые',
                         count: freshCount,
                         active: _filter == _ClientFilter.fresh,
@@ -195,7 +195,7 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
                         onTap: () => setState(() => _filter = _ClientFilter.fresh),
                       ),
                       const SizedBox(width: 7),
-                      _FilterChip(
+                      AppFilterChip(
                         label: 'В работе',
                         count: progressCount,
                         active: _filter == _ClientFilter.inProgress,
@@ -203,7 +203,7 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
                         onTap: () => setState(() => _filter = _ClientFilter.inProgress),
                       ),
                       const SizedBox(width: 7),
-                      _FilterChip(
+                      AppFilterChip(
                         label: 'Клиенты',
                         count: wonCount,
                         active: _filter == _ClientFilter.won,
@@ -211,7 +211,7 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
                         onTap: () => setState(() => _filter = _ClientFilter.won),
                       ),
                       const SizedBox(width: 7),
-                      _FilterChip(
+                      AppFilterChip(
                         label: 'Отказ',
                         count: lostCount,
                         active: _filter == _ClientFilter.lost,
@@ -260,31 +260,6 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.count,
-    required this.active,
-    required this.onTap,
-    this.tone = ChipTone.accent,
-  });
-
-  final String label;
-  final int count;
-  final bool active;
-  final VoidCallback onTap;
-  final ChipTone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppChip(
-      label: '$label · $count',
-      tone: active ? tone : ChipTone.neutral,
-      onTap: onTap,
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -422,188 +421,162 @@ class _FocusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final allDone = tasks == 0;
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF191F32), Color(0xFF111624), Color(0xFF151128)],
-          stops: [0, 0.55, 1],
-        ),
-        border: Border.all(
-          color: context.palette.accent.withValues(alpha: 0.18),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 26,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
+    return AppHeroCard(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-      child: OnDark(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'ФОКУС ДНЯ',
-                  style: AppTypography.overline(
-                    color: context.palette.accentBright,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'ФОКУС ДНЯ',
+                style: AppTypography.overline(
+                  color: context.palette.accentBright,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                decoration: BoxDecoration(
+                  color: context.palette.surface2,
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(color: context.palette.borderSoft),
+                ),
+                child: Text(
+                  '${BizDate.weekdayShort(today)}, ${BizDate.dateShort(today)}',
+                  style: TextStyle(
+                    fontFamily: AppTypography.family,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: context.palette.textSecondary,
                   ),
                 ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(99),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  child: Text(
-                    '${BizDate.weekdayShort(today)}, ${BizDate.dateShort(today)}',
-                    style: TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: context.palette.textSecondary,
-                    ),
-                  ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                allDone ? '0' : '$tasks',
+                style: AppTypography.number(
+                  size: 54,
+                  color: allDone
+                      ? context.palette.success
+                      : context.palette.text,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 7),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      allDone ? 'Всё закрыто' : 'на сегодня',
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: context.palette.text,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      allDone
+                          ? 'Можно планировать следующее'
+                          : overdue > 0
+                          ? '$overdue просрочено'
+                          : 'Дедлайны под контролем',
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w500,
+                        color: overdue > 0
+                            ? context.palette.danger
+                            : context.palette.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (showsStories) ...[
             const SizedBox(height: 14),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Icon(
+                  Icons.auto_awesome_motion_rounded,
+                  size: 14,
+                  color: context.palette.ice,
+                ),
+                const SizedBox(width: 6),
                 Text(
-                  allDone ? '0' : '$tasks',
-                  style: AppTypography.number(
-                    size: 54,
-                    color: allDone
-                        ? context.palette.success
-                        : context.palette.text,
+                  'Сторис: $storiesDone / $storiesTarget',
+                  style: TextStyle(
+                    fontFamily: AppTypography.family,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(width: 10),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 7),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        allDone ? 'Всё закрыто' : 'на сегодня',
-                        style: TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: context.palette.text,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        allDone
-                            ? 'Можно планировать следующее'
-                            : overdue > 0
-                            ? '$overdue просрочено'
-                            : 'Дедлайны под контролем',
-                        style: TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w500,
-                          color: overdue > 0
-                              ? context.palette.danger
-                              : context.palette.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (showsStories) ...[
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Icon(
-                    Icons.auto_awesome_motion_rounded,
-                    size: 14,
-                    color: context.palette.ice,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Сторис: $storiesDone / $storiesTarget',
-                    style: TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w500,
-                      color: context.palette.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
-                      child: LinearProgressIndicator(
-                        value: storiesTarget <= 0
-                            ? 0
-                            : (storiesDone / storiesTarget).clamp(0, 1),
-                        minHeight: 4,
-                        backgroundColor: context.palette.surface3,
-                        valueColor: AlwaysStoppedAnimation(context.palette.ice),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 16),
-            Row(
-              children: [
                 Expanded(
-                  child: AppButton(
-                    label: 'Задачи',
-                    icon: Icons.checklist_rounded,
-                    compact: true,
-                    variant: AppButtonVariant.secondary,
-                    onPressed: onTasks,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(99),
+                    child: LinearProgressIndicator(
+                      value: storiesTarget <= 0
+                          ? 0
+                          : (storiesDone / storiesTarget).clamp(0, 1),
+                      minHeight: 4,
+                      backgroundColor: context.palette.surface3,
+                      valueColor: AlwaysStoppedAnimation(context.palette.ice),
+                    ),
                   ),
                 ),
-                if (canCalendar) ...[
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: AppButton(
-                      label: 'Календарь',
-                      icon: Icons.calendar_month_rounded,
-                      compact: true,
-                      onPressed: onCalendar,
-                    ),
-                  ),
-                ],
-                if (canCheck) ...[
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: AppButton(
-                      label: 'Проверки',
-                      icon: Icons.fact_check_outlined,
-                      compact: true,
-                      variant: AppButtonVariant.secondary,
-                      onPressed: onCheck,
-                    ),
-                  ),
-                ],
               ],
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Задачи',
+                  icon: Icons.checklist_rounded,
+                  compact: true,
+                  variant: AppButtonVariant.secondary,
+                  onPressed: onTasks,
+                ),
+              ),
+              if (canCalendar) ...[
+                const SizedBox(width: 9),
+                Expanded(
+                  child: AppButton(
+                    label: 'Календарь',
+                    icon: Icons.calendar_month_rounded,
+                    compact: true,
+                    onPressed: onCalendar,
+                  ),
+                ),
+              ],
+              if (canCheck) ...[
+                const SizedBox(width: 9),
+                Expanded(
+                  child: AppButton(
+                    label: 'Проверки',
+                    icon: Icons.fact_check_outlined,
+                    compact: true,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: onCheck,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -617,63 +590,52 @@ class _ControlCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppHeroCard(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A2130), Color(0xFF111624)],
-        ),
-        border: Border.all(color: context.palette.borderSoft),
-      ),
-      child: OnDark(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                SurfaceIcon(
-                  icon: Icons.fact_check_outlined,
-                  color: context.palette.success,
-                  size: 46,
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Контроль качества',
-                        style: Theme.of(context).textTheme.titleMedium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SurfaceIcon(
+                icon: Icons.fact_check_outlined,
+                color: context.palette.success,
+                size: 46,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Контроль качества',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Проверьте, как проекты закрывают дневную норму сторис.',
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 12,
+                        height: 1.4,
+                        color: context.palette.textTertiary,
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        'Проверьте, как проекты закрывают дневную норму сторис.',
-                        style: TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 12,
-                          height: 1.4,
-                          color: context.palette.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            if (canCheck) ...[
-              const SizedBox(height: 16),
-              AppButton(
-                label: 'Открыть проверки',
-                icon: Icons.arrow_forward_rounded,
-                compact: true,
-                onPressed: onCheck,
               ),
             ],
+          ),
+          if (canCheck) ...[
+            const SizedBox(height: 16),
+            AppButton(
+              label: 'Открыть проверки',
+              icon: Icons.arrow_forward_rounded,
+              compact: true,
+              onPressed: onCheck,
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

@@ -158,7 +158,7 @@ class _OtpFieldState extends State<OtpField>
                     padding: const EdgeInsets.fromLTRB(4, 7, 4, 0),
                     child: Row(
                       children: [
-                         Icon(
+                        Icon(
                           Icons.error_outline_rounded,
                           size: 13,
                           color: context.palette.danger,
@@ -167,11 +167,11 @@ class _OtpFieldState extends State<OtpField>
                         Expanded(
                           child: Text(
                             widget.errorText!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: AppTypography.family,
                               fontSize: 11.5,
                               height: 1.3,
-                              color: Color(0xFFFFC9CB),
+                              color: context.palette.danger,
                             ),
                           ),
                         ),
@@ -250,7 +250,7 @@ class _OtpCell extends StatelessWidget {
               ? Text(
                   char!,
                   key: ValueKey('otp-$char'),
-                  style:  TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 21,
                     height: 1,
@@ -284,7 +284,7 @@ class _OtpCell extends StatelessWidget {
                   key: const ValueKey('otp-dot'),
                   width: 5,
                   height: 5,
-                  decoration:  BoxDecoration(
+                  decoration: BoxDecoration(
                     color: context.palette.textDisabled,
                     shape: BoxShape.circle,
                   ),

@@ -6,7 +6,6 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -271,103 +270,93 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = data.total == 0 ? 0.0 : data.done / data.total;
 
-    return Container(
+    return AppHeroCard(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A2032), Color(0xFF111624), Color(0xFF171229)],
-        ),
-        border: Border.all(color: context.palette.borderSoft),
-      ),
-      child: OnDark(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${data.done}',
-                  style: AppTypography.number(
-                    size: 44,
-                    color: data.allDone
-                        ? context.palette.success
-                        : context.palette.text,
-                  ),
-                ),
-                const SizedBox(width: 3),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    '/ ${data.total}',
-                    style: AppTypography.number(
-                      size: 17,
-                      color: context.palette.textTertiary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    'проектов закрыли норму',
-                    style: TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 11,
-                      color: context.palette.textTertiary,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                AppChip(
-                  label: data.allDone ? 'Норма' : 'Контроль',
-                  tone: data.allDone ? ChipTone.success : ChipTone.warning,
-                  compact: true,
-                ),
-              ],
-            ),
-            const SizedBox(height: 11),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 6,
-                backgroundColor: context.palette.surface3,
-                valueColor: AlwaysStoppedAnimation(
-                  data.allDone ? context.palette.success : context.palette.ice,
+      radius: 22,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${data.done}',
+                style: AppTypography.number(
+                  size: 44,
+                  color: data.allDone
+                      ? context.palette.success
+                      : context.palette.text,
                 ),
               ),
+              const SizedBox(width: 3),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  '/ ${data.total}',
+                  style: AppTypography.number(
+                    size: 17,
+                    color: context.palette.textTertiary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'проектов закрыли норму',
+                  style: TextStyle(
+                    fontFamily: AppTypography.family,
+                    fontSize: 11,
+                    color: context.palette.textTertiary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              AppChip(
+                label: data.allDone ? 'Норма' : 'Контроль',
+                tone: data.allDone ? ChipTone.success : ChipTone.warning,
+                compact: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 11),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: context.palette.surface3,
+              valueColor: AlwaysStoppedAnimation(
+                data.allDone ? context.palette.success : context.palette.ice,
+              ),
             ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                _Count(
-                  label: 'Готово',
-                  value: data.done,
-                  color: context.palette.success,
-                  icon: Icons.check_circle_outline_rounded,
-                ),
-                const SizedBox(width: 14),
-                _Count(
-                  label: 'Частично',
-                  value: data.partial,
-                  color: context.palette.warning,
-                  icon: Icons.contrast_rounded,
-                ),
-                const SizedBox(width: 14),
-                _Count(
-                  label: 'Не отмечено',
-                  value: data.none,
-                  color: context.palette.danger,
-                  icon: Icons.radio_button_unchecked_rounded,
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _Count(
+                label: 'Готово',
+                value: data.done,
+                color: context.palette.success,
+                icon: Icons.check_circle_outline_rounded,
+              ),
+              const SizedBox(width: 14),
+              _Count(
+                label: 'Частично',
+                value: data.partial,
+                color: context.palette.warning,
+                icon: Icons.contrast_rounded,
+              ),
+              const SizedBox(width: 14),
+              _Count(
+                label: 'Не отмечено',
+                value: data.none,
+                color: context.palette.danger,
+                icon: Icons.radio_button_unchecked_rounded,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

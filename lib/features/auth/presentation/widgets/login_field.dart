@@ -165,7 +165,7 @@ class _LoginFieldState extends State<LoginField> {
                       enableSuggestions: !widget.obscureText,
                       maxLength: widget.maxLength,
                       inputFormatters: widget.inputFormatters,
-                      style:  TextStyle(
+                      style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 15,
                         height: 1.2,
@@ -181,7 +181,7 @@ class _LoginFieldState extends State<LoginField> {
                         filled: false,
                         counterText: '',
                         hintText: widget.hint,
-                        hintStyle:  TextStyle(
+                        hintStyle: TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 15,
                           color: context.palette.textDisabled,
@@ -206,7 +206,7 @@ class _LoginFieldState extends State<LoginField> {
                   padding: const EdgeInsets.fromLTRB(4, 7, 4, 0),
                   child: Row(
                     children: [
-                       Icon(
+                      Icon(
                         Icons.error_outline_rounded,
                         size: 13,
                         color: context.palette.danger,
@@ -215,11 +215,11 @@ class _LoginFieldState extends State<LoginField> {
                       Expanded(
                         child: Text(
                           widget.errorText!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 11.5,
                             height: 1.3,
-                            color: Color(0xFFFFC9CB),
+                            color: context.palette.danger,
                           ),
                         ),
                       ),

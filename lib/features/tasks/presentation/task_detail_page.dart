@@ -10,7 +10,6 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/api_urls.dart';
 import '../../../core/utils/date_utils.dart';
@@ -1202,137 +1201,121 @@ class _TaskHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppHeroCard(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A2032), Color(0xFF111624), Color(0xFF171229)],
-          stops: [0, 0.6, 1],
-        ),
-        border: Border.all(
-          color: task.isOverdue
-              ? context.palette.danger.withValues(alpha: 0.28)
-              : context.palette.borderSoft,
-        ),
-      ),
-      child: OnDark(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: 7,
-              runSpacing: 6,
-              children: [
-                StatusBadge(
-                  status: task.status,
-                  label: _statusLabel(task.status),
-                ),
-                AppChip(
-                  label:
-                      (const {
-                        'low': 'Низкий',
-                        'medium': 'Средний',
-                        'high': 'Высокий',
-                        'critical': 'Критичный',
-                      }[task.priority]) ??
-                      task.priority,
-                  tone: switch (task.priority) {
-                    'critical' => ChipTone.danger,
-                    'high' => ChipTone.warning,
-                    'medium' => ChipTone.info,
-                    _ => ChipTone.neutral,
-                  },
-                  dot: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 7,
+            runSpacing: 6,
+            children: [
+              StatusBadge(
+                status: task.status,
+                label: _statusLabel(task.status),
+              ),
+              AppChip(
+                label:
+                    (const {
+                      'low': 'Низкий',
+                      'medium': 'Средний',
+                      'high': 'Высокий',
+                      'critical': 'Критичный',
+                    }[task.priority]) ??
+                    task.priority,
+                tone: switch (task.priority) {
+                  'critical' => ChipTone.danger,
+                  'high' => ChipTone.warning,
+                  'medium' => ChipTone.info,
+                  _ => ChipTone.neutral,
+                },
+                dot: true,
+                compact: true,
+              ),
+              if (task.isMeeting)
+                const AppChip(
+                  label: 'Встреча',
+                  tone: ChipTone.info,
+                  icon: Icons.videocam_outlined,
                   compact: true,
                 ),
-                if (task.isMeeting)
-                  const AppChip(
-                    label: 'Встреча',
-                    tone: ChipTone.info,
-                    icon: Icons.videocam_outlined,
-                    compact: true,
-                  ),
-                if (task.isPersonal)
-                  const AppChip(
-                    label: 'Личная',
-                    tone: ChipTone.neutral,
-                    compact: true,
-                  ),
-                if (task.fromFounder)
-                  const AppChip(
-                    label: 'От руководства',
-                    tone: ChipTone.accent,
-                    icon: Icons.workspace_premium_rounded,
-                    compact: true,
-                  ),
-              ],
+              if (task.isPersonal)
+                const AppChip(
+                  label: 'Личная',
+                  tone: ChipTone.neutral,
+                  compact: true,
+                ),
+              if (task.fromFounder)
+                const AppChip(
+                  label: 'От руководства',
+                  tone: ChipTone.accent,
+                  icon: Icons.workspace_premium_rounded,
+                  compact: true,
+                ),
+            ],
+          ),
+          const SizedBox(height: 13),
+          Text(
+            task.title,
+            style: TextStyle(
+              fontFamily: AppTypography.family,
+              fontSize: 22,
+              height: 1.22,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.4,
+              color: context.palette.text,
             ),
-            const SizedBox(height: 13),
-            Text(
-              task.title,
-              style: TextStyle(
-                fontFamily: AppTypography.family,
-                fontSize: 22,
-                height: 1.22,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.4,
-                color: context.palette.text,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                task.isOverdue
+                    ? Icons.error_outline_rounded
+                    : Icons.schedule_rounded,
+                size: 14,
+                color: task.isOverdue
+                    ? context.palette.danger
+                    : task.isDueToday
+                    ? context.palette.warning
+                    : context.palette.textTertiary,
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  task.isOverdue
-                      ? Icons.error_outline_rounded
-                      : Icons.schedule_rounded,
-                  size: 14,
+              const SizedBox(width: 5),
+              Text(
+                task.deadlineLabel,
+                style: TextStyle(
+                  fontFamily: AppTypography.family,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
                   color: task.isOverdue
                       ? context.palette.danger
                       : task.isDueToday
                       ? context.palette.warning
-                      : context.palette.textTertiary,
+                      : context.palette.textSecondary,
                 ),
-                const SizedBox(width: 5),
-                Text(
-                  task.deadlineLabel,
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.folder_outlined,
+                size: 13,
+                color: context.palette.textTertiary,
+              ),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  task.projectLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: task.isOverdue
-                        ? context.palette.danger
-                        : task.isDueToday
-                        ? context.palette.warning
-                        : context.palette.textSecondary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Icon(
-                  Icons.folder_outlined,
-                  size: 13,
-                  color: context.palette.textTertiary,
-                ),
-                const SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    task.projectLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 11.5,
-                      color: context.palette.textTertiary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

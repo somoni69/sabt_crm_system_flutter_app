@@ -274,33 +274,12 @@ class AppTheme {
   }
 }
 
-/// Pins its subtree to the dark palette, whatever the app theme is.
-///
-/// For surfaces that are dark by design in both themes — the gradient
-/// hero cards (day focus, project/task/profile headers). Without this
-/// scope, a hero's text reads `context.palette` from the LIGHT theme
-/// in light mode and renders dark-on-dark. Inside [OnDark], palette,
-/// colour scheme and text theme all resolve to the dark preset, so the
-/// hero is a self-contained dark world.
-class OnDark extends StatelessWidget {
-  const OnDark({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = AppTheme.dark;
-    return Theme(
-      data: Theme.of(context).copyWith(
-        brightness: Brightness.dark,
-        colorScheme: dark.colorScheme,
-        textTheme: dark.textTheme,
-        extensions: [AppPalette.dark],
-      ),
-      child: child,
-    );
-  }
-}
+// NOTE: there is deliberately no `OnDark` scope any more. It pinned a
+// subtree to the dark palette but could not recolour styles already
+// computed in the parent's build method, which is exactly how heroes
+// rendered dark-on-dark in light mode. Hero surfaces now follow the
+// app theme through AppHeroCard / AppPalette.heroGradient — see
+// app_surfaces.dart. Do not reintroduce a theme-pinning wrapper.
 
 class _LiquidTransitionsBuilder extends PageTransitionsBuilder {
   const _LiquidTransitionsBuilder();

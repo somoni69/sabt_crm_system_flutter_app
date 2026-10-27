@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/dependencies.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/json_utils.dart';
@@ -381,107 +380,97 @@ class _ProfileHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppHeroCard(
       padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1B2033), Color(0xFF111624), Color(0xFF181228)],
-        ),
-        border: Border.all(color: context.palette.borderSoft),
-      ),
-      child: OnDark(
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: uploading ? null : onAvatarTap,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  AppAvatar(
-                    name: user.name as String,
-                    avatar: user.avatar as String?,
-                    size: 92,
-                    ring: true,
-                  ),
-                  Positioned(
-                    right: -2,
-                    bottom: -2,
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: context.palette.accent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.palette.surface1,
-                          width: 2.5,
-                        ),
+      radius: 26,
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: uploading ? null : onAvatarTap,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                AppAvatar(
+                  name: user.name as String,
+                  avatar: user.avatar as String?,
+                  size: 92,
+                  ring: true,
+                ),
+                Positioned(
+                  right: -2,
+                  bottom: -2,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: context.palette.accent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: context.palette.surface1,
+                        width: 2.5,
                       ),
-                      child: uploading
-                          ? const Padding(
-                              padding: EdgeInsets.all(8),
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.6,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(
-                              Icons.photo_camera_rounded,
-                              size: 14,
+                    ),
+                    child: uploading
+                        ? const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.6,
                               color: Colors.white,
                             ),
-                    ),
+                          )
+                        : const Icon(
+                            Icons.photo_camera_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              user.name as String,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              (user.email as String),
-              style: TextStyle(
-                fontFamily: AppTypography.family,
-                fontSize: 12,
-                color: context.palette.textTertiary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 7,
-              runSpacing: 6,
-              alignment: WrapAlignment.center,
-              children: [
-                AppChip(
-                  label: user.combinedRoleLabel as String,
-                  tone: ChipTone.accent,
-                  compact: true,
-                ),
-                if ((user.department as String?) != null)
-                  AppChip(
-                    label: user.department as String,
-                    tone: ChipTone.info,
-                    compact: true,
-                  ),
-                AppChip(
-                  label: (user.twoFactorEnabled as bool) ? '2FA' : 'Без 2FA',
-                  tone: (user.twoFactorEnabled as bool)
-                      ? ChipTone.success
-                      : ChipTone.neutral,
-                  icon: Icons.shield_outlined,
-                  compact: true,
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 15),
+          Text(
+            user.name as String,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            (user.email as String),
+            style: TextStyle(
+              fontFamily: AppTypography.family,
+              fontSize: 12,
+              color: context.palette.textTertiary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 7,
+            runSpacing: 6,
+            alignment: WrapAlignment.center,
+            children: [
+              AppChip(
+                label: user.combinedRoleLabel as String,
+                tone: ChipTone.accent,
+                compact: true,
+              ),
+              if ((user.department as String?) != null)
+                AppChip(
+                  label: user.department as String,
+                  tone: ChipTone.info,
+                  compact: true,
+                ),
+              AppChip(
+                label: (user.twoFactorEnabled as bool) ? '2FA' : 'Без 2FA',
+                tone: (user.twoFactorEnabled as bool)
+                    ? ChipTone.success
+                    : ChipTone.neutral,
+                icon: Icons.shield_outlined,
+                compact: true,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

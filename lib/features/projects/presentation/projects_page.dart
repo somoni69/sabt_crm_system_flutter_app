@@ -150,14 +150,14 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                   physics: const BouncingScrollPhysics(),
                   child: Row(
                     children: [
-                      _ProjectFilterChip(
+                      AppFilterChip(
                         label: 'Активные',
                         count: active,
                         active: _filter == _ProjectFilter.active,
                         onTap: () => setState(() => _filter = _ProjectFilter.active),
                       ),
                       const SizedBox(width: 7),
-                      _ProjectFilterChip(
+                      AppFilterChip(
                         label: 'В работе',
                         count: inProgress,
                         active: _filter == _ProjectFilter.inProgress,
@@ -165,7 +165,7 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                             setState(() => _filter = _ProjectFilter.inProgress),
                       ),
                       const SizedBox(width: 7),
-                      _ProjectFilterChip(
+                      AppFilterChip(
                         label: 'Планирование',
                         count: planning,
                         active: _filter == _ProjectFilter.planning,
@@ -173,7 +173,7 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                             setState(() => _filter = _ProjectFilter.planning),
                       ),
                       const SizedBox(width: 7),
-                      _ProjectFilterChip(
+                      AppFilterChip(
                         label: 'Завершённые',
                         count: completed,
                         active: _filter == _ProjectFilter.completed,
@@ -182,7 +182,7 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                             setState(() => _filter = _ProjectFilter.completed),
                       ),
                       const SizedBox(width: 7),
-                      _ProjectFilterChip(
+                      AppFilterChip(
                         label: 'Архив',
                         count: archived,
                         active: _filter == _ProjectFilter.archived,
@@ -225,31 +225,6 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ProjectFilterChip extends StatelessWidget {
-  const _ProjectFilterChip({
-    required this.label,
-    required this.count,
-    required this.active,
-    required this.onTap,
-    this.tone = ChipTone.accent,
-  });
-
-  final String label;
-  final int count;
-  final bool active;
-  final VoidCallback onTap;
-  final ChipTone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppChip(
-      label: '$label · $count',
-      tone: active ? tone : ChipTone.neutral,
-      onTap: onTap,
     );
   }
 }

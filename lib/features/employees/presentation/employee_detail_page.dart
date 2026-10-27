@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -297,9 +296,9 @@ class _HeaderAction extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.055),
+            color: context.palette.surface2,
             borderRadius: BorderRadius.circular(13),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+            border: Border.all(color: context.palette.borderSoft),
           ),
           child: Icon(icon, size: 17, color: context.palette.text),
         ),
@@ -315,75 +314,64 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppHeroCard(
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A2032), Color(0xFF111624)],
-        ),
-        border: Border.all(color: context.palette.borderSoft),
-      ),
-      child: OnDark(
-        child: Column(
-          children: [
-            AppAvatar(
-              name: employee.fullName,
-              avatar: employee.avatar,
-              size: 86,
-              ring: true,
+      child: Column(
+        children: [
+          AppAvatar(
+            name: employee.fullName,
+            avatar: employee.avatar,
+            size: 86,
+            ring: true,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            employee.fullName,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            employee.position,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: AppTypography.family,
+              fontSize: 12.5,
+              color: context.palette.textTertiary,
             ),
-            const SizedBox(height: 14),
-            Text(
-              employee.fullName,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              employee.position,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: AppTypography.family,
-                fontSize: 12.5,
-                color: context.palette.textTertiary,
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 7,
+            runSpacing: 6,
+            alignment: WrapAlignment.center,
+            children: [
+              AppChip(
+                label: employee.isActive ? 'В команде' : 'Неактивен',
+                tone: employee.isActive ? ChipTone.success : ChipTone.neutral,
+                dot: true,
+                compact: true,
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 7,
-              runSpacing: 6,
-              alignment: WrapAlignment.center,
-              children: [
-                AppChip(
-                  label: employee.isActive ? 'В команде' : 'Неактивен',
-                  tone: employee.isActive ? ChipTone.success : ChipTone.neutral,
-                  dot: true,
+              AppChip(
+                label: employee.department,
+                tone: ChipTone.info,
+                compact: true,
+              ),
+              if (employee.isSubAdmin)
+                const AppChip(
+                  label: 'Сооснователь',
+                  tone: ChipTone.accent,
                   compact: true,
                 ),
-                AppChip(
-                  label: employee.department,
-                  tone: ChipTone.info,
+              if (employee.isStoryMaker)
+                const AppChip(
+                  label: 'Сторисмейкер',
+                  tone: ChipTone.accent,
                   compact: true,
                 ),
-                if (employee.isSubAdmin)
-                  const AppChip(
-                    label: 'Сооснователь',
-                    tone: ChipTone.accent,
-                    compact: true,
-                  ),
-                if (employee.isStoryMaker)
-                  const AppChip(
-                    label: 'Сторисмейкер',
-                    tone: ChipTone.accent,
-                    compact: true,
-                  ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }

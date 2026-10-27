@@ -105,21 +105,21 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Все',
-                      selected: selectedDate == null,
+                      active: selectedDate == null,
                       onTap: () => ref.read(selectedNoteDateProvider.notifier).setDate(null),
                     ),
                     const SizedBox(width: 8),
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Сегодня',
-                      selected: selectedDate == todayStr,
+                      active: selectedDate == todayStr,
                       onTap: () => ref.read(selectedNoteDateProvider.notifier).setDate(todayStr),
                     ),
                     const SizedBox(width: 8),
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'С дедлайном',
-                      selected: selectedDate == 'has_date',
+                      active: selectedDate == 'has_date',
                       onTap: () => ref.read(selectedNoteDateProvider.notifier).setDate('has_date'),
                     ),
                   ],
@@ -248,43 +248,6 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? context.palette.accent : context.palette.surface2,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: selected ? context.palette.accentBright : context.palette.borderSoft,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? Colors.white : context.palette.textSecondary,
-          ),
-        ),
-      ),
     );
   }
 }

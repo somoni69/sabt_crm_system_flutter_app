@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/app_env.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
@@ -51,69 +50,55 @@ class WebOnlyPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
+              AppHeroCard(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(26),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1B2033),
-                      Color(0xFF111624),
-                      Color(0xFF181228),
-                    ],
-                  ),
-                  border: Border.all(color: context.palette.borderSoft),
-                ),
-                child: OnDark(
-                  child: Column(
-                    children: [
-                      SurfaceIcon(
-                        icon: Icons.desktop_windows_outlined,
-                        color: context.palette.accentBright,
-                        size: 72,
-                        radius: 22,
+                radius: 26,
+                child: Column(
+                  children: [
+                    SurfaceIcon(
+                      icon: Icons.desktop_windows_outlined,
+                      color: context.palette.accentBright,
+                      size: 72,
+                      radius: 22,
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Этот раздел живёт в браузере',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Тяжёлые таблицы, канбан, финансы и настройки доступа удобнее на большом экране. Мобильное приложение остаётся вашим daily-драйвером: задачи, SMM-календарь, сторис и клиенты.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 12,
+                        height: 1.55,
+                        color: context.palette.textTertiary,
                       ),
-                      const SizedBox(height: 18),
-                      Text(
-                        'Этот раздел живёт в браузере',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Тяжёлые таблицы, канбан, финансы и настройки доступа удобнее на большом экране. Мобильное приложение остаётся вашим daily-драйвером: задачи, SMM-календарь, сторис и клиенты.',
-                        textAlign: TextAlign.center,
+                      decoration: BoxDecoration(
+                        color: context.palette.surface2,
+                        borderRadius: BorderRadius.circular(11),
+                        border: Border.all(color: context.palette.borderSoft),
+                      ),
+                      child: Text(
+                        path,
                         style: TextStyle(
                           fontFamily: AppTypography.family,
-                          fontSize: 12,
-                          height: 1.55,
-                          color: context.palette.textTertiary,
+                          fontSize: 10.5,
+                          color: context.palette.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.palette.surface2,
-                          borderRadius: BorderRadius.circular(11),
-                          border: Border.all(color: context.palette.borderSoft),
-                        ),
-                        child: Text(
-                          path,
-                          style: TextStyle(
-                            fontFamily: AppTypography.family,
-                            fontSize: 10.5,
-                            color: context.palette.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),

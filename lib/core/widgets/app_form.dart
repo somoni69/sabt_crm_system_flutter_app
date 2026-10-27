@@ -43,8 +43,14 @@ class AppChoice<T> {
   final Color? color;
 }
 
-/// Solid selector for use inside sheets. Liquid glass is chrome-only, so form
-/// controls stay opaque rather than stacking a second translucent layer.
+/// The one segmented-choice standard for forms (priority, type,
+/// access…). Same language as GlassSegmentedControl and
+/// AppFilterChip: track = surface2, selected = solid brand violet
+/// (#59479e) with white text, unselected = tertiary text. An option's
+/// [AppChoice.color] is semantic only — it renders as a 6px dot, never
+/// as a different selected colour, so «Средний» no longer turns blue
+/// while «Задача» turns purple on the next row. Labels shrink instead
+/// of ellipsising («Критичн…»).
 class AppChoiceChips<T> extends StatelessWidget {
   const AppChoiceChips({
     super.key,
@@ -59,71 +65,87 @@ class AppChoiceChips<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.all(3.5),
       decoration: BoxDecoration(
-        color: context.palette.surface2,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: context.palette.borderSoft),
+        color: palette.surface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: palette.borderSoft),
       ),
       child: Row(
         children: options.map((option) {
           final active = option.value == selected;
-          final color = option.color ?? context.palette.accentBright;
+          final fg = active ? palette.onControlSelected : palette.textTertiary;
           return Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                if (!active) {
-                  HapticFeedback.selectionClick();
-                  onChanged(option.value);
-                }
-              },
-              child: AnimatedContainer(
-                duration: Motion.duration(context, Motion.micro),
-                curve: Motion.easeOut,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 4,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: active
-                      ? color.withValues(alpha: 0.13)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: active
-                        ? color.withValues(alpha: 0.32)
-                        : Colors.transparent,
+            child: Semantics(
+              button: true,
+              selected: active,
+              label: option.label,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  if (!active) {
+                    HapticFeedback.selectionClick();
+                    onChanged(option.value);
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: Motion.duration(context, Motion.micro),
+                  curve: Motion.easeOut,
+                  constraints: const BoxConstraints(minHeight: 40),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 10,
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (option.icon != null) ...[
-                      Icon(
-                        option.icon,
-                        size: 13,
-                        color: active ? color : context.palette.textTertiary,
-                      ),
-                      const SizedBox(width: 5),
-                    ],
-                    Flexible(
-                      child: Text(
-                        option.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 11.5,
-                          fontWeight: active
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: active ? color : context.palette.textTertiary,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? palette.controlSelected
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: active
+                          ? palette.controlSelected
+                          : Colors.transparent,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (option.color != null) ...[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: active ? Colors.white : option.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                      if (option.icon != null) ...[
+                        Icon(option.icon, size: 14, color: fg),
+                        const SizedBox(width: 5),
+                      ],
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            option.label,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontFamily: AppTypography.family,
+                              fontSize: 12.5,
+                              fontWeight: active
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              color: fg,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -168,14 +168,14 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                 physics: const BouncingScrollPhysics(),
                 child: Row(
                   children: [
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Все',
                       count: all.length,
                       active: _filter == _TaskFilter.all,
                       onTap: () => setState(() => _filter = _TaskFilter.all),
                     ),
                     const SizedBox(width: 7),
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Просроченные',
                       count: overdueCount,
                       active: _filter == _TaskFilter.overdue,
@@ -184,7 +184,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                           setState(() => _filter = _TaskFilter.overdue),
                     ),
                     const SizedBox(width: 7),
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Сегодня',
                       count: todayCount,
                       active: _filter == _TaskFilter.today,
@@ -192,7 +192,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                       onTap: () => setState(() => _filter = _TaskFilter.today),
                     ),
                     const SizedBox(width: 7),
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Готовые',
                       count: doneCount,
                       active: _filter == _TaskFilter.done,
@@ -339,32 +339,6 @@ class _TaskGroup {
   final String overline;
   final String title;
   final List<TaskModel> tasks;
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.count,
-    required this.active,
-    required this.onTap,
-    this.tone = ChipTone.accent,
-  });
-
-  final String label;
-  final int count;
-  final bool active;
-  final VoidCallback onTap;
-  final ChipTone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppChip(
-      label: count > 0 ? '$label · $count' : label,
-      tone: active ? tone : ChipTone.neutral,
-      compact: false,
-      onTap: onTap,
-    );
-  }
 }
 
 class _TasksSkeleton extends StatelessWidget {

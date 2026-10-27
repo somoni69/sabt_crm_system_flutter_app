@@ -232,6 +232,69 @@ class AppPalette extends ThemeExtension<AppPalette> {
     stops: const [0.0, 0.36, 0.72, 1.0],
   );
 
+  /// The one hero surface, shared by every detail/dashboard header.
+  ///
+  /// The hero follows the app theme instead of staying black: in dark
+  /// mode it is the graphite gradient, in light mode a white porcelain
+  /// plate with a whisper of the brand violet. Because the surface moves
+  /// with the theme, children can always read `text`, `textSecondary`
+  /// etc. from the ambient palette — white-on-light and dark-on-dark
+  /// are impossible by construction, and no page needs an `OnDark`
+  /// scope or its own hardcoded gradient again.
+  LinearGradient get heroGradient => isDark
+      ? const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1B2338), Color(0xFF111624), Color(0xFF19122E)],
+          stops: [0, 0.55, 1],
+        )
+      : LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            surface1,
+            Color.alphaBlend(accent.withValues(alpha: 0.045), surface1),
+            Color.alphaBlend(accent.withValues(alpha: 0.09), surface1),
+          ],
+        );
+
+  Color get heroBorder => isDark
+      ? borderSoft
+      : Color.alphaBlend(accent.withValues(alpha: 0.20), border);
+
+  List<BoxShadow> get heroShadow => [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.08),
+      blurRadius: 24,
+      offset: const Offset(0, 12),
+    ),
+    BoxShadow(
+      color: accent.withValues(alpha: isDark ? 0.07 : 0.08),
+      blurRadius: 32,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  /// Primary-button gradient: the canonical Sabt violet #59479e in both
+  /// themes, lightened only at the top edge. Never introduce a second
+  /// accent hue here.
+  LinearGradient get primaryGradient => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color.alphaBlend(Colors.white.withValues(alpha: 0.20), brandPurple),
+      brandPurple,
+      accentDeep,
+    ],
+    stops: const [0, 0.55, 1],
+  );
+
+  /// Selected state for every segmented / choice / filter control.
+  /// One colour (the brand violet) in both themes, so a selected pill
+  /// means the same thing on every screen.
+  Color get controlSelected => brandPurple;
+  Color get onControlSelected => Colors.white;
+
   LinearGradient surfaceGradient({Color? tint, bool strong = false}) {
     final base = tint ?? glassTint;
     return LinearGradient(

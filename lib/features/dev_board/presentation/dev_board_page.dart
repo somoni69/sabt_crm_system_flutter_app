@@ -175,17 +175,17 @@ class DevBoardPage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
-                    _FilterChip(
+                    AppFilterChip(
                       label: 'Все',
-                      selected: statusFilter == null,
+                      active: statusFilter == null,
                       onTap: () => ref.read(devBoardStatusFilterProvider.notifier).setStatus(null),
                     ),
                     ...DevTask.statuses.map((st) {
                       return Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: _FilterChip(
+                        child: AppFilterChip(
                           label: DevTask.statusLabel(st),
-                          selected: statusFilter == st,
+                          active: statusFilter == st,
                           onTap: () => ref.read(devBoardStatusFilterProvider.notifier).setStatus(st),
                         ),
                       );
@@ -238,43 +238,6 @@ class DevBoardPage extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? context.palette.accent : context.palette.surface2,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: selected ? context.palette.accentBright : context.palette.borderSoft,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? Colors.white : context.palette.textSecondary,
-          ),
-        ),
-      ),
     );
   }
 }
