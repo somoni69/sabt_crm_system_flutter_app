@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -46,10 +47,7 @@ class EmployeeDetailPage extends ConsumerWidget {
     if (!canSeeEmployees(user)) {
       return AppPage(
         showBottomBarSpace: false,
-        header: AppHeader(
-          title: 'Сотрудник',
-          onBack: () => context.pop(),
-        ),
+        header: AppHeader(title: 'Сотрудник', onBack: () => context.pop()),
         slivers: const [
           EmptyState(
             icon: Icons.lock_outline_rounded,
@@ -121,7 +119,7 @@ class EmployeeDetailPage extends ConsumerWidget {
                       child: _StatTile(
                         label: 'Выполнено',
                         value: '${employee.tasksCompleted}',
-                        color: AppColors.success,
+                        color: context.palette.success,
                         icon: Icons.task_alt_rounded,
                       ),
                     ),
@@ -131,8 +129,8 @@ class EmployeeDetailPage extends ConsumerWidget {
                         label: 'Просрочено',
                         value: '${employee.tasksOverdue}',
                         color: employee.tasksOverdue > 0
-                            ? AppColors.danger
-                            : AppColors.textSecondary,
+                            ? context.palette.danger
+                            : context.palette.textSecondary,
                         icon: Icons.error_outline_rounded,
                       ),
                     ),
@@ -141,7 +139,7 @@ class EmployeeDetailPage extends ConsumerWidget {
                       child: _StatTile(
                         label: 'Возвраты',
                         value: '${employee.tasksReturned}',
-                        color: AppColors.warning,
+                        color: context.palette.warning,
                         icon: Icons.undo_rounded,
                       ),
                     ),
@@ -150,7 +148,10 @@ class EmployeeDetailPage extends ConsumerWidget {
                 const SizedBox(height: 20),
                 const SectionHeader(overline: 'КОНТАКТЫ', title: 'Связаться'),
                 AppCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 6,
+                  ),
                   radius: 20,
                   child: Column(
                     children: [
@@ -160,7 +161,7 @@ class EmployeeDetailPage extends ConsumerWidget {
                         value: employee.email,
                         onTap: () => _open(context, 'mailto:${employee.email}'),
                       ),
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       _ContactRow(
                         icon: Icons.call_outlined,
                         label: 'Телефон',
@@ -169,7 +170,7 @@ class EmployeeDetailPage extends ConsumerWidget {
                             ? null
                             : () => _open(context, 'tel:${employee.phone}'),
                       ),
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       _ContactRow(
                         icon: Icons.send_outlined,
                         label: 'Telegram',
@@ -177,13 +178,13 @@ class EmployeeDetailPage extends ConsumerWidget {
                         onTap: employee.telegram == null
                             ? null
                             : () => _open(
-                                  context,
-                                  employee.telegram!.startsWith('http')
-                                      ? employee.telegram
-                                      : 'https://t.me/${employee.telegram!.replaceAll('@', '')}',
-                                ),
+                                context,
+                                employee.telegram!.startsWith('http')
+                                    ? employee.telegram
+                                    : 'https://t.me/${employee.telegram!.replaceAll('@', '')}',
+                              ),
                       ),
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       _ContactRow(
                         icon: Icons.camera_alt_outlined,
                         label: 'Instagram',
@@ -191,16 +192,17 @@ class EmployeeDetailPage extends ConsumerWidget {
                         onTap: employee.instagram == null
                             ? null
                             : () => _open(
-                                  context,
-                                  employee.instagram!.startsWith('http')
-                                      ? employee.instagram
-                                      : 'https://instagram.com/${employee.instagram!.replaceAll('@', '')}',
-                                ),
+                                context,
+                                employee.instagram!.startsWith('http')
+                                    ? employee.instagram
+                                    : 'https://instagram.com/${employee.instagram!.replaceAll('@', '')}',
+                              ),
                       ),
                     ],
                   ),
                 ),
-                if (employee.bio != null && employee.bio!.trim().isNotEmpty) ...[
+                if (employee.bio != null &&
+                    employee.bio!.trim().isNotEmpty) ...[
                   const SizedBox(height: 20),
                   const SectionHeader(overline: 'О СЕБЕ', title: 'Коротко'),
                   AppCard(
@@ -208,11 +210,11 @@ class EmployeeDetailPage extends ConsumerWidget {
                     radius: 18,
                     child: Text(
                       employee.bio!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 13,
                         height: 1.55,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ),
@@ -220,23 +222,28 @@ class EmployeeDetailPage extends ConsumerWidget {
                 const SizedBox(height: 20),
                 const SectionHeader(overline: 'В КОМПАНИИ', title: 'Детали'),
                 AppCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 6,
+                  ),
                   radius: 20,
                   child: Column(
                     children: [
                       KeyValueRow(
                         label: 'Роль в системе',
-                        value: UserModel.roleLabels[employee.role] ?? employee.role,
+                        value:
+                            UserModel.roleLabels[employee.role] ??
+                            employee.role,
                         icon: Icons.shield_outlined,
                       ),
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       KeyValueRow(
                         label: 'Отдел',
                         value: employee.department,
                         icon: Icons.apartment_rounded,
                       ),
                       if (employee.hireDate != null) ...[
-                        const Divider(height: 1, color: AppColors.borderSoft),
+                        Divider(height: 1, color: context.palette.borderSoft),
                         KeyValueRow(
                           label: 'В команде с',
                           value: BizDate.dateWithYear(employee.hireDate!),
@@ -244,21 +251,21 @@ class EmployeeDetailPage extends ConsumerWidget {
                         ),
                       ],
                       if (employee.lastActiveAt != null) ...[
-                        const Divider(height: 1, color: AppColors.borderSoft),
+                        Divider(height: 1, color: context.palette.borderSoft),
                         KeyValueRow(
                           label: 'Последняя активность',
                           value: BizDate.relative(employee.lastActiveAt!),
                           icon: Icons.bolt_outlined,
                         ),
                       ],
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       KeyValueRow(
                         label: 'Индекс активности',
                         value: '${employee.activityScore}%',
                         icon: Icons.insights_rounded,
                         valueColor: employee.activityScore >= 70
-                            ? AppColors.success
-                            : AppColors.textSecondary,
+                            ? context.palette.success
+                            : context.palette.textSecondary,
                       ),
                     ],
                   ),
@@ -294,7 +301,7 @@ class _HeaderAction extends StatelessWidget {
             borderRadius: BorderRadius.circular(13),
             border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
           ),
-          child: Icon(icon, size: 17, color: AppColors.text),
+          child: Icon(icon, size: 17, color: context.palette.text),
         ),
       ),
     );
@@ -317,64 +324,66 @@ class _HeroCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFF1A2032), Color(0xFF111624)],
         ),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
-      child: Column(
-        children: [
-          AppAvatar(
-            name: employee.fullName,
-            avatar: employee.avatar,
-            size: 86,
-            ring: true,
-          ),
-          const SizedBox(height: 14),
-          Text(
-            employee.fullName,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            employee.position,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: AppTypography.family,
-              fontSize: 12.5,
-              color: AppColors.textTertiary,
+      child: OnDark(
+        child: Column(
+          children: [
+            AppAvatar(
+              name: employee.fullName,
+              avatar: employee.avatar,
+              size: 86,
+              ring: true,
             ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 7,
-            runSpacing: 6,
-            alignment: WrapAlignment.center,
-            children: [
-              AppChip(
-                label: employee.isActive ? 'В команде' : 'Неактивен',
-                tone: employee.isActive ? ChipTone.success : ChipTone.neutral,
-                dot: true,
-                compact: true,
+            const SizedBox(height: 14),
+            Text(
+              employee.fullName,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              employee.position,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: AppTypography.family,
+                fontSize: 12.5,
+                color: context.palette.textTertiary,
               ),
-              AppChip(
-                label: employee.department,
-                tone: ChipTone.info,
-                compact: true,
-              ),
-              if (employee.isSubAdmin)
-                const AppChip(
-                  label: 'Сооснователь',
-                  tone: ChipTone.accent,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 7,
+              runSpacing: 6,
+              alignment: WrapAlignment.center,
+              children: [
+                AppChip(
+                  label: employee.isActive ? 'В команде' : 'Неактивен',
+                  tone: employee.isActive ? ChipTone.success : ChipTone.neutral,
+                  dot: true,
                   compact: true,
                 ),
-              if (employee.isStoryMaker)
-                const AppChip(
-                  label: 'Сторисмейкер',
-                  tone: ChipTone.accent,
+                AppChip(
+                  label: employee.department,
+                  tone: ChipTone.info,
                   compact: true,
                 ),
-            ],
-          ),
-        ],
+                if (employee.isSubAdmin)
+                  const AppChip(
+                    label: 'Сооснователь',
+                    tone: ChipTone.accent,
+                    compact: true,
+                  ),
+                if (employee.isStoryMaker)
+                  const AppChip(
+                    label: 'Сторисмейкер',
+                    tone: ChipTone.accent,
+                    compact: true,
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -403,16 +412,19 @@ class _StatTile extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: color),
           const SizedBox(height: 8),
-          Text(value, style: AppTypography.number(size: 22, color: AppColors.text)),
+          Text(
+            value,
+            style: AppTypography.number(size: 22, color: context.palette.text),
+          ),
           const SizedBox(height: 3),
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 9.5,
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
             ),
           ),
         ],
@@ -443,16 +455,16 @@ class _ContactRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 11),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: AppColors.textTertiary),
+            Icon(icon, size: 16, color: context.palette.textTertiary),
             const SizedBox(width: 11),
             SizedBox(
               width: 72,
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 11.5,
-                  color: AppColors.textTertiary,
+                  color: context.palette.textTertiary,
                 ),
               ),
             ),
@@ -465,12 +477,18 @@ class _ContactRow extends StatelessWidget {
                   fontFamily: AppTypography.family,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w500,
-                  color: onTap == null ? AppColors.textTertiary : AppColors.text,
+                  color: onTap == null
+                      ? context.palette.textTertiary
+                      : context.palette.text,
                 ),
               ),
             ),
             if (onTap != null)
-              const Icon(Icons.open_in_new_rounded, size: 13, color: AppColors.textTertiary),
+              Icon(
+                Icons.open_in_new_rounded,
+                size: 13,
+                color: context.palette.textTertiary,
+              ),
           ],
         ),
       ),

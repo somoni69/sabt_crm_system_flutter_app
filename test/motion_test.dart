@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sabt_crm/core/design/motion.dart';
@@ -20,6 +22,18 @@ void main() {
     expect(Motion.drawer.transform(0.25), greaterThan(0.25));
     expect(Motion.easeInOut.transform(0), 0);
     expect(Motion.easeInOut.transform(1), 1);
+    // Route pushes are occasional and spatial: up to 300ms, and the pop
+    // is never slower than the push.
+    expect(Motion.page.inMilliseconds, lessThanOrEqualTo(300));
+    expect(
+      Motion.pageExit.inMilliseconds,
+      lessThan(Motion.page.inMilliseconds),
+    );
+    // The nav spring is underdamped, like UIKit's: one soft overshoot.
+    final ratio =
+        Motion.springSnap.damping /
+        (2 * math.sqrt(Motion.springSnap.mass * Motion.springSnap.stiffness));
+    expect(ratio, inInclusiveRange(0.5, 0.9));
   });
 
   testWidgets('an appearance fades in and then drops its ticker', (
@@ -35,7 +49,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pump();
 
-    expect(find.byType(Opacity), findsNothing);
+    // The wrapper stays mounted (state inside must survive settling),
+    // but it renders at full opacity and no ticker is scheduled.
+    expect(_appearOpacity(tester), 1);
     expect(find.text('Пусто'), findsOneWidget);
     expect(tester.binding.hasScheduledFrame, isFalse);
   });
@@ -58,10 +74,10 @@ void main() {
     expect(tester.binding.hasScheduledFrame, isFalse);
   });
 
-  testWidgets('a route transition is fade and slide', (tester) async {
+  testWidgets('a route transition slides like the iOS push', (tester) async {
     final controller = AnimationController(
       vsync: tester,
-      duration: Motion.standard,
+      duration: Motion.page,
     );
     addTearDown(controller.dispose);
 
@@ -76,10 +92,6 @@ void main() {
 
     final transition = find.byType(MotionPageTransition);
     expect(
-      find.descendant(of: transition, matching: find.byType(FadeTransition)),
-      findsOneWidget,
-    );
-    expect(
       find.descendant(of: transition, matching: find.byType(SlideTransition)),
       findsOneWidget,
     );
@@ -88,9 +100,53 @@ void main() {
       findsNothing,
     );
 
+    // Starts fully off-screen to the right, lands at rest.
+    final slide = tester.widget<SlideTransition>(
+      find.descendant(of: transition, matching: find.byType(SlideTransition)),
+    );
+    expect(slide.position.value, const Offset(1, 0));
     controller.value = 1;
     await tester.pump();
+    expect(slide.position.value, Offset.zero);
     expect(find.text('Экран'), findsOneWidget);
+  });
+
+  testWidgets('the covered page parallaxes under the incoming one', (
+    tester,
+  ) async {
+    final primary = AnimationController(
+      vsync: tester,
+      duration: Motion.page,
+      value: 1,
+    );
+    final secondary = AnimationController(
+      vsync: tester,
+      duration: Motion.page,
+      value: 0,
+    );
+    addTearDown(primary.dispose);
+    addTearDown(secondary.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MotionPageTransition(
+          animation: primary,
+          secondaryAnimation: secondary,
+          child: const Text('Фон'),
+        ),
+      ),
+    );
+
+    secondary.value = 1;
+    await tester.pump();
+
+    final transform = tester.widget<Transform>(
+      find
+          .ancestor(of: find.text('Фон'), matching: find.byType(Transform))
+          .first,
+    );
+    // A quarter of an 800-wide test surface to the left.
+    expect(transform.transform.getTranslation().x, -200);
   });
 
   testWidgets('segment thumb moves with a transform', (tester) async {

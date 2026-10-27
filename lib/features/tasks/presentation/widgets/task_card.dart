@@ -25,16 +25,16 @@ class TaskCard extends StatelessWidget {
   final bool compact;
   final bool highlightOverdue;
 
-  Color get _deadlineColor {
-    if (task.isDone) return AppColors.textTertiary;
-    if (task.isOverdue) return AppColors.danger;
-    if (task.isDueToday) return AppColors.warning;
-    return AppColors.textTertiary;
+  Color _deadlineColorFor(AppPalette palette) {
+    if (task.isDone) return palette.textTertiary;
+    if (task.isOverdue) return palette.danger;
+    if (task.isDueToday) return palette.warning;
+    return palette.textTertiary;
   }
 
   @override
   Widget build(BuildContext context) {
-    final priorityColor = AppColors.priority(task.priority);
+    final priorityColor = context.palette.priority(task.priority);
     final assignee = task.assignees.isNotEmpty ? task.assignees.first : null;
 
     return AppCard(
@@ -54,7 +54,7 @@ class TaskCard extends StatelessWidget {
             height: compact ? 38 : 46,
             margin: const EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
-              color: task.isDone ? AppColors.success : priorityColor,
+              color: task.isDone ? context.palette.success : priorityColor,
               borderRadius: BorderRadius.circular(99),
               boxShadow: task.isDone
                   ? null
@@ -86,21 +86,21 @@ class TaskCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.15,
                           color: task.isDone
-                              ? AppColors.textTertiary
-                              : AppColors.text,
+                              ? context.palette.textTertiary
+                              : context.palette.text,
                           decoration: task.isDone
                               ? TextDecoration.lineThrough
                               : null,
-                          decorationColor: AppColors.textTertiary,
+                          decorationColor: context.palette.textTertiary,
                         ),
                       ),
                     ),
                     if (task.fromFounder) ...[
                       const SizedBox(width: 6),
-                      const Icon(
+                       Icon(
                         Icons.workspace_premium_rounded,
                         size: 15,
-                        color: AppColors.warning,
+                        color: context.palette.warning,
                       ),
                     ],
                   ],
@@ -120,7 +120,7 @@ class TaskCard extends StatelessWidget {
                                 ? Icons.videocam_outlined
                                 : Icons.folder_outlined,
                             size: 12,
-                            color: AppColors.textTertiary,
+                            color: context.palette.textTertiary,
                           ),
                           const SizedBox(width: 4),
                           ConstrainedBox(
@@ -129,11 +129,11 @@ class TaskCard extends StatelessWidget {
                               task.projectLabel,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style:  TextStyle(
                                 fontFamily: AppTypography.family,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textTertiary,
+                                color: context.palette.textTertiary,
                               ),
                             ),
                           ),
@@ -148,7 +148,7 @@ class TaskCard extends StatelessWidget {
                                 ? Icons.error_outline_rounded
                                 : Icons.schedule_rounded,
                             size: 12,
-                            color: _deadlineColor,
+                            color: _deadlineColorFor(context.palette),
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -157,7 +157,7 @@ class TaskCard extends StatelessWidget {
                               fontFamily: AppTypography.family,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: _deadlineColor,
+                              color: _deadlineColorFor(context.palette),
                             ),
                           ),
                         ],
@@ -172,10 +172,10 @@ class TaskCard extends StatelessWidget {
                     if (task.assignees.length > 1)
                       Text(
                         '${task.assignees.length} участника',
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 10.5,
-                          color: AppColors.textTertiary,
+                          color: context.palette.textTertiary,
                         ),
                       ),
                   ],
@@ -187,9 +187,9 @@ class TaskCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: task.progress / 100,
                       minHeight: 3,
-                      backgroundColor: AppColors.surface3,
-                      valueColor: const AlwaysStoppedAnimation(
-                        AppColors.accent,
+                      backgroundColor: context.palette.surface3,
+                      valueColor:  AlwaysStoppedAnimation(
+                        context.palette.accent,
                       ),
                     ),
                   ),
@@ -235,19 +235,19 @@ class _QuickDoneButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: done
-                ? AppColors.success.withValues(alpha: 0.14)
+                ? context.palette.success.withValues(alpha: 0.14)
                 : Colors.transparent,
             border: Border.all(
               color: done
-                  ? AppColors.success.withValues(alpha: 0.5)
-                  : AppColors.borderStrong,
+                  ? context.palette.success.withValues(alpha: 0.5)
+                  : context.palette.borderStrong,
               width: 1.2,
             ),
           ),
           child: Icon(
             Icons.check_rounded,
             size: 18,
-            color: done ? AppColors.success : AppColors.textTertiary,
+            color: done ? context.palette.success : context.palette.textTertiary,
           ),
         ),
       ),

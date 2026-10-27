@@ -45,7 +45,7 @@ class MyTransportData {
   final double totalPending;
 
   factory MyTransportData.fromJson(Map<String, dynamic> json) {
-    final rawRequests = asList(json['requests'] ?? json['items'] ?? (json is List ? json : []));
+    final rawRequests = asList(json['requests'] ?? json['items'] ?? const <dynamic>[]);
     return MyTransportData(
       requests: rawRequests
           .map(asMap)

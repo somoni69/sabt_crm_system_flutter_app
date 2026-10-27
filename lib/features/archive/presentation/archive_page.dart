@@ -102,10 +102,10 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.accent : AppColors.surface2,
+                            color: isSelected ? context.palette.accent : context.palette.surface2,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isSelected ? AppColors.accentBright : AppColors.borderSoft,
+                              color: isSelected ? context.palette.accentBright : context.palette.borderSoft,
                             ),
                           ),
                           child: Text(
@@ -113,7 +113,7 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                              color: isSelected ? Colors.white : context.palette.textSecondary,
                             ),
                           ),
                         ),
@@ -124,10 +124,10 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
               ),
               const SizedBox(height: 12),
               asyncProjects.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.accent),
+                    child: CircularProgressIndicator(color: context.palette.accent),
                   ),
                 ),
                 error: (error, _) => EmptyState(
@@ -158,9 +158,9 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.surface1,
+                            color: context.palette.surface1,
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: AppColors.borderSoft),
+                            border: Border.all(color: context.palette.borderSoft),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,12 +179,12 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: AppColors.surface3,
+                                      color: context.palette.surface3,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       project.projectType,
-                                      style: const TextStyle(fontSize: 10.5, color: AppColors.textSecondary),
+                                      style:  TextStyle(fontSize: 10.5, color: context.palette.textSecondary),
                                     ),
                                   ),
                                 ],
@@ -193,7 +193,7 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                                 const SizedBox(height: 4),
                                 Text(
                                   project.description!,
-                                  style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                                  style:  TextStyle(fontSize: 12, color: context.palette.textTertiary),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -204,7 +204,7 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                                 children: [
                                   Text(
                                     'Завершён: ${date != null ? BizDate.dateWithYear(date) : 'В архиве'}',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                                    style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
                                   ),
                                   Row(
                                     children: [

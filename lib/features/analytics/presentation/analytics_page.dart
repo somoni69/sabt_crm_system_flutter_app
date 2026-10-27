@@ -42,10 +42,10 @@ class AnalyticsPage extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
           child: asyncData.when(
-            loading: () => const Padding(
+            loading: () =>  Padding(
               padding: EdgeInsets.symmetric(vertical: 80),
               child: Center(
-                child: CircularProgressIndicator(color: AppColors.accent),
+                child: CircularProgressIndicator(color: context.palette.accent),
               ),
             ),
             error: (error, _) => EmptyState(
@@ -60,16 +60,16 @@ class AnalyticsPage extends ConsumerWidget {
               children: [
                 _buildKpiGrid(context, data.overview),
                 const SizedBox(height: 20),
-                _buildSectionHeader('Статусы задач'),
+                _buildSectionHeader(context, 'Статусы задач'),
                 const SizedBox(height: 10),
                 _buildStatusBreakdown(context, data),
                 const SizedBox(height: 20),
-                _buildSectionHeader('Задачи по приоритетам'),
+                _buildSectionHeader(context, 'Задачи по приоритетам'),
                 const SizedBox(height: 10),
                 _buildPriorityBreakdown(context, data),
                 if (data.employeeActivity.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  _buildSectionHeader('Активность команды'),
+                  _buildSectionHeader(context, 'Активность команды'),
                   const SizedBox(height: 10),
                   _buildEmployeeActivity(context, data.employeeActivity),
                 ],
@@ -81,10 +81,10 @@ class AnalyticsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Text(
       title.toUpperCase(),
-      style: AppTypography.overline(color: AppColors.textTertiary),
+      style: AppTypography.overline(color: context.palette.textTertiary),
     );
   }
 
@@ -99,7 +99,7 @@ class AnalyticsPage extends ConsumerWidget {
                 value: '${o.totalTasks}',
                 subtext: 'Выполнено: ${o.doneTasks}',
                 icon: Icons.check_circle_outline_rounded,
-                color: AppColors.success,
+                color: context.palette.success,
               ),
             ),
             const SizedBox(width: 10),
@@ -109,7 +109,7 @@ class AnalyticsPage extends ConsumerWidget {
                 value: '${o.completionRate}%',
                 subtext: 'Активных проектов: ${o.activeProjects}',
                 icon: Icons.pie_chart_outline_rounded,
-                color: AppColors.accentBright,
+                color: context.palette.accentBright,
               ),
             ),
           ],
@@ -123,7 +123,7 @@ class AnalyticsPage extends ConsumerWidget {
                 value: '${o.overdueTasks}',
                 subtext: o.overdueTasks > 0 ? 'Требует внимания' : 'Всё в графике',
                 icon: Icons.alarm_outlined,
-                color: o.overdueTasks > 0 ? AppColors.danger : AppColors.textSecondary,
+                color: o.overdueTasks > 0 ? context.palette.danger : context.palette.textSecondary,
               ),
             ),
             const SizedBox(width: 10),
@@ -133,7 +133,7 @@ class AnalyticsPage extends ConsumerWidget {
                 value: o.hoursThisMonth.toStringAsFixed(1),
                 subtext: 'Команда: ${o.totalEmployees}',
                 icon: Icons.schedule_rounded,
-                color: AppColors.ice,
+                color: context.palette.ice,
               ),
             ),
           ],
@@ -144,8 +144,8 @@ class AnalyticsPage extends ConsumerWidget {
 
   Widget _buildStatusBreakdown(BuildContext context, AnalyticsDashboardData data) {
     if (data.tasksByStatus.isEmpty) {
-      return const _GlassBox(
-        child: Text('Нет данных по статусам', style: TextStyle(color: AppColors.textTertiary)),
+      return  _GlassBox(
+        child: Text('Нет данных по статусам', style: TextStyle(color: context.palette.textTertiary)),
       );
     }
 
@@ -155,7 +155,7 @@ class AnalyticsPage extends ConsumerWidget {
       child: Column(
         children: data.tasksByStatus.map((item) {
           final pct = total > 0 ? (item.count / total) : 0.0;
-          final color = AppColors.status(item.status);
+          final color = context.palette.status(item.status);
           final label = _statusLabel(item.status);
 
           return Padding(
@@ -168,7 +168,7 @@ class AnalyticsPage extends ConsumerWidget {
                   children: [
                     Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
                     Text('${item.count} (${(pct * 100).toStringAsFixed(0)}%)',
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                        style:  TextStyle(color: context.palette.textSecondary, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -177,7 +177,7 @@ class AnalyticsPage extends ConsumerWidget {
                   child: LinearProgressIndicator(
                     value: pct,
                     minHeight: 6,
-                    backgroundColor: AppColors.surface3,
+                    backgroundColor: context.palette.surface3,
                     valueColor: AlwaysStoppedAnimation(color),
                   ),
                 ),
@@ -191,8 +191,8 @@ class AnalyticsPage extends ConsumerWidget {
 
   Widget _buildPriorityBreakdown(BuildContext context, AnalyticsDashboardData data) {
     if (data.tasksByPriority.isEmpty) {
-      return const _GlassBox(
-        child: Text('Нет данных по приоритетам', style: TextStyle(color: AppColors.textTertiary)),
+      return  _GlassBox(
+        child: Text('Нет данных по приоритетам', style: TextStyle(color: context.palette.textTertiary)),
       );
     }
 
@@ -200,7 +200,7 @@ class AnalyticsPage extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: data.tasksByPriority.map((p) {
-          final color = AppColors.priority(p.priority);
+          final color = context.palette.priority(p.priority);
           final label = _priorityLabel(p.priority);
 
           return Column(
@@ -217,7 +217,7 @@ class AnalyticsPage extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
               ),
             ],
           );
@@ -244,7 +244,7 @@ class AnalyticsPage extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         'Задач закрыто: ${emp.completedTasks}',
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
+                        style:  TextStyle(fontSize: 11.5, color: context.palette.textTertiary),
                       ),
                     ],
                   ),
@@ -253,12 +253,12 @@ class AnalyticsPage extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.surface3,
+                      color: context.palette.surface3,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${emp.loggedHours.toStringAsFixed(1)} ч',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.ice),
+                      style:  TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.palette.ice),
                     ),
                   ),
               ],
@@ -307,9 +307,9 @@ class _MetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,11 +320,11 @@ class _MetricCard extends StatelessWidget {
               Icon(icon, size: 20, color: color),
               Text(
                 value,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.text,
+                  color: context.palette.text,
                 ),
               ),
             ],
@@ -332,12 +332,12 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+            style:  TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 2),
           Text(
             subtext,
-            style: const TextStyle(fontSize: 10.5, color: AppColors.textTertiary),
+            style:  TextStyle(fontSize: 10.5, color: context.palette.textTertiary),
           ),
         ],
       ),
@@ -356,9 +356,9 @@ class _GlassBox extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: child,
     );

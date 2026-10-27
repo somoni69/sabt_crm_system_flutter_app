@@ -47,16 +47,16 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
   Color _colorOf(CalendarEvent event) {
     if (event.isTask) {
-      if (event.isDone) return AppColors.success;
-      if (event.isOverdue) return AppColors.danger;
-      return AppColors.accent;
+      if (event.isDone) return context.palette.success;
+      if (event.isOverdue) return context.palette.danger;
+      return context.palette.accent;
     }
-    if (event.isMeeting) return AppColors.info;
-    if (event.isRepeatCall) return AppColors.warning;
-    if (event.isShoot) return AppColors.ice;
-    if (event.isPayment) return AppColors.success;
-    if (event.isProjectMilestone) return AppColors.accentBright;
-    return AppColors.textSecondary;
+    if (event.isMeeting) return context.palette.info;
+    if (event.isRepeatCall) return context.palette.warning;
+    if (event.isShoot) return context.palette.ice;
+    if (event.isPayment) return context.palette.success;
+    if (event.isProjectMilestone) return context.palette.accentBright;
+    return context.palette.textSecondary;
   }
 
   IconData _iconOf(CalendarEvent event) {
@@ -311,8 +311,8 @@ class _EventRow extends StatelessWidget {
                           height: 1.3,
                           fontWeight: FontWeight.w600,
                           color: event.isDone
-                              ? AppColors.textTertiary
-                              : AppColors.text,
+                              ? context.palette.textTertiary
+                              : context.palette.text,
                         ),
                       ),
                     ),
@@ -343,10 +343,10 @@ class _EventRow extends StatelessWidget {
                         '· ${event.projectName}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 10.5,
-                          color: AppColors.textTertiary,
+                          color: context.palette.textTertiary,
                         ),
                       ),
                     if (event.location != null)
@@ -354,10 +354,10 @@ class _EventRow extends StatelessWidget {
                         '· ${event.location}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 10.5,
-                          color: AppColors.textTertiary,
+                          color: context.palette.textTertiary,
                         ),
                       ),
                   ],
@@ -366,8 +366,8 @@ class _EventRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.chevron_right_rounded,
-              size: 18, color: AppColors.textTertiary),
+           Icon(Icons.chevron_right_rounded,
+              size: 18, color: context.palette.textTertiary),
         ],
       ),
     );
@@ -420,7 +420,7 @@ class _EventDetail extends StatelessWidget {
                 icon: Icons.event_outlined,
               ),
               if (event.projectName != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                 Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Проект',
                   value: event.projectName!,
@@ -428,7 +428,7 @@ class _EventDetail extends StatelessWidget {
                 ),
               ],
               if (event.assigneeName != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                 Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Ответственный',
                   value: event.assigneeName!,
@@ -436,7 +436,7 @@ class _EventDetail extends StatelessWidget {
                 ),
               ],
               if (event.location != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                 Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Место',
                   value: event.location!,
@@ -450,11 +450,11 @@ class _EventDetail extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             event.description!,
-            style: const TextStyle(
+            style:  TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 13,
               height: 1.55,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ],

@@ -10,12 +10,12 @@ class SabtWordmark extends StatelessWidget {
   const SabtWordmark({
     super.key,
     this.fontSize = 26,
-    this.color = AppColors.text,
+    this.color,
     this.showDot = true,
   });
 
   final double fontSize;
-  final Color color;
+  final Color? color;
   final bool showDot;
 
   @override
@@ -32,7 +32,7 @@ class SabtWordmark extends StatelessWidget {
             height: 1,
             fontWeight: FontWeight.w700,
             letterSpacing: -1.4,
-            color: color,
+            color: color ?? context.palette.text,
           ),
         ),
         if (showDot)
@@ -41,8 +41,8 @@ class SabtWordmark extends StatelessWidget {
             child: Container(
               width: fontSize * 0.16,
               height: fontSize * 0.16,
-              decoration: const BoxDecoration(
-                color: AppColors.brandRed,
+              decoration: BoxDecoration(
+                color: context.palette.brandRed,
                 shape: BoxShape.circle,
               ),
             ),
@@ -66,16 +66,17 @@ class SabtGlassMark extends StatelessWidget {
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _MarkPainter(glow: glow),
+        painter: _MarkPainter(glow: glow, palette: context.palette),
       ),
     );
   }
 }
 
 class _MarkPainter extends CustomPainter {
-  _MarkPainter({required this.glow});
+  _MarkPainter({required this.glow, required this.palette});
 
   final bool glow;
+  final AppPalette palette;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -89,8 +90,8 @@ class _MarkPainter extends CustomPainter {
         Paint()
           ..shader = RadialGradient(
             colors: [
-              AppColors.accent.withValues(alpha: 0.44),
-              AppColors.accent.withValues(alpha: 0),
+              palette.accent.withValues(alpha: 0.44),
+              palette.accent.withValues(alpha: 0),
             ],
           ).createShader(Rect.fromCircle(center: center, radius: radius * 1.5)),
       );
@@ -148,7 +149,7 @@ class _MarkPainter extends CustomPainter {
           color: Colors.white,
           shadows: [
             Shadow(
-              color: AppColors.accent.withValues(alpha: 0.55),
+              color: palette.accent.withValues(alpha: 0.55),
               blurRadius: size.width * 0.12,
             ),
           ],
@@ -170,8 +171,8 @@ class _MarkPainter extends CustomPainter {
       dotCenter,
       radius * 0.17,
       Paint()
-        ..shader = const RadialGradient(
-          colors: [Color(0xFFFF7B7B), AppColors.brandRed],
+        ..shader =  RadialGradient(
+          colors: [Color(0xFFFF7B7B), palette.brandRed],
         ).createShader(Rect.fromCircle(center: dotCenter, radius: radius * 0.17)),
     );
     canvas.drawCircle(

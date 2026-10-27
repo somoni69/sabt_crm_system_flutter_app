@@ -37,12 +37,12 @@ class CalendarMonthBar extends StatelessWidget {
               children: [
                 Text(
                   '${BizDate.monthNominative(month.start)} ${month.year}',
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.2,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -50,10 +50,10 @@ class CalendarMonthBar extends StatelessWidget {
                   month.isCurrent
                       ? 'Текущий месяц'
                       : 'Нажмите, чтобы вернуться',
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 9.5,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
@@ -83,11 +83,11 @@ class _Arrow extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: AppColors.surface2,
+          color: context.palette.surface2,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderSoft),
+          border: Border.all(color: context.palette.borderSoft),
         ),
-        child: Icon(icon, size: 19, color: AppColors.textSecondary),
+        child: Icon(icon, size: 19, color: context.palette.textSecondary),
       ),
     );
   }
@@ -126,12 +126,12 @@ class MonthGrid extends StatelessWidget {
                   child: Center(
                     child: Text(
                       BizDate.weekdayShort(DateTime(2024, 1, 1 + i)),
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 9.5,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.4,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                   ),
@@ -172,15 +172,15 @@ class MonthGrid extends StatelessWidget {
                     borderRadius: BorderRadius.circular(13),
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.accentBright.withValues(alpha: 0.5)
+                          ? context.palette.accentBright.withValues(alpha: 0.5)
                           : isToday
-                          ? AppColors.accent.withValues(alpha: 0.55)
+                          ? context.palette.accent.withValues(alpha: 0.55)
                           : Colors.transparent,
                     ),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppColors.accent.withValues(alpha: 0.30),
+                              color: context.palette.accent.withValues(alpha: 0.30),
                               blurRadius: 12,
                               offset: const Offset(0, 5),
                             ),
@@ -203,9 +203,9 @@ class MonthGrid extends StatelessWidget {
                               ? Colors.white
                               : inMonth
                               ? (isToday
-                                    ? AppColors.accentBright
-                                    : AppColors.text)
-                              : AppColors.textDisabled,
+                                    ? context.palette.accentBright
+                                    : context.palette.text)
+                              : context.palette.textDisabled,
                           fontFeatures: AppTypography.tabular,
                         ),
                       ),

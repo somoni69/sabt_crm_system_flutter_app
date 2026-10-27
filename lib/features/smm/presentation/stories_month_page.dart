@@ -74,9 +74,9 @@ class _StoriesMonthPageState extends ConsumerState<StoriesMonthPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.surface1,
+                  color: context.palette.surface1,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderSoft),
+                  border: Border.all(color: context.palette.borderSoft),
                 ),
                 child: Row(
                   children: [
@@ -91,12 +91,12 @@ class _StoriesMonthPageState extends ConsumerState<StoriesMonthPage> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                           letterSpacing: 0.5,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                     ),
@@ -117,9 +117,9 @@ class _StoriesMonthPageState extends ConsumerState<StoriesMonthPage> {
                 )
               else
                 async.when(
-                  loading: () => const Padding(
+                  loading: () =>  Padding(
                     padding: EdgeInsets.symmetric(vertical: 72),
-                    child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                    child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
                   ),
                   error: (error, _) => EmptyState(
                     icon: Icons.error_outline_rounded,
@@ -154,7 +154,7 @@ class _StoriesMonthPageState extends ConsumerState<StoriesMonthPage> {
                             style: TextStyle(
                               fontFamily: AppTypography.family,
                               fontWeight: FontWeight.w600,
-                              color: todayClosed ? AppColors.success : AppColors.text,
+                              color: todayClosed ? context.palette.success : context.palette.text,
                             ),
                           ),
                         ),
@@ -200,10 +200,10 @@ class _PersonRow extends StatelessWidget {
                     asStringOr(person['name'], 'Сотрудник'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontFamily: AppTypography.family,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -211,10 +211,10 @@ class _PersonRow extends StatelessWidget {
                     'Отмечено $marked из $expected',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 12,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ],
@@ -229,7 +229,7 @@ class _PersonRow extends StatelessWidget {
                 fontFamily: AppTypography.family,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: done ? AppColors.success : AppColors.textSecondary,
+                color: done ? context.palette.success : context.palette.textSecondary,
               ),
             ),
           ],

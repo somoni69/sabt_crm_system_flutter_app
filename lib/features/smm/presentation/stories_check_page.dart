@@ -6,6 +6,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -116,7 +117,9 @@ class _StoriesCheckPageState extends ConsumerState<StoriesCheckPage> {
                 _DateBar(
                   date: _date,
                   onPrevious: () => _shift(-1),
-                  onNext: _date.isBefore(BizDate.today()) ? () => _shift(1) : null,
+                  onNext: _date.isBefore(BizDate.today())
+                      ? () => _shift(1)
+                      : null,
                   onPick: _pickDate,
                 ),
                 const SizedBox(height: 14),
@@ -145,8 +148,7 @@ class _StoriesCheckPageState extends ConsumerState<StoriesCheckPage> {
                     const EmptyState(
                       icon: Icons.auto_awesome_motion_rounded,
                       title: 'Проверять нечего',
-                      message:
-                          'Нет активных SMM-проектов с нормой сторис на эту дату.',
+                      message: 'Нет активных SMM-проектов с нормой сторис на эту дату.',
                       compact: true,
                     )
                   else
@@ -161,7 +163,10 @@ class _StoriesCheckPageState extends ConsumerState<StoriesCheckPage> {
                       icon: Icons.auto_awesome_outlined,
                       variant: AppButtonVariant.secondary,
                       onPressed: () {
-                        ref.read(navigationServiceProvider).requestedSection.value =
+                        ref
+                                .read(navigationServiceProvider)
+                                .requestedSection
+                                .value =
                             'work';
                         context.go('/');
                       },
@@ -207,30 +212,27 @@ class _DateBar extends StatelessWidget {
                 children: [
                   Text(
                     BizDate.dayLabel(date),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     BizDate.dateWithYear(date),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 10,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          _NavArrow(
-            icon: Icons.chevron_right_rounded,
-            onTap: onNext,
-          ),
+          _NavArrow(icon: Icons.chevron_right_rounded, onTap: onNext),
         ],
       ),
     );
@@ -253,7 +255,7 @@ class _NavArrow extends StatelessWidget {
         child: SizedBox(
           width: 40,
           height: 40,
-          child: Icon(icon, size: 21, color: AppColors.textSecondary),
+          child: Icon(icon, size: 21, color: context.palette.textSecondary),
         ),
       ),
     );
@@ -278,90 +280,94 @@ class _SummaryCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFF1A2032), Color(0xFF111624), Color(0xFF171229)],
         ),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${data.done}',
-                style: AppTypography.number(
-                  size: 44,
-                  color: data.allDone ? AppColors.success : AppColors.text,
-                ),
-              ),
-              const SizedBox(width: 3),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  '/ ${data.total}',
+      child: OnDark(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${data.done}',
                   style: AppTypography.number(
-                    size: 17,
-                    color: AppColors.textTertiary,
+                    size: 44,
+                    color: data.allDone
+                        ? context.palette.success
+                        : context.palette.text,
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'проектов закрыли норму',
-                  style: const TextStyle(
-                    fontFamily: AppTypography.family,
-                    fontSize: 11,
-                    color: AppColors.textTertiary,
+                const SizedBox(width: 3),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '/ ${data.total}',
+                    style: AppTypography.number(
+                      size: 17,
+                      color: context.palette.textTertiary,
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              AppChip(
-                label: data.allDone ? 'Норма' : 'Контроль',
-                tone: data.allDone ? ChipTone.success : ChipTone.warning,
-                compact: true,
-              ),
-            ],
-          ),
-          const SizedBox(height: 11),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: AppColors.surface3,
-              valueColor: AlwaysStoppedAnimation(
-                data.allDone ? AppColors.success : AppColors.ice,
+                const SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'проектов закрыли норму',
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 11,
+                      color: context.palette.textTertiary,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                AppChip(
+                  label: data.allDone ? 'Норма' : 'Контроль',
+                  tone: data.allDone ? ChipTone.success : ChipTone.warning,
+                  compact: true,
+                ),
+              ],
+            ),
+            const SizedBox(height: 11),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 6,
+                backgroundColor: context.palette.surface3,
+                valueColor: AlwaysStoppedAnimation(
+                  data.allDone ? context.palette.success : context.palette.ice,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _Count(
-                label: 'Готово',
-                value: data.done,
-                color: AppColors.success,
-                icon: Icons.check_circle_outline_rounded,
-              ),
-              const SizedBox(width: 14),
-              _Count(
-                label: 'Частично',
-                value: data.partial,
-                color: AppColors.warning,
-                icon: Icons.contrast_rounded,
-              ),
-              const SizedBox(width: 14),
-              _Count(
-                label: 'Не отмечено',
-                value: data.none,
-                color: AppColors.danger,
-                icon: Icons.radio_button_unchecked_rounded,
-              ),
-            ],
-          ),
-        ],
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                _Count(
+                  label: 'Готово',
+                  value: data.done,
+                  color: context.palette.success,
+                  icon: Icons.check_circle_outline_rounded,
+                ),
+                const SizedBox(width: 14),
+                _Count(
+                  label: 'Частично',
+                  value: data.partial,
+                  color: context.palette.warning,
+                  icon: Icons.contrast_rounded,
+                ),
+                const SizedBox(width: 14),
+                _Count(
+                  label: 'Не отмечено',
+                  value: data.none,
+                  color: context.palette.danger,
+                  icon: Icons.radio_button_unchecked_rounded,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -400,10 +406,10 @@ class _Count extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 9.5,
-            color: AppColors.textTertiary,
+            color: context.palette.textTertiary,
           ),
         ),
       ],
@@ -422,15 +428,15 @@ class _ProjectCheckCard extends StatelessWidget {
         ? 0.0
         : (project.actual / project.target).clamp(0.0, 1.0);
     final color = project.isDone
-        ? AppColors.success
+        ? context.palette.success
         : project.isPartial
-            ? AppColors.warning
-            : AppColors.danger;
+        ? context.palette.warning
+        : context.palette.danger;
     final label = project.isDone
         ? 'Норма закрыта'
         : project.isPartial
-            ? 'Частично'
-            : 'Не отмечено';
+        ? 'Частично'
+        : 'Не отмечено';
 
     return AppCard(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -451,15 +457,19 @@ class _ProjectCheckCard extends StatelessWidget {
                   project.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
               ),
-              AppChip(label: label, tone: _tone(color), compact: true),
+              AppChip(
+                label: label,
+                tone: _tone(context.palette, color),
+                compact: true,
+              ),
               const SizedBox(width: 8),
               Text(
                 '${project.actual}/${project.target}',
@@ -479,7 +489,7 @@ class _ProjectCheckCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 4,
-              backgroundColor: AppColors.surface3,
+              backgroundColor: context.palette.surface3,
               valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
@@ -499,28 +509,34 @@ class _ProjectCheckCard extends StatelessWidget {
                   child: Text(
                     project.posters
                         .take(2)
-                        .map((poster) => '${poster.name.split(' ').first} +${poster.count}')
+                        .map(
+                          (poster) =>
+                              '${poster.name.split(' ').first} +${poster.count}',
+                        )
                         .join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 10,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ),
               ] else ...[
-                const Icon(Icons.person_off_outlined,
-                    size: 13, color: AppColors.textTertiary),
+                Icon(
+                  Icons.person_off_outlined,
+                  size: 13,
+                  color: context.palette.textTertiary,
+                ),
                 const SizedBox(width: 5),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Никто не отметил сторис',
                     style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 10,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ),
@@ -528,11 +544,11 @@ class _ProjectCheckCard extends StatelessWidget {
               if (!project.isDone)
                 Text(
                   'не хватает ${project.missing}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 9.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.danger,
+                    color: context.palette.danger,
                   ),
                 ),
             ],
@@ -542,9 +558,9 @@ class _ProjectCheckCard extends StatelessWidget {
     );
   }
 
-  static ChipTone _tone(Color color) {
-    if (color == AppColors.success) return ChipTone.success;
-    if (color == AppColors.warning) return ChipTone.warning;
+  static ChipTone _tone(AppPalette palette, Color color) {
+    if (color == palette.success) return ChipTone.success;
+    if (color == palette.warning) return ChipTone.warning;
     return ChipTone.danger;
   }
 }

@@ -67,6 +67,9 @@ class UserModel {
 
   Color get identityColor {
     final hash = name.codeUnits.fold<int>(0, (a, b) => a + b);
+    // Categorical avatar hues: deliberately theme-independent constants,
+    // not surface tokens — an identity colour must stay the same colour
+    // in both themes.
     const palette = [
       AppColors.accent,
       AppColors.ice,

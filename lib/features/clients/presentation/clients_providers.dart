@@ -17,7 +17,7 @@ List<ClientLeadModel> parseClients(dynamic raw) {
       ? raw
       : raw is Map && raw['data'] is List
           ? raw['data'] as List
-          : const [];
+          : const <dynamic>[];
   final clients = list
       .map(asMap)
       .whereType<Map<String, dynamic>>()

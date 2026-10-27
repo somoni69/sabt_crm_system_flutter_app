@@ -128,10 +128,10 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
               const SizedBox(height: 8),
 
               notesAsync.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.accent),
+                    child: CircularProgressIndicator(color: context.palette.accent),
                   ),
                 ),
                 error: (error, _) => EmptyState(
@@ -165,10 +165,10 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
-                            color: AppColors.surface1,
+                            color: context.palette.surface1,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: note.done ? AppColors.borderSoft : AppColors.border,
+                              color: note.done ? context.palette.borderSoft : context.palette.border,
                             ),
                           ),
                           child: Row(
@@ -181,10 +181,10 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                                   height: 24,
                                   margin: const EdgeInsets.only(top: 2, right: 12),
                                   decoration: BoxDecoration(
-                                    color: note.done ? AppColors.success : AppColors.surface2,
+                                    color: note.done ? context.palette.success : context.palette.surface2,
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
-                                      color: note.done ? AppColors.success : AppColors.border,
+                                      color: note.done ? context.palette.success : context.palette.border,
                                     ),
                                   ),
                                   child: note.done
@@ -202,7 +202,7 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         decoration: note.done ? TextDecoration.lineThrough : null,
-                                        color: note.done ? AppColors.textTertiary : AppColors.text,
+                                        color: note.done ? context.palette.textTertiary : context.palette.text,
                                       ),
                                     ),
                                     if (note.date != null) ...[
@@ -212,8 +212,8 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                                           Icon(Icons.calendar_today_rounded,
                                               size: 12,
                                               color: note.date == todayStr
-                                                  ? AppColors.warning
-                                                  : AppColors.textTertiary),
+                                                  ? context.palette.warning
+                                                  : context.palette.textTertiary),
                                           const SizedBox(width: 4),
                                           Text(
                                             note.date!,
@@ -221,8 +221,8 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
                                               color: note.date == todayStr
-                                                  ? AppColors.warning
-                                                  : AppColors.textTertiary,
+                                                  ? context.palette.warning
+                                                  : context.palette.textTertiary,
                                             ),
                                           ),
                                         ],
@@ -232,8 +232,8 @@ class _MyNotesPageState extends ConsumerState<MyNotesPage> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline_rounded,
-                                    size: 18, color: AppColors.textTertiary),
+                                icon:  Icon(Icons.delete_outline_rounded,
+                                    size: 18, color: context.palette.textTertiary),
                                 onPressed: () => _deleteNote(note),
                               ),
                             ],
@@ -270,10 +270,10 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppColors.accent : AppColors.surface2,
+          color: selected ? context.palette.accent : context.palette.surface2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: selected ? AppColors.accentBright : AppColors.borderSoft,
+            color: selected ? context.palette.accentBright : context.palette.borderSoft,
           ),
         ),
         child: Text(
@@ -281,7 +281,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : context.palette.textSecondary,
           ),
         ),
       ),
@@ -322,16 +322,16 @@ class _CreateNoteSheetState extends State<_CreateNoteSheet> {
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'Что нужно сделать или запомнить?',
-              hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
+              hintStyle:  TextStyle(color: context.palette.textTertiary, fontSize: 14),
               filled: true,
-              fillColor: AppColors.surface2,
+              fillColor: context.palette.surface2,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.border),
+                borderSide:  BorderSide(color: context.palette.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.borderSoft),
+                borderSide:  BorderSide(color: context.palette.borderSoft),
               ),
             ),
           ),
@@ -347,9 +347,9 @@ class _CreateNoteSheetState extends State<_CreateNoteSheet> {
                   style: const TextStyle(fontSize: 13),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _selectedDate == null ? AppColors.textSecondary : AppColors.accentBright,
+                  foregroundColor: _selectedDate == null ? context.palette.textSecondary : context.palette.accentBright,
                   side: BorderSide(
-                    color: _selectedDate == null ? AppColors.border : AppColors.accent,
+                    color: _selectedDate == null ? context.palette.border : context.palette.accent,
                   ),
                 ),
                 onPressed: () async {
@@ -367,7 +367,7 @@ class _CreateNoteSheetState extends State<_CreateNoteSheet> {
               ),
               if (_selectedDate != null) ...[
                 IconButton(
-                  icon: const Icon(Icons.clear, size: 16, color: AppColors.textTertiary),
+                  icon:  Icon(Icons.clear, size: 16, color: context.palette.textTertiary),
                   onPressed: () => setState(() => _selectedDate = null),
                 ),
               ],

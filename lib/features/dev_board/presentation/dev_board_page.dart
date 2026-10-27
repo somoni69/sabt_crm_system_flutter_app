@@ -85,7 +85,7 @@ class DevBoardPage extends ConsumerWidget {
   }
 
   void _showChangeStatusDialog(BuildContext context, WidgetRef ref, DevTask task) {
-    showGlassSheet(
+    showGlassSheet<void>(
       context: context,
       title: 'Сменить статус',
       subtitle: task.title,
@@ -97,13 +97,13 @@ class DevBoardPage extends ConsumerWidget {
             contentPadding: EdgeInsets.zero,
             leading: Icon(
               isCurrent ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-              color: isCurrent ? AppColors.accentBright : AppColors.textTertiary,
+              color: isCurrent ? context.palette.accentBright : context.palette.textTertiary,
             ),
             title: Text(
               DevTask.statusLabel(status),
               style: TextStyle(
                 fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
-                color: isCurrent ? AppColors.text : AppColors.textSecondary,
+                color: isCurrent ? context.palette.text : context.palette.textSecondary,
               ),
             ),
             onTap: () async {
@@ -195,10 +195,10 @@ class DevBoardPage extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               asyncTasks.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.accent),
+                    child: CircularProgressIndicator(color: context.palette.accent),
                   ),
                 ),
                 error: (error, _) => EmptyState(
@@ -260,10 +260,10 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppColors.accent : AppColors.surface2,
+          color: selected ? context.palette.accent : context.palette.surface2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: selected ? AppColors.accentBright : AppColors.borderSoft,
+            color: selected ? context.palette.accentBright : context.palette.borderSoft,
           ),
         ),
         child: Text(
@@ -271,7 +271,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : context.palette.textSecondary,
           ),
         ),
       ),
@@ -288,11 +288,11 @@ class _DevTaskCard extends StatelessWidget {
   final DevTask task;
   final VoidCallback onChangeStatus;
 
-  Color _priorityColor(String priority) => switch (priority) {
-        'urgent' || 'critical' => AppColors.danger,
+  Color _priorityColor(AppPalette palette, String priority) => switch (priority) {
+        'urgent' || 'critical' => palette.danger,
         'high' => const Color(0xFFFF9F43),
-        'medium' => AppColors.accentBright,
-        _ => AppColors.textTertiary,
+        'medium' => palette.accentBright,
+        _ => palette.textTertiary,
       };
 
   @override
@@ -300,9 +300,9 @@ class _DevTaskCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,11 +313,11 @@ class _DevTaskCard extends StatelessWidget {
               if (task.projectName != null)
                 Text(
                   task.projectName!.toUpperCase(),
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontSize: 11,
                     letterSpacing: 0.5,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 )
               else
@@ -327,23 +327,23 @@ class _DevTaskCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.surface3,
+                    color: context.palette.surface3,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.borderSoft),
+                    border: Border.all(color: context.palette.borderSoft),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         DevTask.statusLabel(task.status),
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.accentBright,
+                          color: context.palette.accentBright,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.arrow_drop_down_rounded, size: 14, color: AppColors.accentBright),
+                       Icon(Icons.arrow_drop_down_rounded, size: 14, color: context.palette.accentBright),
                     ],
                   ),
                 ),
@@ -353,10 +353,10 @@ class _DevTaskCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             task.title,
-            style: const TextStyle(
+            style:  TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: AppColors.text,
+              color: context.palette.text,
             ),
           ),
           if (task.description != null && task.description!.isNotEmpty) ...[
@@ -365,9 +365,9 @@ class _DevTaskCard extends StatelessWidget {
               task.description!,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontSize: 12.5,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
                 height: 1.35,
               ),
             ),
@@ -380,21 +380,21 @@ class _DevTaskCard extends StatelessWidget {
                 height: 7,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _priorityColor(task.priority),
+                  color: _priorityColor(context.palette, task.priority),
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 DevTask.typeLabel(task.type),
-                style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
               ),
               const Spacer(),
               if (task.deadline != null) ...[
-                const Icon(Icons.schedule_rounded, size: 13, color: AppColors.textTertiary),
+                 Icon(Icons.schedule_rounded, size: 13, color: context.palette.textTertiary),
                 const SizedBox(width: 4),
                 Text(
                   BizDate.dateShort(task.deadline!),
-                  style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                  style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
                 ),
                 const SizedBox(width: 10),
               ],
@@ -407,7 +407,7 @@ class _DevTaskCard extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text(
                   task.assigneeName!,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style:  TextStyle(fontSize: 11, color: context.palette.textSecondary),
                 ),
               ],
             ],

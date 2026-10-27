@@ -170,7 +170,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/employees/sales-plan',
-        builder: (context, state) => const SalesPlanPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const SalesPlanPage(),
+        ),
       ),
       GoRoute(
         path: '/employees/:id',
@@ -192,97 +196,189 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/stories-check/month',
-        builder: (context, state) => const StoriesMonthPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const StoriesMonthPage(),
+        ),
       ),
       GoRoute(
         path: '/analytics',
-        builder: (context, state) => const AnalyticsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const AnalyticsPage(),
+        ),
       ),
       GoRoute(
         path: '/finance',
-        builder: (context, state) => const FinancePage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinancePage(),
+        ),
       ),
       GoRoute(
         path: '/finance/income',
-        builder: (context, state) => const FinanceIncomePage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceIncomePage(),
+        ),
       ),
       GoRoute(
         path: '/finance/income/:direction',
-        builder: (context, state) => FinanceIncomeDetailPage(
-          direction: state.pathParameters['direction'] ?? 'smm',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: FinanceIncomeDetailPage(
+            direction: state.pathParameters['direction'] ?? 'smm',
+          ),
         ),
       ),
       GoRoute(
         path: '/finance/expense',
-        builder: (context, state) => const FinanceExpensePage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceExpensePage(),
+        ),
       ),
       GoRoute(
         path: '/finance/salary',
-        builder: (context, state) => const FinanceSalaryPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceSalaryPage(),
+        ),
       ),
       GoRoute(
         path: '/finance/subscriptions',
-        builder: (context, state) => const FinanceSubscriptionsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceSubscriptionsPage(),
+        ),
       ),
       GoRoute(
         path: '/finance/debts',
-        builder: (context, state) => const FinanceDebtsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceDebtsPage(),
+        ),
       ),
       GoRoute(
         path: '/finance/transactions',
-        builder: (context, state) => const FinanceJournalPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceJournalPage(),
+        ),
       ),
       GoRoute(
         path: '/dev-board',
-        builder: (context, state) => const DevBoardPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const DevBoardPage(),
+        ),
       ),
       GoRoute(
         path: '/files',
-        builder: (context, state) => const FilesPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FilesPage(),
+        ),
       ),
       GoRoute(
         path: '/tariffs',
-        builder: (context, state) => const TariffsPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const TariffsPage(),
+        ),
       ),
       GoRoute(
         path: '/archive',
-        builder: (context, state) => const ArchivePage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const ArchivePage(),
+        ),
       ),
       GoRoute(
         path: '/my-notes',
-        builder: (context, state) => const MyNotesPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const MyNotesPage(),
+        ),
       ),
       GoRoute(
         path: '/ai',
-        builder: (context, state) => const AiChatPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const AiChatPage(),
+        ),
       ),
       GoRoute(
         path: '/risks',
-        builder: (context, state) => const RisksPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const RisksPage(),
+        ),
       ),
       GoRoute(
         path: '/security-log',
-        builder: (context, state) => const SecurityLogPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const SecurityLogPage(),
+        ),
       ),
       GoRoute(
         path: '/transport',
-        builder: (context, state) => const TransportPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const TransportPage(),
+        ),
       ),
       GoRoute(
         path: '/finance/transport',
-        builder: (context, state) => const FinanceTransportPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceTransportPage(),
+        ),
       ),
       GoRoute(
         path: '/onboarding',
-        builder: (context, state) => const OnboardingPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const OnboardingPage(),
+        ),
       ),
       GoRoute(
         path: '/employee-access',
-        builder: (context, state) => const EmployeeAccessPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeeAccessPage(),
+        ),
       ),
       GoRoute(
         path: '/smm/control',
-        builder: (context, state) => const SmmControlPage(),
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const SmmControlPage(),
+        ),
       ),
       GoRoute(
         path: '/web-only',

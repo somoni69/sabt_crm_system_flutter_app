@@ -85,7 +85,9 @@ void main() {
         ProviderScope(
           overrides: [
             visibleProjectsProvider.overrideWithValue(mockProjects),
-            projectFilesProvider.overrideWith((ref) async => mockFiles),
+            projectFilesProvider.overrideWith(
+              (ref, projectId) => Stream.value(mockFiles),
+            ),
           ],
           child: const MaterialApp(
             home: FilesPage(),

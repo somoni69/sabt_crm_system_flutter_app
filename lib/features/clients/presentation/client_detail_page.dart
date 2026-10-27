@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_banner.dart';
@@ -39,7 +40,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
   Future<void> _open(String? url) async {
     if (url == null || url.trim().isEmpty) return;
     try {
-      final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
       if (!ok) _error('Не удалось открыть ссылку');
     } catch (_) {
       _error('Не удалось открыть ссылку');
@@ -47,11 +51,12 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
   }
 
   void _error(String message) {
-    ref.read(dependenciesProvider).banners.show(AppBanner(
-          title: 'Ошибка',
-          message: message,
-          tone: BannerTone.danger,
-        ));
+    ref
+        .read(dependenciesProvider)
+        .banners
+        .show(
+          AppBanner(title: 'Ошибка', message: message, tone: BannerTone.danger),
+        );
   }
 
   Future<void> _run(Future<void> Function() action, String success) async {
@@ -61,12 +66,17 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
       await action();
       ref.read(dataRevisionProvider.notifier).bump();
       if (!mounted) return;
-      ref.read(dependenciesProvider).banners.show(AppBanner(
-            title: success,
-            message: '',
-            tone: BannerTone.success,
-            icon: Icons.check_circle_outline_rounded,
-          ));
+      ref
+          .read(dependenciesProvider)
+          .banners
+          .show(
+            AppBanner(
+              title: success,
+              message: '',
+              tone: BannerTone.success,
+              icon: Icons.check_circle_outline_rounded,
+            ),
+          );
     } on ApiException catch (error) {
       if (mounted) _error(error.message);
     } catch (_) {
@@ -82,7 +92,9 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
         'lastContactAt': BizDate.toApiIso(BizDate.now()),
       });
       if (client.callRequested) {
-        await ref.read(clientsRepositoryProvider).setCallRequest(client.id, false);
+        await ref
+            .read(clientsRepositoryProvider)
+            .setCallRequest(client.id, false);
       }
     }, 'Звонок отмечен');
   }
@@ -173,27 +185,30 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             child: _ContactAction(
                               icon: Icons.call_rounded,
                               label: 'Позвонить',
-                              color: AppColors.success,
+                              color: context.palette.success,
                               onTap: () => _open('tel:${client.contactPhone}'),
                             ),
                           ),
-                        if (client.contactPhone != null) const SizedBox(width: 8),
+                        if (client.contactPhone != null)
+                          const SizedBox(width: 8),
                         if (client.contactEmail != null)
                           Expanded(
                             child: _ContactAction(
                               icon: Icons.mail_outline_rounded,
                               label: 'Письмо',
-                              color: AppColors.info,
-                              onTap: () => _open('mailto:${client.contactEmail}'),
+                              color: context.palette.info,
+                              onTap: () =>
+                                  _open('mailto:${client.contactEmail}'),
                             ),
                           ),
-                        if (client.contactEmail != null) const SizedBox(width: 8),
+                        if (client.contactEmail != null)
+                          const SizedBox(width: 8),
                         if (client.contactInstagram != null)
                           Expanded(
                             child: _ContactAction(
                               icon: Icons.camera_alt_outlined,
                               label: 'Instagram',
-                              color: AppColors.accentBright,
+                              color: context.palette.accentBright,
                               onTap: () => _open(
                                 client.contactInstagram!.startsWith('http')
                                     ? client.contactInstagram
@@ -225,25 +240,33 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                         title: 'Договорённости',
                       ),
                       AppCard(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 8,
+                        ),
                         radius: 18,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (client.nextStep != null) ...[
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
                                 child: Text(
                                   client.nextStep!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: AppTypography.family,
                                     fontSize: 13,
                                     height: 1.5,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                               ),
-                              const Divider(height: 1, color: AppColors.borderSoft),
+                              Divider(
+                                height: 1,
+                                color: context.palette.borderSoft,
+                              ),
                             ],
                             if (client.nextContactAt != null)
                               KeyValueRow(
@@ -251,11 +274,14 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                                 value: BizDate.deadline(client.nextContactAt),
                                 icon: Icons.event_available_outlined,
                                 valueColor: client.nextContactOverdue
-                                    ? AppColors.danger
+                                    ? context.palette.danger
                                     : null,
                               ),
                             if (client.repeatCallAt != null) ...[
-                              const Divider(height: 1, color: AppColors.borderSoft),
+                              Divider(
+                                height: 1,
+                                color: context.palette.borderSoft,
+                              ),
                               KeyValueRow(
                                 label: 'Повторный звонок',
                                 value: BizDate.deadline(client.repeatCallAt),
@@ -268,17 +294,20 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                     ],
                     if (client.problem != null) ...[
                       const SizedBox(height: 20),
-                      const SectionHeader(overline: 'ЗАДАЧА', title: 'Проблема клиента'),
+                      const SectionHeader(
+                        overline: 'ЗАДАЧА',
+                        title: 'Проблема клиента',
+                      ),
                       AppCard(
                         padding: const EdgeInsets.all(15),
                         radius: 18,
                         child: Text(
                           client.problem!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 13,
                             height: 1.55,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ),
@@ -286,7 +315,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                     const SizedBox(height: 20),
                     const SectionHeader(overline: 'КАРТОЧКА', title: 'Детали'),
                     AppCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 5,
+                      ),
                       radius: 20,
                       child: Column(
                         children: [
@@ -296,7 +328,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             icon: Icons.alt_route_rounded,
                           ),
                           if (client.ownerName != null) ...[
-                            const Divider(height: 1, color: AppColors.borderSoft),
+                            Divider(
+                              height: 1,
+                              color: context.palette.borderSoft,
+                            ),
                             KeyValueRow(
                               label: 'Менеджер',
                               value: client.ownerName!,
@@ -304,7 +339,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             ),
                           ],
                           if (client.leadSource != null) ...[
-                            const Divider(height: 1, color: AppColors.borderSoft),
+                            Divider(
+                              height: 1,
+                              color: context.palette.borderSoft,
+                            ),
                             KeyValueRow(
                               label: 'Источник',
                               value: client.leadSource!,
@@ -312,7 +350,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             ),
                           ],
                           if (client.channel != null) ...[
-                            const Divider(height: 1, color: AppColors.borderSoft),
+                            Divider(
+                              height: 1,
+                              color: context.palette.borderSoft,
+                            ),
                             KeyValueRow(
                               label: 'Канал',
                               value: client.channel!,
@@ -320,15 +361,23 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             ),
                           ],
                           if (client.lastContactAt != null) ...[
-                            const Divider(height: 1, color: AppColors.borderSoft),
+                            Divider(
+                              height: 1,
+                              color: context.palette.borderSoft,
+                            ),
                             KeyValueRow(
                               label: 'Последний контакт',
-                              value: BizDate.dateWithYear(client.lastContactAt!),
+                              value: BizDate.dateWithYear(
+                                client.lastContactAt!,
+                              ),
                               icon: Icons.history_rounded,
                             ),
                           ],
                           if (client.lastActivityAt != null) ...[
-                            const Divider(height: 1, color: AppColors.borderSoft),
+                            Divider(
+                              height: 1,
+                              color: context.palette.borderSoft,
+                            ),
                             KeyValueRow(
                               label: 'Активность',
                               value: BizDate.relative(client.lastActivityAt!),
@@ -336,7 +385,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             ),
                           ],
                           if (client.address != null) ...[
-                            const Divider(height: 1, color: AppColors.borderSoft),
+                            Divider(
+                              height: 1,
+                              color: context.palette.borderSoft,
+                            ),
                             KeyValueRow(
                               label: 'Адрес',
                               value: client.address!,
@@ -354,11 +406,11 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                         radius: 18,
                         child: Text(
                           client.rejectionReason!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 13,
                             height: 1.5,
-                            color: AppColors.danger,
+                            color: context.palette.danger,
                           ),
                         ),
                       ),
@@ -373,17 +425,21 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                         onPressed: _busy
                             ? null
                             : () => showConfirmSheet(
-                                  context: context,
-                                  title: 'Удалить клиента?',
-                                  message: client.name,
-                                  confirmLabel: 'Удалить',
-                                  danger: true,
-                                  onConfirm: () async {
-                                    await ref.read(clientsRepositoryProvider).remove(client.id);
-                                    ref.read(dataRevisionProvider.notifier).bump();
-                                    if (context.mounted) context.pop();
-                                  },
-                                ),
+                                context: context,
+                                title: 'Удалить клиента?',
+                                message: client.name,
+                                confirmLabel: 'Удалить',
+                                danger: true,
+                                onConfirm: () async {
+                                  await ref
+                                      .read(clientsRepositoryProvider)
+                                      .remove(client.id);
+                                  ref
+                                      .read(dataRevisionProvider.notifier)
+                                      .bump();
+                                  if (context.mounted) context.pop();
+                                },
+                              ),
                       ),
                     ],
                     if (canEdit) ...[
@@ -395,7 +451,9 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                         icon: Icons.notification_add_outlined,
                         variant: AppButtonVariant.ghost,
                         compact: true,
-                        onPressed: _busy ? null : () => _toggleCallRequest(client),
+                        onPressed: _busy
+                            ? null
+                            : () => _toggleCallRequest(client),
                       ),
                     ],
                     const SizedBox(height: 26),
@@ -406,7 +464,10 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
     );
   }
 
-  Widget _placeholder(AsyncValue<dynamic> async, Future<void> Function() retry) {
+  Widget _placeholder(
+    AsyncValue<dynamic> async,
+    Future<void> Function() retry,
+  ) {
     if (async.hasError) {
       final error = async.error;
       return InlineError(
@@ -440,20 +501,20 @@ class _ClientHero extends StatelessWidget {
   final VoidCallback onClearRequest;
 
   ChipTone get _statusTone => switch (client.status) {
-        'won' => ChipTone.success,
-        'lost' => ChipTone.danger,
-        'on_hold' => ChipTone.warning,
-        'negotiating' || 'proposal' => ChipTone.warning,
-        'waiting' => ChipTone.info,
-        _ => ChipTone.neutral,
-      };
+    'won' => ChipTone.success,
+    'lost' => ChipTone.danger,
+    'on_hold' => ChipTone.warning,
+    'negotiating' || 'proposal' => ChipTone.warning,
+    'waiting' => ChipTone.info,
+    _ => ChipTone.neutral,
+  };
 
   ChipTone get _interestTone => switch (client.interest) {
-        'hot' => ChipTone.danger,
-        'warm' => ChipTone.warning,
-        'cold' => ChipTone.info,
-        _ => ChipTone.neutral,
-      };
+    'hot' => ChipTone.danger,
+    'warm' => ChipTone.warning,
+    'cold' => ChipTone.info,
+    _ => ChipTone.neutral,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -468,143 +529,157 @@ class _ClientHero extends StatelessWidget {
         ),
         border: Border.all(
           color: client.callRequested
-              ? AppColors.warning.withValues(alpha: 0.35)
-              : AppColors.borderSoft,
+              ? context.palette.warning.withValues(alpha: 0.35)
+              : context.palette.borderSoft,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SurfaceIcon(
-                icon: client.isDev ? Icons.code_rounded : Icons.auto_awesome_rounded,
-                color: client.isDev ? AppColors.ice : AppColors.accent,
-                size: 48,
-                radius: 15,
-              ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        AppChip(
-                          label: client.statusLabel,
-                          tone: _statusTone,
-                          compact: true,
-                          dot: true,
+      child: OnDark(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SurfaceIcon(
+                  icon: client.isDev
+                      ? Icons.code_rounded
+                      : Icons.auto_awesome_rounded,
+                  color: client.isDev
+                      ? context.palette.ice
+                      : context.palette.accent,
+                  size: 48,
+                  radius: 15,
+                ),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          AppChip(
+                            label: client.statusLabel,
+                            tone: _statusTone,
+                            compact: true,
+                            dot: true,
+                          ),
+                          AppChip(
+                            label: client.interestLabel,
+                            tone: _interestTone,
+                            compact: true,
+                          ),
+                          AppChip(
+                            label: client.directionLabel,
+                            tone: ChipTone.neutral,
+                            compact: true,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 9),
+                      Text(
+                        client.name,
+                        style: TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 23,
+                          height: 1.18,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.4,
+                          color: context.palette.text,
                         ),
-                        AppChip(
-                          label: client.interestLabel,
-                          tone: _interestTone,
-                          compact: true,
-                        ),
-                        AppChip(
-                          label: client.directionLabel,
-                          tone: ChipTone.neutral,
-                          compact: true,
+                      ),
+                      if (client.sphere != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          client.sphere!,
+                          style: TextStyle(
+                            fontFamily: AppTypography.family,
+                            fontSize: 11.5,
+                            color: context.palette.textTertiary,
+                          ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 9),
-                    Text(
-                      client.name,
-                      style: const TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 23,
-                        height: 1.18,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.4,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    if (client.sphere != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        client.sphere!,
-                        style: const TextStyle(
-                          fontFamily: AppTypography.family,
-                          fontSize: 11.5,
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
                     ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (client.callRequested) ...[
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
-              decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: AppColors.warning.withValues(alpha: 0.24)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.campaign_outlined,
-                      size: 16, color: AppColors.warning),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      client.callRequestedByName == null
-                          ? 'Руководитель просит позвонить клиенту'
-                          : '${client.callRequestedByName} просит позвонить клиенту',
-                      style: const TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 11,
-                        height: 1.35,
-                        color: Color(0xFFFFD79A),
-                      ),
-                    ),
-                  ),
-                  if (canEdit)
-                    TextButton(
-                      onPressed: busy ? null : onClearRequest,
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        minimumSize: const Size(0, 28),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text('Снять'),
-                    ),
-                ],
-              ),
-            ),
-          ],
-          if (client.dealPotential != null && client.dealPotential! > 0) ...[
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  Money.somoni(client.dealPotential),
-                  style: AppTypography.number(size: 27, color: AppColors.text),
-                ),
-                const SizedBox(width: 8),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    'потенциал сделки',
-                    style: TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 10.5,
-                      color: AppColors.textTertiary,
-                    ),
                   ),
                 ),
               ],
             ),
+            if (client.callRequested) ...[
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+                decoration: BoxDecoration(
+                  color: context.palette.warning.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(
+                    color: context.palette.warning.withValues(alpha: 0.24),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.campaign_outlined,
+                      size: 16,
+                      color: context.palette.warning,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        client.callRequestedByName == null
+                            ? 'Руководитель просит позвонить клиенту'
+                            : '${client.callRequestedByName} просит позвонить клиенту',
+                        style: const TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 11,
+                          height: 1.35,
+                          color: Color(0xFFFFD79A),
+                        ),
+                      ),
+                    ),
+                    if (canEdit)
+                      TextButton(
+                        onPressed: busy ? null : onClearRequest,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 28),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Снять'),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+            if (client.dealPotential != null && client.dealPotential! > 0) ...[
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    Money.somoni(client.dealPotential),
+                    style: AppTypography.number(
+                      size: 27,
+                      color: context.palette.text,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      'потенциал сделки',
+                      style: TextStyle(
+                        fontFamily: AppTypography.family,
+                        fontSize: 10.5,
+                        color: context.palette.textTertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -637,11 +712,11 @@ class _ContactAction extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 9.5,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ],

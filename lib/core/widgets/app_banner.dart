@@ -179,11 +179,11 @@ class _AppBannerHostState extends State<AppBannerHost>
   }
 
   Color _toneColor(BannerTone tone) => switch (tone) {
-    BannerTone.accent => AppColors.accentBright,
-    BannerTone.success => AppColors.success,
-    BannerTone.danger => AppColors.danger,
-    BannerTone.warning => AppColors.warning,
-    BannerTone.info => AppColors.info,
+    BannerTone.accent => context.palette.accentBright,
+    BannerTone.success => context.palette.success,
+    BannerTone.danger => context.palette.danger,
+    BannerTone.warning => context.palette.warning,
+    BannerTone.info => context.palette.info,
   };
 
   @override
@@ -251,12 +251,12 @@ class _AppBannerHostState extends State<AppBannerHost>
                                           banner.title,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
+                                          style:  TextStyle(
                                             fontFamily: AppTypography.family,
                                             fontSize: 13.5,
                                             height: 1.2,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.text,
+                                            color: context.palette.text,
                                           ),
                                         ),
                                         const SizedBox(height: 3),
@@ -264,11 +264,11 @@ class _AppBannerHostState extends State<AppBannerHost>
                                           banner.message,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
+                                          style:  TextStyle(
                                             fontFamily: AppTypography.family,
                                             fontSize: 12,
                                             height: 1.3,
-                                            color: AppColors.textSecondary,
+                                            color: context.palette.textSecondary,
                                           ),
                                         ),
                                       ],
@@ -303,10 +303,10 @@ class AppBannerCloseButton extends StatelessWidget {
       child: InkResponse(
         onTap: onTap,
         radius: 18,
-        child: const SizedBox(
+        child:  SizedBox(
           width: 34,
           height: 34,
-          child: Icon(LucideIcons.x, size: 15, color: AppColors.textTertiary),
+          child: Icon(LucideIcons.x, size: 15, color: context.palette.textTertiary),
         ),
       ),
     );

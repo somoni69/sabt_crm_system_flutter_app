@@ -37,7 +37,7 @@ class MorePage extends ConsumerWidget {
       if (canSmm)
         _MenuRow(
           icon: Icons.auto_awesome_outlined,
-          color: AppColors.accent,
+          color: context.palette.accent,
           title: 'SMM и контент-план',
           subtitle: 'Сторис, публикации, проекты',
           onTap: () => openShellTab(ref, 'work'),
@@ -45,7 +45,7 @@ class MorePage extends ConsumerWidget {
       if (canProjects)
         _MenuRow(
           icon: Icons.workspaces_outline,
-          color: AppColors.ice,
+          color: context.palette.ice,
           title: 'Проекты',
           subtitle: 'Прогресс, команда и нормы',
           onTap: () => context.push('/projects'),
@@ -53,7 +53,7 @@ class MorePage extends ConsumerWidget {
       if (canCalendar)
         _MenuRow(
           icon: Icons.calendar_month_outlined,
-          color: AppColors.info,
+          color: context.palette.info,
           title: 'Календарь',
           subtitle: 'Встречи, дедлайны и платежи',
           onTap: () => context.push('/calendar'),
@@ -61,7 +61,7 @@ class MorePage extends ConsumerWidget {
       if (canClients)
         _MenuRow(
           icon: Icons.people_outline_rounded,
-          color: AppColors.success,
+          color: context.palette.success,
           title: 'Клиенты',
           subtitle: 'Лиды, статусы и контакты',
           onTap: () => context.push('/clients'),
@@ -69,7 +69,7 @@ class MorePage extends ConsumerWidget {
       if (user.role == 'sales_manager_dev' || user.secondaryRole == 'sales_manager_dev')
         _MenuRow(
           icon: Icons.filter_alt_outlined,
-          color: AppColors.accentBright,
+          color: context.palette.accentBright,
           title: 'Онбординг',
           subtitle: 'Воронка клиентов и запуск',
           onTap: () => context.push('/onboarding'),
@@ -77,7 +77,7 @@ class MorePage extends ConsumerWidget {
       if (canEmployees)
         _MenuRow(
           icon: Icons.badge_outlined,
-          color: AppColors.warning,
+          color: context.palette.warning,
           title: 'Сотрудники',
           subtitle: 'Команда, контакты и загрузка',
           onTap: () => context.push('/employees'),
@@ -85,7 +85,7 @@ class MorePage extends ConsumerWidget {
       if (user.isFounder)
         _MenuRow(
           icon: Icons.flag_outlined,
-          color: AppColors.success,
+          color: context.palette.success,
           title: 'План продаж',
           subtitle: 'Суммы менеджеров на месяц',
           onTap: () => context.push('/employees/sales-plan'),
@@ -93,7 +93,7 @@ class MorePage extends ConsumerWidget {
       if (user.isAdmin || user.isFounder)
         _MenuRow(
           icon: Icons.admin_panel_settings_outlined,
-          color: AppColors.ice,
+          color: context.palette.ice,
           title: 'Доступы сотрудников',
           subtitle: 'Матрица прав и персональные гранты',
           onTap: () => context.push('/employee-access'),
@@ -101,7 +101,7 @@ class MorePage extends ConsumerWidget {
       if (checks || userCan(user, Perm.storiesManage))
         _MenuRow(
           icon: Icons.fact_check_outlined,
-          color: AppColors.warning,
+          color: context.palette.warning,
           title: 'Проверка сторис',
           subtitle: 'Дневная норма по проектам',
           onTap: () => context.push('/stories-check'),
@@ -109,7 +109,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.storiesView) || userCan(user, Perm.storiesManage))
         _MenuRow(
           icon: Icons.checklist_rounded,
-          color: AppColors.success,
+          color: context.palette.success,
           title: 'SMM-Контроль',
           subtitle: 'Здоровье проектов и публикации',
           onTap: () => context.push('/smm/control'),
@@ -117,7 +117,7 @@ class MorePage extends ConsumerWidget {
       if (user.isStoryMaker && userCan(user, Perm.notesUse))
         _MenuRow(
           icon: Icons.sticky_note_2_outlined,
-          color: AppColors.accent,
+          color: context.palette.accent,
           title: 'Мои заметки',
           subtitle: 'Личные задачи и напоминания',
           onTap: () => context.push('/my-notes'),
@@ -128,7 +128,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.aiChat))
         _MenuRow(
           icon: Icons.auto_awesome,
-          color: AppColors.accentBright,
+          color: context.palette.accentBright,
           title: 'ИИ-помощник',
           subtitle: 'Умная аналитика и поиск по CRM',
           onTap: () => context.push('/ai'),
@@ -136,7 +136,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.analyticsView))
         _MenuRow(
           icon: Icons.insights_outlined,
-          color: AppColors.accentBright,
+          color: context.palette.accentBright,
           title: 'Аналитика',
           subtitle: 'Сводные показатели и графики',
           onTap: () => context.push('/analytics'),
@@ -144,7 +144,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.risksView) || user.isFounder || user.isAdmin)
         _MenuRow(
           icon: Icons.warning_amber_rounded,
-          color: AppColors.danger,
+          color: context.palette.danger,
           title: 'Риски',
           subtitle: 'План-факт, отставания и перегрузка',
           onTap: () => context.push('/risks'),
@@ -152,14 +152,14 @@ class MorePage extends ConsumerWidget {
       if (canSeeFinance(user))
         _MenuRow(
           icon: Icons.account_balance_wallet_outlined,
-          color: AppColors.success,
+          color: context.palette.success,
           title: 'Финансы',
           subtitle: 'Оплаты, счета и прибыль',
           onTap: () => context.push('/finance'),
         ),
       _MenuRow(
         icon: Icons.directions_car_outlined,
-        color: AppColors.ice,
+        color: context.palette.ice,
         title: 'Транспорт',
         subtitle: 'Компенсации за рабочие поездки',
         onTap: () => context.push('/transport'),
@@ -167,7 +167,7 @@ class MorePage extends ConsumerWidget {
       if (canSeeDevSection(user) || userCan(user, Perm.devTrackerView))
         _MenuRow(
           icon: Icons.terminal_rounded,
-          color: AppColors.ice,
+          color: context.palette.ice,
           title: 'Dev-доска',
           subtitle: 'Канбан разработки',
           onTap: () => context.push('/dev-board'),
@@ -175,7 +175,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.filesView))
         _MenuRow(
           icon: Icons.folder_open_rounded,
-          color: AppColors.warning,
+          color: context.palette.warning,
           title: 'Файлы',
           subtitle: 'Хранилище документов и медиа',
           onTap: () => context.push('/files'),
@@ -183,7 +183,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.tariffsManage))
         _MenuRow(
           icon: Icons.local_offer_outlined,
-          color: AppColors.accent,
+          color: context.palette.accent,
           title: 'Тарифы',
           subtitle: 'Управление пакетами услуг',
           onTap: () => context.push('/tariffs'),
@@ -191,7 +191,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.archiveView))
         _MenuRow(
           icon: Icons.inventory_2_outlined,
-          color: AppColors.textSecondary,
+          color: context.palette.textSecondary,
           title: 'Архив',
           subtitle: 'Завершённые проекты',
           onTap: () => context.push('/archive'),
@@ -199,7 +199,7 @@ class MorePage extends ConsumerWidget {
       if (userCan(user, Perm.securityLogView) || user.isAdmin || user.isFounder)
         _MenuRow(
           icon: Icons.shield_outlined,
-          color: AppColors.textSecondary,
+          color: context.palette.textSecondary,
           title: 'Журнал безопасности',
           subtitle: 'Аудит действий и авторизаций',
           onTap: () => context.push('/security-log'),
@@ -258,14 +258,14 @@ class MorePage extends ConsumerWidget {
                 children: [
                   _MenuRow(
                     icon: Icons.person_outline_rounded,
-                    color: AppColors.accentBright,
+                    color: context.palette.accentBright,
                     title: 'Профиль',
                     subtitle: '${user.email} · ${user.displayPosition}',
                     onTap: () => context.push('/profile'),
                   ),
                   _MenuRow(
                     icon: Icons.notifications_none_rounded,
-                    color: AppColors.info,
+                    color: context.palette.info,
                     title: 'Уведомления',
                     subtitle: unread > 0
                         ? '$unread непрочитанных'
@@ -275,7 +275,7 @@ class MorePage extends ConsumerWidget {
                   ),
                   _MenuRow(
                     icon: Icons.settings_outlined,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     title: 'Настройки',
                     subtitle: 'Кэш, диагностика, безопасность',
                     onTap: () => context.push('/settings'),
@@ -296,9 +296,9 @@ class MorePage extends ConsumerWidget {
                 radius: 18,
                 child: Row(
                   children: [
-                    const SurfaceIcon(
+                     SurfaceIcon(
                       icon: Icons.verified_user_outlined,
-                      color: AppColors.success,
+                      color: context.palette.success,
                       size: 40,
                     ),
                     const SizedBox(width: 12),
@@ -306,13 +306,13 @@ class MorePage extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                           Text(
                             'Защищённое соединение',
                             style: TextStyle(
                               fontFamily: AppTypography.family,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.text,
+                              color: context.palette.text,
                             ),
                           ),
                           const SizedBox(height: 3),
@@ -320,11 +320,11 @@ class MorePage extends ConsumerWidget {
                             'Realtime ${realtime ? 'подключён' : 'ожидает'} · '
                             'Firebase ${firebase.messagingEnabled ? 'включён' : 'локально'} · '
                             'v${AppEnv.appVersion}',
-                            style: const TextStyle(
+                            style:  TextStyle(
                               fontFamily: AppTypography.family,
                               fontSize: 10.5,
                               height: 1.4,
-                              color: AppColors.textTertiary,
+                              color: context.palette.textTertiary,
                             ),
                           ),
                         ],
@@ -352,10 +352,10 @@ class MorePage extends ConsumerWidget {
               Center(
                 child: Text(
                   'Sabt CRM · WeBrand · Душанбе ${DateTime.now().year}',
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10,
-                    color: AppColors.textDisabled,
+                    color: context.palette.textDisabled,
                   ),
                 ),
               ),
@@ -381,7 +381,7 @@ class _MenuGroup extends StatelessWidget {
         children: [
           for (var i = 0; i < children.length; i++) ...[
             if (i > 0)
-              const Divider(height: 1, thickness: 1, color: AppColors.borderSoft),
+               Divider(height: 1, thickness: 1, color: context.palette.borderSoft),
             children[i],
           ],
         ],
@@ -421,11 +421,11 @@ class _MenuRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -433,10 +433,10 @@ class _MenuRow extends StatelessWidget {
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10.5,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
@@ -446,23 +446,23 @@ class _MenuRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
               decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.12),
+                color: context.palette.accent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(99),
-                border: Border.all(color: AppColors.accent.withValues(alpha: 0.22)),
+                border: Border.all(color: context.palette.accent.withValues(alpha: 0.22)),
               ),
               child: Text(
                 trailingLabel!,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
-                  color: AppColors.accentBright,
+                  color: context.palette.accentBright,
                 ),
               ),
             ),
           const SizedBox(width: 4),
-          const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textTertiary),
+           Icon(Icons.chevron_right_rounded, size: 18, color: context.palette.textTertiary),
         ],
       ),
     );

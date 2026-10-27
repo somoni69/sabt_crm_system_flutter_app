@@ -237,11 +237,11 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
           autofocus: widget.event == null,
           maxLength: 300,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Тема публикации',
@@ -273,7 +273,7 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
         AppChoiceChips<String>(
           selected: _type,
           onChanged: (value) => setState(() => _type = value),
-          options: const [
+          options:  [
             AppChoice(
               value: 'reel',
               label: 'Рилс',
@@ -283,13 +283,13 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
               value: 'post',
               label: 'Пост',
               icon: Icons.grid_view_rounded,
-              color: AppColors.info,
+              color: context.palette.info,
             ),
             AppChoice(
               value: 'design',
               label: 'Макет',
               icon: Icons.brush_outlined,
-              color: AppColors.ice,
+              color: context.palette.ice,
             ),
           ],
         ),
@@ -297,17 +297,17 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
         AppFieldRow(
           label: 'Дата',
           onTrailingTap: _busy ? null : _pickDate,
-          trailing: const Icon(Icons.edit_calendar_outlined,
-              size: 18, color: AppColors.accentBright),
+          trailing:  Icon(Icons.edit_calendar_outlined,
+              size: 18, color: context.palette.accentBright),
           child: GestureDetector(
             onTap: _busy ? null : _pickDate,
             child: Text(
               BizDate.fullDate(_date),
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
           ),
@@ -321,10 +321,10 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
                   setState(() => _time = null);
                 },
           trailing: _time == null
-              ? const Icon(Icons.schedule_rounded,
-                  size: 18, color: AppColors.accentBright)
-              : const Icon(Icons.close_rounded,
-                  size: 17, color: AppColors.textTertiary),
+              ?  Icon(Icons.schedule_rounded,
+                  size: 18, color: context.palette.accentBright)
+              :  Icon(Icons.close_rounded,
+                  size: 17, color: context.palette.textTertiary),
           child: GestureDetector(
             onTap: _busy ? null : _pickTime,
             child: Text(
@@ -333,7 +333,7 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
                 fontFamily: AppTypography.family,
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
-                color: _time == null ? AppColors.textTertiary : AppColors.text,
+                color: _time == null ? context.palette.textTertiary : context.palette.text,
               ),
             ),
           ),
@@ -383,11 +383,11 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
           maxLines: 5,
           maxLength: 10000,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 13.5,
             height: 1.5,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Хук, сцены, CTA…',
@@ -402,11 +402,11 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
           maxLines: 3,
           maxLength: 5000,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 13.5,
             height: 1.5,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Текст публикации',

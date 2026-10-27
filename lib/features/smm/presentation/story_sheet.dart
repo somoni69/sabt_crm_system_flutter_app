@@ -65,18 +65,18 @@ class _StorySheet extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                     Text(
                       'Общий прогресс',
                       style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 11,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       '$totalDone из $totalTarget',
-                      style: AppTypography.number(size: 22, color: AppColors.text),
+                      style: AppTypography.number(size: 22, color: context.palette.text),
                     ),
                   ],
                 ),
@@ -174,11 +174,11 @@ class _StoryProjectRowState extends ConsumerState<_StoryProjectRow> {
                       widget.project.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -189,7 +189,7 @@ class _StoryProjectRowState extends ConsumerState<_StoryProjectRow> {
                       style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 10,
-                        color: complete ? AppColors.success : AppColors.textTertiary,
+                        color: complete ? context.palette.success : context.palette.textTertiary,
                       ),
                     ),
                   ],
@@ -206,7 +206,7 @@ class _StoryProjectRowState extends ConsumerState<_StoryProjectRow> {
                     '$_count',
                     style: AppTypography.number(
                       size: 24,
-                      color: complete ? AppColors.success : AppColors.text,
+                      color: complete ? context.palette.success : context.palette.text,
                     ),
                   ),
                 ),
@@ -224,9 +224,9 @@ class _StoryProjectRowState extends ConsumerState<_StoryProjectRow> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 3,
-              backgroundColor: AppColors.surface3,
+              backgroundColor: context.palette.surface3,
               valueColor: AlwaysStoppedAnimation(
-                complete ? AppColors.success : AppColors.ice,
+                complete ? context.palette.success : context.palette.ice,
               ),
             ),
           ),
@@ -259,17 +259,17 @@ class _RoundButton extends StatelessWidget {
           height: 34,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: accent ? AppColors.accent : AppColors.surface3,
+            color: accent ? context.palette.accent : context.palette.surface3,
             border: Border.all(
               color: accent
-                  ? AppColors.accentBright.withValues(alpha: 0.4)
-                  : AppColors.border,
+                  ? context.palette.accentBright.withValues(alpha: 0.4)
+                  : context.palette.border,
             ),
           ),
           child: Icon(
             icon,
             size: 17,
-            color: accent ? Colors.white : AppColors.textSecondary,
+            color: accent ? Colors.white : context.palette.textSecondary,
           ),
         ),
       ),

@@ -563,9 +563,9 @@ class FinanceMonthBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -625,16 +625,16 @@ class _PayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final amountColor = done
-        ? AppColors.success
+        ? context.palette.success
         : late
-            ? AppColors.danger
-            : AppColors.text;
+            ? context.palette.danger
+            : context.palette.text;
     return AppCard(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       radius: 16,
       onTap: onTap,
-      borderColor: late ? AppColors.danger.withValues(alpha: 0.45) : null,
+      borderColor: late ? context.palette.danger.withValues(alpha: 0.45) : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -649,18 +649,18 @@ class _PayCard extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.textTheme.titleMedium?.copyWith(color: AppColors.text),
+                      style: AppTypography.textTheme.titleMedium?.copyWith(color: context.palette.text),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 12,
                         height: 1.35,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                   ],
@@ -716,9 +716,9 @@ class _FinanceLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return  Padding(
       padding: EdgeInsets.symmetric(vertical: 80),
-      child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+      child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
     );
   }
 }
@@ -881,9 +881,9 @@ class _FinancePayFormState extends ConsumerState<_FinancePayForm> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Padding(
+      return  Padding(
         padding: EdgeInsets.symmetric(vertical: 24),
-        child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+        child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
       );
     }
     return Column(
@@ -897,11 +897,11 @@ class _FinancePayFormState extends ConsumerState<_FinancePayForm> {
         ),
         const SizedBox(height: 12),
         if (_accounts.isEmpty)
-          const Text(
+           Text(
             'Счета не настроены. Добавьте их в веб-версии финансов.',
             style: TextStyle(
               fontFamily: AppTypography.family,
-              color: AppColors.danger,
+              color: context.palette.danger,
               fontSize: 12.5,
               height: 1.35,
             ),
@@ -921,9 +921,9 @@ class _FinancePayFormState extends ConsumerState<_FinancePayForm> {
           const SizedBox(height: 10),
           Text(
             _error!,
-            style: const TextStyle(
+            style:  TextStyle(
               fontFamily: AppTypography.family,
-              color: AppColors.danger,
+              color: context.palette.danger,
               fontSize: 12.5,
               height: 1.35,
             ),
@@ -993,17 +993,17 @@ class _AccountSelectChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.accentBright : AppColors.textSecondary;
+    final color = selected ? context.palette.accentBright : context.palette.textSecondary;
     return PressableScale(
       onTap: onTap,
       child: Container(
         constraints: BoxConstraints(minHeight: 44, maxWidth: maxWidth),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: selected ? AppColors.accent.withValues(alpha: 0.13) : AppColors.surface2,
+          color: selected ? context.palette.accent.withValues(alpha: 0.13) : context.palette.surface2,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? AppColors.accent.withValues(alpha: 0.32) : AppColors.border,
+            color: selected ? context.palette.accent.withValues(alpha: 0.32) : context.palette.border,
           ),
         ),
         child: Text(

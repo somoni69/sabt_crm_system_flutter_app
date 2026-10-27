@@ -10,6 +10,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/app_controls.dart';
+import '../../../core/widgets/app_form.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../projects/presentation/projects_providers.dart';
@@ -28,39 +29,52 @@ class TransportPage extends ConsumerWidget {
           Navigator.pop(context);
           try {
             final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            await ref.read(transportRepositoryProvider).createRequest(
+            await ref
+                .read(transportRepositoryProvider)
+                .createRequest(
                   projectId: projectId,
                   amount: amount,
                   date: todayStr,
                   note: note,
                 );
             ref.read(dataRevisionProvider.notifier).bump();
-            ref.read(dependenciesProvider).banners.show(const AppBanner(
-                  title: 'Заявка подана',
-                  message: 'Заявка на возврат средств отправлена на утверждение.',
-                  tone: BannerTone.success,
-                ));
+            ref
+                .read(dependenciesProvider)
+                .banners
+                .show(
+                  const AppBanner(
+                    title: 'Заявка подана',
+                    message:
+                        'Заявка на возврат средств отправлена на утверждение.',
+                    tone: BannerTone.success,
+                  ),
+                );
           } catch (e) {
-            ref.read(dependenciesProvider).banners.show(AppBanner(
-                  title: 'Ошибка',
-                  message: e.toString(),
-                  tone: BannerTone.danger,
-                ));
+            ref
+                .read(dependenciesProvider)
+                .banners
+                .show(
+                  AppBanner(
+                    title: 'Ошибка',
+                    message: e.toString(),
+                    tone: BannerTone.danger,
+                  ),
+                );
           }
         },
       ),
     );
   }
 
-  Color _statusColor(String status) {
+  Color _statusColor(AppPalette palette, String status) {
     switch (status.toLowerCase()) {
       case 'paid':
-        return AppColors.success;
+        return palette.success;
       case 'rejected':
-        return AppColors.danger;
+        return palette.danger;
       case 'pending':
       default:
-        return AppColors.warning;
+        return palette.warning;
     }
   }
 
@@ -101,9 +115,11 @@ class TransportPage extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: transportAsync.when(
-            loading: () => const Padding(
+            loading: () => Padding(
               padding: EdgeInsets.symmetric(vertical: 80),
-              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              child: Center(
+                child: CircularProgressIndicator(color: context.palette.accent),
+              ),
             ),
             error: (e, _) => EmptyState(
               icon: Icons.error_outline_rounded,
@@ -123,20 +139,28 @@ class TransportPage extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surface1,
+                            color: context.palette.surface1,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.palette.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Оплачено в этом месяце',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                              Text(
+                                'Оплачено в этом месяце',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: context.palette.textTertiary,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               Text(
                                 Money.somoni(data.totalPaidThisMonth),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.success),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: context.palette.success,
+                                ),
                               ),
                             ],
                           ),
@@ -147,20 +171,28 @@ class TransportPage extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surface1,
+                            color: context.palette.surface1,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.palette.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('На рассмотрении',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                              Text(
+                                'На рассмотрении',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: context.palette.textTertiary,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               Text(
                                 Money.somoni(data.totalPending),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.warning),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: context.palette.warning,
+                                ),
                               ),
                             ],
                           ),
@@ -180,15 +212,15 @@ class TransportPage extends ConsumerWidget {
                     ),
                   ] else ...[
                     ...data.requests.map((r) {
-                      final color = _statusColor(r.status);
+                      final color = _statusColor(context.palette, r.status);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surface1,
+                            color: context.palette.surface1,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.palette.border),
                           ),
                           child: Row(
                             children: [
@@ -196,17 +228,28 @@ class TransportPage extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(r.projectName, style: AppTypography.textTheme.titleMedium),
+                                    Text(
+                                      r.projectName,
+                                      style:
+                                          AppTypography.textTheme.titleMedium,
+                                    ),
                                     const SizedBox(height: 4),
                                     Text(
                                       r.date,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: context.palette.textTertiary,
+                                      ),
                                     ),
-                                    if (r.note != null && r.note!.isNotEmpty) ...[
+                                    if (r.note != null &&
+                                        r.note!.isNotEmpty) ...[
                                       const SizedBox(height: 2),
                                       Text(
                                         r.note!,
-                                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: context.palette.textSecondary,
+                                        ),
                                       ),
                                     ],
                                   ],
@@ -217,18 +260,28 @@ class TransportPage extends ConsumerWidget {
                                 children: [
                                   Text(
                                     Money.somoni(r.amount),
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: color.withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       _statusLabel(r.status),
-                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: color,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -252,10 +305,12 @@ class TransportPage extends ConsumerWidget {
 class _CreateTransportSheet extends ConsumerStatefulWidget {
   const _CreateTransportSheet({required this.onSubmitted});
 
-  final void Function(String projectId, double amount, String? note) onSubmitted;
+  final void Function(String projectId, double amount, String? note)
+  onSubmitted;
 
   @override
-  ConsumerState<_CreateTransportSheet> createState() => _CreateTransportSheetState();
+  ConsumerState<_CreateTransportSheet> createState() =>
+      _CreateTransportSheetState();
 }
 
 class _CreateTransportSheetState extends ConsumerState<_CreateTransportSheet> {
@@ -273,28 +328,28 @@ class _CreateTransportSheetState extends ConsumerState<_CreateTransportSheet> {
   @override
   Widget build(BuildContext context) {
     final projects = ref.watch(visibleProjectsProvider);
-    final activeId = _selectedProjectId ?? (projects.isNotEmpty ? projects.first.id : null);
+    final activeId =
+        _selectedProjectId ?? (projects.isNotEmpty ? projects.first.id : null);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 20),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (projects.isNotEmpty) ...[
-            DropdownButtonFormField<String>(
-              initialValue: activeId,
-              dropdownColor: AppColors.surface2,
-              decoration: InputDecoration(
-                labelText: 'Проект',
-                labelStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
-                filled: true,
-                fillColor: AppColors.surface2,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              items: projects
-                  .map((p) => DropdownMenuItem(value: p.id, child: Text(p.name, style: const TextStyle(fontSize: 14))))
-                  .toList(),
+            AppSelectField<String>(
+              value: activeId,
+              items: projects.map((p) => p.id).toList(),
+              icon: Icons.folder_outlined,
+              labelOf: (id) => projects
+                  .firstWhere((p) => p.id == id, orElse: () => projects.first)
+                  .name,
               onChanged: (val) => setState(() => _selectedProjectId = val),
             ),
             const SizedBox(height: 12),
@@ -304,10 +359,15 @@ class _CreateTransportSheetState extends ConsumerState<_CreateTransportSheet> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: 'Сумма (сомони)',
-              labelStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
+              labelStyle: TextStyle(
+                color: context.palette.textTertiary,
+                fontSize: 13,
+              ),
               filled: true,
-              fillColor: AppColors.surface2,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              fillColor: context.palette.surface2,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -315,10 +375,15 @@ class _CreateTransportSheetState extends ConsumerState<_CreateTransportSheet> {
             controller: _noteCtrl,
             decoration: InputDecoration(
               labelText: 'Комментарий (куда, цель поездки)',
-              labelStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
+              labelStyle: TextStyle(
+                color: context.palette.textTertiary,
+                fontSize: 13,
+              ),
               filled: true,
-              fillColor: AppColors.surface2,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              fillColor: context.palette.surface2,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -326,7 +391,8 @@ class _CreateTransportSheetState extends ConsumerState<_CreateTransportSheet> {
             label: 'Подать заявку',
             variant: AppButtonVariant.primary,
             onPressed: () {
-              final amount = double.tryParse(_amountCtrl.text.replaceAll(',', '.')) ?? 0;
+              final amount =
+                  double.tryParse(_amountCtrl.text.replaceAll(',', '.')) ?? 0;
               if (amount <= 0 || activeId == null) return;
               widget.onSubmitted(activeId, amount, _noteCtrl.text.trim());
             },

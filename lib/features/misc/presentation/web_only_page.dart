@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/app_env.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
@@ -17,7 +18,10 @@ class WebOnlyPage extends StatelessWidget {
   Future<void> _open(BuildContext context) async {
     final url = '${AppEnv.webBaseUrl}$path';
     try {
-      final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
       if (!ok && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Не удалось открыть браузер')),
@@ -54,53 +58,62 @@ class WebOnlyPage extends StatelessWidget {
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1B2033), Color(0xFF111624), Color(0xFF181228)],
+                    colors: [
+                      Color(0xFF1B2033),
+                      Color(0xFF111624),
+                      Color(0xFF181228),
+                    ],
                   ),
-                  border: Border.all(color: AppColors.borderSoft),
+                  border: Border.all(color: context.palette.borderSoft),
                 ),
-                child: Column(
-                  children: [
-                    const SurfaceIcon(
-                      icon: Icons.desktop_windows_outlined,
-                      color: AppColors.accentBright,
-                      size: 72,
-                      radius: 22,
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Этот раздел живёт в браузере',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Тяжёлые таблицы, канбан, финансы и настройки доступа удобнее на большом экране. Мобильное приложение остаётся вашим daily-драйвером: задачи, SMM-календарь, сторис и клиенты.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 12,
-                        height: 1.55,
-                        color: AppColors.textTertiary,
+                child: OnDark(
+                  child: Column(
+                    children: [
+                      SurfaceIcon(
+                        icon: Icons.desktop_windows_outlined,
+                        color: context.palette.accentBright,
+                        size: 72,
+                        radius: 22,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface2,
-                        borderRadius: BorderRadius.circular(11),
-                        border: Border.all(color: AppColors.borderSoft),
+                      const SizedBox(height: 18),
+                      Text(
+                        'Этот раздел живёт в браузере',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      child: Text(
-                        path,
-                        style: const TextStyle(
+                      const SizedBox(height: 8),
+                      Text(
+                        'Тяжёлые таблицы, канбан, финансы и настройки доступа удобнее на большом экране. Мобильное приложение остаётся вашим daily-драйвером: задачи, SMM-календарь, сторис и клиенты.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
                           fontFamily: AppTypography.family,
-                          fontSize: 10.5,
-                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          height: 1.55,
+                          color: context.palette.textTertiary,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.palette.surface2,
+                          borderRadius: BorderRadius.circular(11),
+                          border: Border.all(color: context.palette.borderSoft),
+                        ),
+                        child: Text(
+                          path,
+                          style: TextStyle(
+                            fontFamily: AppTypography.family,
+                            fontSize: 10.5,
+                            color: context.palette.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -116,11 +129,10 @@ class WebOnlyPage extends StatelessWidget {
                 onPressed: () => context.pop(),
               ),
               const SizedBox(height: 24),
-              const AccentNote(
+              AccentNote(
                 icon: Icons.sync_rounded,
-                color: AppColors.success,
-                text:
-                    'Все изменения синхронизируются через один аккаунт Sabt. Авторизуйтесь в браузере тем же логином — данные уже будут на месте.',
+                color: context.palette.success,
+                text: 'Все изменения синхронизируются через один аккаунт Sabt. Авторизуйтесь в браузере тем же логином — данные уже будут на месте.',
               ),
             ],
           ),

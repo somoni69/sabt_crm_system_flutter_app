@@ -28,6 +28,7 @@ class AppPage extends StatelessWidget {
     this.controller,
     this.bottomPadding,
     this.floatingAction,
+    this.footer,
     this.showBottomBarSpace = true,
     this.scrollPhysics,
   });
@@ -38,6 +39,11 @@ class AppPage extends StatelessWidget {
   final ScrollController? controller;
   final double? bottomPadding;
   final Widget? floatingAction;
+
+  /// Pinned to the bottom of the screen, above the keyboard (chat
+  /// composers, sticky action bars). Scroll content must reserve room
+  /// for it via [bottomPadding].
+  final Widget? footer;
   final bool showBottomBarSpace;
   final ScrollPhysics? scrollPhysics;
 
@@ -72,8 +78,8 @@ class AppPage extends StatelessWidget {
       scroll = RefreshIndicator.adaptive(
         onRefresh: onRefresh!,
         edgeOffset: top - 12,
-        color: AppColors.accentBright,
-        backgroundColor: AppColors.surface2,
+        color: context.palette.accentBright,
+        backgroundColor: context.palette.surface2,
         child: scroll,
       );
     }
@@ -105,6 +111,8 @@ class AppPage extends StatelessWidget {
                   : MediaQuery.paddingOf(context).bottom + 16,
               child: floatingAction!,
             ),
+          if (footer != null)
+            Positioned(left: 0, right: 0, bottom: 0, child: footer!),
         ],
       ),
     );
@@ -160,13 +168,13 @@ class AppHeader extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 16.5,
                       height: 1.15,
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.25,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                   if (subtitle != null && subtitle!.isNotEmpty) ...[
@@ -175,12 +183,12 @@ class AppHeader extends StatelessWidget {
                       subtitle!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 11.5,
                         height: 1.15,
                         fontWeight: FontWeight.w400,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                   ],
@@ -233,7 +241,9 @@ class PageIntro extends StatelessWidget {
               children: [
                 Text(
                   overline.toUpperCase(),
-                  style: AppTypography.overline(color: AppColors.accentBright),
+                  style: AppTypography.overline(
+                    color: context.palette.accentBright,
+                  ),
                 ),
                 const SizedBox(height: 9),
                 Text(title, style: Theme.of(context).textTheme.headlineMedium),
@@ -241,8 +251,10 @@ class PageIntro extends StatelessWidget {
                   const SizedBox(height: 7),
                   Text(
                     subtitle!,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: AppColors.textTertiary, height: 1.45),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.palette.textTertiary,
+                      height: 1.45,
+                    ),
                   ),
                 ],
               ],
@@ -304,7 +316,7 @@ Future<T?> showGlassSheet<T>({
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.20),
+                    color: sheetContext.palette.text.withValues(alpha: 0.22),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -357,7 +369,7 @@ Future<void> showConfirmSheet({
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: AppColors.textSecondary, height: 1.5),
+                  ?.copyWith(color: context.palette.textSecondary, height: 1.5),
             ),
             const SizedBox(height: 20),
             Row(

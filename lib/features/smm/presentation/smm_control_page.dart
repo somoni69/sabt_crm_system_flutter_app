@@ -25,16 +25,16 @@ class SmmControlPage extends ConsumerWidget {
     ref.read(selectedSmmControlYmProvider.notifier).setYm(DateFormat('yyyy-MM').format(dt));
   }
 
-  Color _moodColor(String? mood) {
+  Color _moodColor(AppPalette palette, String? mood) {
     switch (mood) {
       case 'good':
-        return AppColors.success;
+        return palette.success;
       case 'meh':
-        return AppColors.warning;
+        return palette.warning;
       case 'bad':
-        return AppColors.danger;
+        return palette.danger;
       default:
-        return AppColors.textTertiary;
+        return palette.textTertiary;
     }
   }
 
@@ -100,15 +100,15 @@ class SmmControlPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.surface1,
+                  color: context.palette.surface1,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.borderSoft),
+                  border: Border.all(color: context.palette.borderSoft),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.chevron_left_rounded, color: AppColors.textSecondary),
+                      icon:  Icon(Icons.chevron_left_rounded, color: context.palette.textSecondary),
                       onPressed: () => _shiftMonth(ref, -1),
                     ),
                     Text(
@@ -116,7 +116,7 @@ class SmmControlPage extends ConsumerWidget {
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.8),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                      icon:  Icon(Icons.chevron_right_rounded, color: context.palette.textSecondary),
                       onPressed: () => _shiftMonth(ref, 1),
                     ),
                   ],
@@ -125,9 +125,9 @@ class SmmControlPage extends ConsumerWidget {
               const SizedBox(height: 14),
 
               projectsAsync.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
-                  child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                  child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
                 ),
                 error: (e, _) => EmptyState(
                   icon: Icons.error_outline_rounded,
@@ -149,7 +149,7 @@ class SmmControlPage extends ConsumerWidget {
                     children: projects.map((p) {
                       final name = asStringOr(p['name'], 'Проект');
                       final mood = asString(p['mood']);
-                      final moodColor = _moodColor(mood);
+                      final moodColor = _moodColor(context.palette, mood);
                       final reels = asMap(p['reels']);
                       final posts = asMap(p['posts']);
                       final reelsDone = asIntOr(reels?['done'], 0);
@@ -162,9 +162,9 @@ class SmmControlPage extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surface1,
+                            color: context.palette.surface1,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.palette.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,7 +226,7 @@ class SmmControlPage extends ConsumerWidget {
                                       _ToggleChip(
                                         label: moodOption.$2,
                                         selected: mood == moodOption.$1,
-                                        selectedColor: moodOption.$1 == 'bad' ? AppColors.danger : null,
+                                        selectedColor: moodOption.$1 == 'bad' ? context.palette.danger : null,
                                         onTap: () => _patch(ref, p, {
                                           'ym': ym,
                                           'mood': mood == moodOption.$1 ? null : moodOption.$1,
@@ -290,7 +290,7 @@ class _ToggleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tone = selectedColor ?? AppColors.accent;
+    final tone = selectedColor ?? context.palette.accent;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -300,9 +300,9 @@ class _ToggleChip extends StatelessWidget {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? tone.withValues(alpha: 0.16) : AppColors.surface2,
+            color: selected ? tone.withValues(alpha: 0.16) : context.palette.surface2,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: selected ? tone : AppColors.borderSoft),
+            border: Border.all(color: selected ? tone : context.palette.borderSoft),
           ),
           child: Text(
             label,
@@ -313,7 +313,7 @@ class _ToggleChip extends StatelessWidget {
               fontSize: 12,
               height: 1.2,
               fontWeight: FontWeight.w600,
-              color: selected ? (selectedColor ?? AppColors.accentBright) : AppColors.textSecondary,
+              color: selected ? (selectedColor ?? context.palette.accentBright) : context.palette.textSecondary,
             ),
           ),
         ),
@@ -338,20 +338,20 @@ class _MetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: context.palette.surface2,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDone ? AppColors.success : AppColors.borderSoft),
+        border: Border.all(color: isDone ? context.palette.success : context.palette.borderSoft),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$label: ', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+          Text('$label: ', style:  TextStyle(fontSize: 11, color: context.palette.textTertiary)),
           Text(
             value,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: isDone ? AppColors.success : AppColors.text,
+              color: isDone ? context.palette.success : context.palette.text,
             ),
           ),
         ],

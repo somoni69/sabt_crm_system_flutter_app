@@ -12,11 +12,15 @@ Page<T> motionPage<T>({
   return CustomTransitionPage<T>(
     key: pageKey,
     child: child,
-    transitionDuration: enabled ? Motion.standard : Duration.zero,
-    reverseTransitionDuration: enabled ? Motion.exit : Duration.zero,
+    transitionDuration: enabled ? Motion.page : Duration.zero,
+    reverseTransitionDuration: enabled ? Motion.pageExit : Duration.zero,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       if (!Motion.allowed(context)) return child;
-      return MotionPageTransition(animation: animation, child: child);
+      return MotionPageTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: child,
+      );
     },
   );
 }

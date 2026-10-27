@@ -22,12 +22,12 @@ class _RisksPageState extends ConsumerState<RisksPage> {
   Color _levelColor(String level) {
     switch (level.toLowerCase()) {
       case 'red':
-        return AppColors.danger;
+        return context.palette.danger;
       case 'yellow':
-        return AppColors.warning;
+        return context.palette.warning;
       case 'green':
       default:
-        return AppColors.success;
+        return context.palette.success;
     }
   }
 
@@ -72,9 +72,9 @@ class _RisksPageState extends ConsumerState<RisksPage> {
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: AppColors.surface2,
+                  color: context.palette.surface2,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.borderSoft),
+                  border: Border.all(color: context.palette.borderSoft),
                 ),
                 child: Row(
                   children: [
@@ -84,7 +84,7 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _tabIndex == 0 ? AppColors.accent : Colors.transparent,
+                            color: _tabIndex == 0 ? context.palette.accent : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           alignment: Alignment.center,
@@ -93,7 +93,7 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: _tabIndex == 0 ? FontWeight.w700 : FontWeight.w500,
-                              color: _tabIndex == 0 ? Colors.white : AppColors.textSecondary,
+                              color: _tabIndex == 0 ? Colors.white : context.palette.textSecondary,
                             ),
                           ),
                         ),
@@ -105,7 +105,7 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _tabIndex == 1 ? AppColors.accent : Colors.transparent,
+                            color: _tabIndex == 1 ? context.palette.accent : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           alignment: Alignment.center,
@@ -114,7 +114,7 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: _tabIndex == 1 ? FontWeight.w700 : FontWeight.w500,
-                              color: _tabIndex == 1 ? Colors.white : AppColors.textSecondary,
+                              color: _tabIndex == 1 ? Colors.white : context.palette.textSecondary,
                             ),
                           ),
                         ),
@@ -127,9 +127,9 @@ class _RisksPageState extends ConsumerState<RisksPage> {
 
               if (_tabIndex == 0) ...[
                 projectsAsync.when(
-                  loading: () => const Padding(
+                  loading: () =>  Padding(
                     padding: EdgeInsets.symmetric(vertical: 80),
-                    child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                    child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
                   ),
                   error: (e, _) => EmptyState(
                     icon: Icons.error_outline_rounded,
@@ -154,9 +154,9 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: AppColors.surface1,
+                              color: context.palette.surface1,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: context.palette.border),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,24 +187,24 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'Менеджер: ${p.managerName}',
-                                    style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                                    style:  TextStyle(fontSize: 12, color: context.palette.textTertiary),
                                   ),
                                 ],
                                 if (p.factors.isNotEmpty) ...[
                                   const SizedBox(height: 10),
-                                  const Divider(color: AppColors.borderSoft, height: 1),
+                                   Divider(color: context.palette.borderSoft, height: 1),
                                   const SizedBox(height: 8),
                                   ...p.factors.where((f) => f.triggered).map((f) => Padding(
                                         padding: const EdgeInsets.only(bottom: 4),
                                         child: Row(
                                           children: [
-                                            const Icon(Icons.warning_amber_rounded,
-                                                size: 14, color: AppColors.warning),
+                                             Icon(Icons.warning_amber_rounded,
+                                                size: 14, color: context.palette.warning),
                                             const SizedBox(width: 6),
                                             Expanded(
                                               child: Text(
                                                 f.label,
-                                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                                style:  TextStyle(fontSize: 12, color: context.palette.textSecondary),
                                               ),
                                             ),
                                           ],
@@ -221,9 +221,9 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                 ),
               ] else ...[
                 workloadAsync.when(
-                  loading: () => const Padding(
+                  loading: () =>  Padding(
                     padding: EdgeInsets.symmetric(vertical: 80),
-                    child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                    child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
                   ),
                   error: (e, _) => EmptyState(
                     icon: Icons.error_outline_rounded,
@@ -248,9 +248,9 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: AppColors.surface1,
+                              color: context.palette.surface1,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: context.palette.border),
                             ),
                             child: Row(
                               children: [
@@ -262,7 +262,7 @@ class _RisksPageState extends ConsumerState<RisksPage> {
                                       const SizedBox(height: 2),
                                       Text(
                                         w.role,
-                                        style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                                        style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
                                       ),
                                       const SizedBox(height: 8),
                                       Row(
@@ -318,13 +318,13 @@ class _WorkloadBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: context.palette.surface2,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+        style:  TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.palette.textSecondary),
       ),
     );
   }

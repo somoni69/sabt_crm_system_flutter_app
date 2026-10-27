@@ -23,14 +23,14 @@ class SecurityLogPage extends ConsumerWidget {
     return Icons.history_rounded;
   }
 
-  Color _colorForAction(String action) {
+  Color _colorForAction(AppPalette palette, String action) {
     final a = action.toUpperCase();
-    if (a.contains('LOGIN') || a.contains('AUTH')) return AppColors.accentBright;
-    if (a.contains('PASSWORD') || a.contains('DELETE')) return AppColors.danger;
-    if (a.contains('TASK')) return AppColors.success;
-    if (a.contains('PROJECT')) return AppColors.ice;
-    if (a.contains('FINANCE')) return AppColors.warning;
-    return AppColors.textSecondary;
+    if (a.contains('LOGIN') || a.contains('AUTH')) return palette.accentBright;
+    if (a.contains('PASSWORD') || a.contains('DELETE')) return palette.danger;
+    if (a.contains('TASK')) return palette.success;
+    if (a.contains('PROJECT')) return palette.ice;
+    if (a.contains('FINANCE')) return palette.warning;
+    return palette.textSecondary;
   }
 
   @override
@@ -51,9 +51,9 @@ class SecurityLogPage extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: logsAsync.when(
-            loading: () => const Padding(
+            loading: () =>  Padding(
               padding: EdgeInsets.symmetric(vertical: 80),
-              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
             ),
             error: (e, _) => EmptyState(
               icon: Icons.error_outline_rounded,
@@ -74,7 +74,7 @@ class SecurityLogPage extends ConsumerWidget {
               return Column(
                 children: logs.map((log) {
                   final icon = _iconForAction(log.action);
-                  final color = _colorForAction(log.action);
+                  final color = _colorForAction(context.palette, log.action);
                   final dateStr = log.createdAt != null
                       ? DateFormat('dd.MM HH:mm').format(log.createdAt!)
                       : '';
@@ -84,9 +84,9 @@ class SecurityLogPage extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppColors.surface1,
+                        color: context.palette.surface1,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,18 +110,18 @@ class SecurityLogPage extends ConsumerWidget {
                                     Expanded(
                                       child: Text(
                                         log.action,
-                                        style: const TextStyle(
+                                        style:  TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.text,
+                                          color: context.palette.text,
                                         ),
                                       ),
                                     ),
                                     Text(
                                       dateStr,
-                                      style: const TextStyle(
+                                      style:  TextStyle(
                                         fontSize: 11,
-                                        color: AppColors.textTertiary,
+                                        color: context.palette.textTertiary,
                                       ),
                                     ),
                                   ],
@@ -130,10 +130,10 @@ class SecurityLogPage extends ConsumerWidget {
                                 if (log.userName != null) ...[
                                   Text(
                                     log.userName!,
-                                    style: const TextStyle(
+                                    style:  TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -141,9 +141,9 @@ class SecurityLogPage extends ConsumerWidget {
                                   const SizedBox(height: 2),
                                   Text(
                                     log.details!,
-                                    style: const TextStyle(
+                                    style:  TextStyle(
                                       fontSize: 11,
-                                      color: AppColors.textTertiary,
+                                      color: context.palette.textTertiary,
                                     ),
                                   ),
                                 ],

@@ -72,9 +72,9 @@ class SalesPlanPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.surface1,
+                  color: context.palette.surface1,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderSoft),
+                  border: Border.all(color: context.palette.borderSoft),
                 ),
                 child: Row(
                   children: [
@@ -96,11 +96,11 @@ class SalesPlanPage extends ConsumerWidget {
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                     ),
@@ -129,10 +129,10 @@ class SalesPlanPage extends ConsumerWidget {
               ),
               const SizedBox(height: 14),
               async.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 64),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.accent),
+                    child: CircularProgressIndicator(color: context.palette.accent),
                   ),
                 ),
                 error: (error, _) => EmptyState(
@@ -283,10 +283,10 @@ class _ManagerPlanState extends ConsumerState<_ManagerPlan> {
       controller: _amount,
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.done,
-      style: const TextStyle(
+      style:  TextStyle(
         fontFamily: AppTypography.family,
         fontSize: 15,
-        color: AppColors.text,
+        color: context.palette.text,
         fontFeatures: AppTypography.tabular,
       ),
       decoration: const InputDecoration(labelText: 'План, сомони'),
@@ -310,11 +310,11 @@ class _ManagerPlanState extends ConsumerState<_ManagerPlan> {
               asStringOr(widget.manager['name'], 'Менеджер'),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14.5,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
             const SizedBox(height: 2),
@@ -326,7 +326,7 @@ class _ManagerPlanState extends ConsumerState<_ManagerPlan> {
                 fontFamily: AppTypography.family,
                 fontSize: 12,
                 height: 1.35,
-                color: paceMet ? AppColors.success : AppColors.textSecondary,
+                color: paceMet ? context.palette.success : context.palette.textSecondary,
               ),
             ),
             const SizedBox(height: 10),

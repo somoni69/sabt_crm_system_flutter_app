@@ -43,10 +43,10 @@ class TariffsPage extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
           child: asyncTariffs.when(
-            loading: () => const Padding(
+            loading: () =>  Padding(
               padding: EdgeInsets.symmetric(vertical: 80),
               child: Center(
-                child: CircularProgressIndicator(color: AppColors.accent),
+                child: CircularProgressIndicator(color: context.palette.accent),
               ),
             ),
             error: (error, _) => EmptyState(
@@ -91,10 +91,10 @@ class _TariffCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: tariff.isActive ? AppColors.borderSoft : AppColors.surface3,
+          color: tariff.isActive ? context.palette.borderSoft : context.palette.surface3,
         ),
       ),
       child: Column(
@@ -113,8 +113,8 @@ class _TariffCard extends ConsumerWidget {
                 scale: 0.8,
                 child: Switch(
                   value: tariff.isActive,
-                  activeThumbColor: AppColors.accentBright,
-                  activeTrackColor: AppColors.accent,
+                  activeThumbColor: context.palette.accentBright,
+                  activeTrackColor: context.palette.accent,
                   onChanged: (val) async {
                     try {
                       await ref.read(tariffsRepositoryProvider).toggleActive(tariff.id);
@@ -135,17 +135,17 @@ class _TariffCard extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               tariff.description!,
-              style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+              style:  TextStyle(fontSize: 12, color: context.palette.textTertiary),
             ),
           ],
           const SizedBox(height: 12),
           Text(
             '${Money.somoni(tariff.monthlyPrice)} / месяц',
-            style: const TextStyle(
+            style:  TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: AppColors.accentBright,
+              color: context.palette.accentBright,
             ),
           ),
           const SizedBox(height: 12),
@@ -182,17 +182,17 @@ class _SpecBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surface3,
+        color: context.palette.surface3,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AppColors.textSecondary),
+          Icon(icon, size: 12, color: context.palette.textSecondary),
           const SizedBox(width: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            style:  TextStyle(fontSize: 11, color: context.palette.textSecondary),
           ),
         ],
       ),

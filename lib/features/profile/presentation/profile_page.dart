@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/dependencies.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/json_utils.dart';
@@ -21,15 +22,11 @@ import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
 import 'profile_work_section.dart';
 
-final _sessionsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
-  (ref) async {
-    final raw = await ref.watch(authRepositoryProvider).sessions();
-    return raw
-        .map(asMap)
-        .whereType<Map<String, dynamic>>()
-        .toList();
-  },
-);
+final _sessionsProvider =
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+      final raw = await ref.watch(authRepositoryProvider).sessions();
+      return raw.map(asMap).whereType<Map<String, dynamic>>().toList();
+    });
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -53,7 +50,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (picked == null) return;
       setState(() => _uploadingAvatar = true);
       final bytes = await picked.readAsBytes();
-      await ref.read(dependenciesProvider).api.uploadBytes(
+      await ref
+          .read(dependenciesProvider)
+          .api
+          .uploadBytes(
             '/users/me/avatar',
             field: 'avatar',
             bytes: bytes,
@@ -62,11 +62,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           );
       await ref.read(authControllerProvider.notifier).refreshMe();
       if (!mounted) return;
-      ref.read(dependenciesProvider).banners.show(const AppBanner(
-            title: 'Фото обновлено',
-            message: 'Новый аватар уже виден команде.',
-            tone: BannerTone.success,
-          ));
+      ref
+          .read(dependenciesProvider)
+          .banners
+          .show(
+            const AppBanner(
+              title: 'Фото обновлено',
+              message: 'Новый аватар уже виден команде.',
+              tone: BannerTone.success,
+            ),
+          );
     } on ApiException catch (error) {
       if (mounted) _showError(error.message);
     } catch (_) {
@@ -77,11 +82,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   void _showError(String message) {
-    ref.read(dependenciesProvider).banners.show(AppBanner(
-          title: 'Ошибка',
-          message: message,
-          tone: BannerTone.danger,
-        ));
+    ref
+        .read(dependenciesProvider)
+        .banners
+        .show(
+          AppBanner(title: 'Ошибка', message: message, tone: BannerTone.danger),
+        );
   }
 
   Future<void> _changePassword() async {
@@ -92,11 +98,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: const _PasswordForm(),
     );
     if (ok == true && mounted) {
-      ref.read(dependenciesProvider).banners.show(const AppBanner(
-            title: 'Пароль изменён',
-            message: 'Используйте новый пароль при следующем входе.',
-            tone: BannerTone.success,
-          ));
+      ref
+          .read(dependenciesProvider)
+          .banners
+          .show(
+            const AppBanner(
+              title: 'Пароль изменён',
+              message: 'Используйте новый пароль при следующем входе.',
+              tone: BannerTone.success,
+            ),
+          );
     }
   }
 
@@ -110,11 +121,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (enabled == true && mounted) {
       await ref.read(authControllerProvider.notifier).refreshMe();
       if (!mounted) return;
-      ref.read(dependenciesProvider).banners.show(const AppBanner(
-            title: '2FA включена',
-            message: 'Теперь при входе потребуется код из аутентификатора.',
-            tone: BannerTone.success,
-          ));
+      ref
+          .read(dependenciesProvider)
+          .banners
+          .show(
+            const AppBanner(
+              title: '2FA включена',
+              message: 'Теперь при входе потребуется код из аутентификатора.',
+              tone: BannerTone.success,
+            ),
+          );
     }
   }
 
@@ -132,11 +148,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await ref.read(authRepositoryProvider).disableTwoFactor(code.trim());
       await ref.read(authControllerProvider.notifier).refreshMe();
       if (!mounted) return;
-      ref.read(dependenciesProvider).banners.show(const AppBanner(
-            title: '2FA отключена',
-            message: 'Двухфакторная защита больше не действует.',
-            tone: BannerTone.warning,
-          ));
+      ref
+          .read(dependenciesProvider)
+          .banners
+          .show(
+            const AppBanner(
+              title: '2FA отключена',
+              message: 'Двухфакторная защита больше не действует.',
+              tone: BannerTone.warning,
+            ),
+          );
     } on ApiException catch (error) {
       _showError(error.message);
     }
@@ -200,7 +221,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ProfileWorkSection(user: user),
               const SectionHeader(overline: 'АККАУНТ', title: 'Данные профиля'),
               AppCard(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 5,
+                ),
                 radius: 20,
                 child: Column(
                   children: [
@@ -209,72 +233,78 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       value: user.email,
                       icon: Icons.mail_outline_rounded,
                     ),
-                    const Divider(height: 1, color: AppColors.borderSoft),
+                    Divider(height: 1, color: context.palette.borderSoft),
                     KeyValueRow(
                       label: 'Роль',
                       value: user.roleLabel,
                       icon: Icons.shield_outlined,
                     ),
                     if (user.secondaryRole != null) ...[
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       KeyValueRow(
                         label: 'Доп. роль',
                         value: _roleLabel(user.secondaryRole!),
                         icon: Icons.shield_moon_outlined,
                       ),
                     ],
-                    const Divider(height: 1, color: AppColors.borderSoft),
+                    Divider(height: 1, color: context.palette.borderSoft),
                     KeyValueRow(
                       label: 'Должность',
                       value: user.displayPosition,
                       icon: Icons.badge_outlined,
                     ),
                     if (user.department != null) ...[
-                      const Divider(height: 1, color: AppColors.borderSoft),
+                      Divider(height: 1, color: context.palette.borderSoft),
                       KeyValueRow(
                         label: 'Отдел',
                         value: user.department!,
                         icon: Icons.apartment_rounded,
                       ),
                     ],
-                    const Divider(height: 1, color: AppColors.borderSoft),
+                    Divider(height: 1, color: context.palette.borderSoft),
                     KeyValueRow(
                       label: 'Права доступа',
                       value: '${permissions.length} разрешений',
                       icon: Icons.key_outlined,
                     ),
                     if (user.isSubAdmin) ...[
-                      const Divider(height: 1, color: AppColors.borderSoft),
-                      const KeyValueRow(
+                      Divider(height: 1, color: context.palette.borderSoft),
+                      KeyValueRow(
                         label: 'Статус',
                         value: 'Сооснователь',
                         icon: Icons.workspace_premium_outlined,
-                        valueColor: AppColors.accentBright,
+                        valueColor: context.palette.accentBright,
                       ),
                     ],
                   ],
                 ),
               ),
               const SizedBox(height: 20),
-              const SectionHeader(overline: 'БЕЗОПАСНОСТЬ', title: 'Защита входа'),
+              const SectionHeader(
+                overline: 'БЕЗОПАСНОСТЬ',
+                title: 'Защита входа',
+              ),
               AppCard(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 radius: 20,
                 child: Column(
                   children: [
                     _SecurityRow(
                       icon: Icons.password_rounded,
-                      color: AppColors.accentBright,
+                      color: context.palette.accentBright,
                       title: 'Пароль',
                       subtitle: 'Смените пароль в любой момент',
                       onTap: _changePassword,
                     ),
-                    const Divider(height: 1, color: AppColors.borderSoft),
+                    Divider(height: 1, color: context.palette.borderSoft),
                     _SecurityRow(
                       icon: Icons.verified_user_outlined,
                       color: user.twoFactorEnabled
-                          ? AppColors.success
-                          : AppColors.warning,
+                          ? context.palette.success
+                          : context.palette.warning,
                       title: 'Двухфакторная аутентификация',
                       subtitle: user.twoFactorEnabled
                           ? 'Включена · защита кодом'
@@ -290,10 +320,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           ? _disableTwoFactor
                           : _enableTwoFactor,
                     ),
-                    const Divider(height: 1, color: AppColors.borderSoft),
+                    Divider(height: 1, color: context.palette.borderSoft),
                     _SecurityRow(
                       icon: Icons.devices_outlined,
-                      color: AppColors.ice,
+                      color: context.palette.ice,
                       title: 'Сессии',
                       subtitle: sessions.isEmpty
                           ? 'История появится после первого входа'
@@ -306,8 +336,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               const SizedBox(height: 20),
               AccentNote(
                 icon: Icons.info_outline_rounded,
-                text:
-                    'Профиль синхронизирован с Sabt CRM для браузера. Фото и пароль меняются сразу для всех устройств.',
+                text: 'Профиль синхронизирован с Sabt CRM для браузера. Фото и пароль меняются сразу для всех устройств.',
               ),
               const SizedBox(height: 26),
             ],
@@ -361,90 +390,98 @@ class _ProfileHero extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFF1B2033), Color(0xFF111624), Color(0xFF181228)],
         ),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: uploading ? null : onAvatarTap,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                AppAvatar(
-                  name: user.name as String,
-                  avatar: user.avatar as String?,
-                  size: 92,
-                  ring: true,
-                ),
-                Positioned(
-                  right: -2,
-                  bottom: -2,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: AppColors.accent,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.surface1, width: 2.5),
-                    ),
-                    child: uploading
-                        ? const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.6,
+      child: OnDark(
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: uploading ? null : onAvatarTap,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  AppAvatar(
+                    name: user.name as String,
+                    avatar: user.avatar as String?,
+                    size: 92,
+                    ring: true,
+                  ),
+                  Positioned(
+                    right: -2,
+                    bottom: -2,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: context.palette.accent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: context.palette.surface1,
+                          width: 2.5,
+                        ),
+                      ),
+                      child: uploading
+                          ? const Padding(
+                              padding: EdgeInsets.all(8),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.6,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.photo_camera_rounded,
+                              size: 14,
                               color: Colors.white,
                             ),
-                          )
-                        : const Icon(Icons.photo_camera_rounded,
-                            size: 14, color: Colors.white),
+                    ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+            Text(
+              user.name as String,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              (user.email as String),
+              style: TextStyle(
+                fontFamily: AppTypography.family,
+                fontSize: 12,
+                color: context.palette.textTertiary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 7,
+              runSpacing: 6,
+              alignment: WrapAlignment.center,
+              children: [
+                AppChip(
+                  label: user.combinedRoleLabel as String,
+                  tone: ChipTone.accent,
+                  compact: true,
+                ),
+                if ((user.department as String?) != null)
+                  AppChip(
+                    label: user.department as String,
+                    tone: ChipTone.info,
+                    compact: true,
+                  ),
+                AppChip(
+                  label: (user.twoFactorEnabled as bool) ? '2FA' : 'Без 2FA',
+                  tone: (user.twoFactorEnabled as bool)
+                      ? ChipTone.success
+                      : ChipTone.neutral,
+                  icon: Icons.shield_outlined,
+                  compact: true,
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 15),
-          Text(
-            user.name as String,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            (user.email as String),
-            style: const TextStyle(
-              fontFamily: AppTypography.family,
-              fontSize: 12,
-              color: AppColors.textTertiary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 7,
-            runSpacing: 6,
-            alignment: WrapAlignment.center,
-            children: [
-              AppChip(
-                label: user.combinedRoleLabel as String,
-                tone: ChipTone.accent,
-                compact: true,
-              ),
-              if ((user.department as String?) != null)
-                AppChip(
-                  label: user.department as String,
-                  tone: ChipTone.info,
-                  compact: true,
-                ),
-              AppChip(
-                label: (user.twoFactorEnabled as bool) ? '2FA' : 'Без 2FA',
-                tone: (user.twoFactorEnabled as bool)
-                    ? ChipTone.success
-                    : ChipTone.neutral,
-                icon: Icons.shield_outlined,
-                compact: true,
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -484,11 +521,11 @@ class _SecurityRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -496,10 +533,10 @@ class _SecurityRow extends StatelessWidget {
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 10.5,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ],
@@ -507,8 +544,11 @@ class _SecurityRow extends StatelessWidget {
             ),
             ?trailing,
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded,
-                size: 18, color: AppColors.textTertiary),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 18,
+              color: context.palette.textTertiary,
+            ),
           ],
         ),
       ),
@@ -557,10 +597,9 @@ class _PasswordFormState extends ConsumerState<_PasswordForm> {
       _error = null;
     });
     try {
-      await ref.read(authRepositoryProvider).changePassword(
-            oldPassword: _old.text,
-            newPassword: _new.text,
-          );
+      await ref
+          .read(authRepositoryProvider)
+          .changePassword(oldPassword: _old.text, newPassword: _new.text);
       if (mounted) Navigator.of(context).pop(true);
     } on ApiException catch (error) {
       if (mounted) setState(() => _error = error.message);
@@ -622,10 +661,10 @@ class _PasswordFormState extends ConsumerState<_PasswordForm> {
       obscureText: true,
       textInputAction: action,
       onSubmitted: onSubmitted,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: AppTypography.family,
         fontSize: 14.5,
-        color: AppColors.text,
+        color: context.palette.text,
       ),
       decoration: InputDecoration(
         hintText: hint,
@@ -735,14 +774,14 @@ class _TwoFactorSetupState extends ConsumerState<_TwoFactorSetup> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Отсканируйте код и введите 6 цифр из приложения.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 12,
               height: 1.45,
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
             ),
           ),
           if (secret != null) ...[
@@ -750,11 +789,11 @@ class _TwoFactorSetupState extends ConsumerState<_TwoFactorSetup> {
             SelectableText(
               secret,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 11,
                 letterSpacing: 1.4,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ],
@@ -766,12 +805,12 @@ class _TwoFactorSetupState extends ConsumerState<_TwoFactorSetup> {
             maxLength: 6,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 20,
               letterSpacing: 8,
               fontWeight: FontWeight.w600,
-              color: AppColors.text,
+              color: context.palette.text,
               fontFeatures: AppTypography.tabular,
             ),
             decoration: const InputDecoration(
@@ -832,9 +871,9 @@ class _SessionsSheet extends ConsumerWidget {
             radius: 14,
             child: Row(
               children: [
-                const SurfaceIcon(
+                SurfaceIcon(
                   icon: Icons.computer_rounded,
-                  color: AppColors.ice,
+                  color: context.palette.ice,
                   size: 34,
                   radius: 11,
                 ),
@@ -847,20 +886,20 @@ class _SessionsSheet extends ConsumerWidget {
                         BizDate.parse(session['loginAt']) == null
                             ? 'Сессия'
                             : 'Вход ${BizDate.dateShort(BizDate.parse(session['loginAt'])!)} · ${BizDate.time(BizDate.parse(session['loginAt'])!)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _durationLabel(session),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 10,
-                          color: AppColors.textTertiary,
+                          color: context.palette.textTertiary,
                         ),
                       ),
                     ],
@@ -886,7 +925,9 @@ class _SessionsSheet extends ConsumerWidget {
     final raw = session['durationHours'];
     final hours = raw is num ? raw.toDouble() : double.tryParse('$raw') ?? 0;
     final lastSeen = BizDate.parse(session['lastSeenAt']);
-    final suffix = lastSeen == null ? '' : ' · активность ${BizDate.relative(lastSeen)}';
+    final suffix = lastSeen == null
+        ? ''
+        : ' · активность ${BizDate.relative(lastSeen)}';
     return '${Money.hours(hours)}$suffix';
   }
 }

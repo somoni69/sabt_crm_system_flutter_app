@@ -50,11 +50,11 @@ class _SmmPageState extends ConsumerState<SmmPage> {
   }
 
   Color _colorOf(SmmEvent event) {
-    if (event.isShootSession || event.prepStage != null) return AppColors.warning;
-    if (event.isStory) return AppColors.ice;
-    if (event.isReel) return AppColors.accent;
-    if (event.isDesign) return AppColors.info;
-    return AppColors.accentBright;
+    if (event.isShootSession || event.prepStage != null) return context.palette.warning;
+    if (event.isStory) return context.palette.ice;
+    if (event.isReel) return context.palette.accent;
+    if (event.isDesign) return context.palette.info;
+    return context.palette.accentBright;
   }
 
   IconData _iconOf(SmmEvent event) {
@@ -385,12 +385,12 @@ class _StoryStrip extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.ice.withValues(alpha: 0.16),
-            AppColors.surface1,
-            AppColors.accent.withValues(alpha: 0.10),
+            context.palette.ice.withValues(alpha: 0.16),
+            context.palette.surface1,
+            context.palette.accent.withValues(alpha: 0.10),
           ],
         ),
-        border: Border.all(color: AppColors.ice.withValues(alpha: 0.22)),
+        border: Border.all(color: context.palette.ice.withValues(alpha: 0.22)),
       ),
       child: Row(
         children: [
@@ -398,12 +398,12 @@ class _StoryStrip extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AppColors.ice.withValues(alpha: 0.14),
+              color: context.palette.ice.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.ice.withValues(alpha: 0.26)),
+              border: Border.all(color: context.palette.ice.withValues(alpha: 0.26)),
             ),
-            child: const Icon(Icons.auto_awesome_motion_rounded,
-                size: 20, color: AppColors.ice),
+            child:  Icon(Icons.auto_awesome_motion_rounded,
+                size: 20, color: context.palette.ice),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -412,13 +412,13 @@ class _StoryStrip extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
+                     Text(
                       'Сторис сегодня',
                       style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     const Spacer(),
@@ -428,7 +428,7 @@ class _StoryStrip extends StatelessWidget {
                         fontFamily: AppTypography.family,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: complete ? AppColors.success : AppColors.ice,
+                        color: complete ? context.palette.success : context.palette.ice,
                         fontFeatures: AppTypography.tabular,
                       ),
                     ),
@@ -440,9 +440,9 @@ class _StoryStrip extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 4,
-                    backgroundColor: AppColors.surface3,
+                    backgroundColor: context.palette.surface3,
                     valueColor: AlwaysStoppedAnimation(
-                      complete ? AppColors.success : AppColors.ice,
+                      complete ? context.palette.success : context.palette.ice,
                     ),
                   ),
                 ),
@@ -522,12 +522,12 @@ class _SmmEventRow extends StatelessWidget {
                   event.displayTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13,
                     height: 1.3,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -557,10 +557,10 @@ class _SmmEventRow extends StatelessWidget {
                       event.projectName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 10.5,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                   ],
@@ -569,8 +569,8 @@ class _SmmEventRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.chevron_right_rounded,
-              size: 18, color: AppColors.textTertiary),
+           Icon(Icons.chevron_right_rounded,
+              size: 18, color: context.palette.textTertiary),
         ],
       ),
     );
@@ -596,7 +596,7 @@ class _BacklogRow extends StatelessWidget {
                 : item.contentType == 'reel'
                     ? Icons.movie_outlined
                     : Icons.image_outlined,
-            color: item.isShoot ? AppColors.warning : AppColors.accentBright,
+            color: item.isShoot ? context.palette.warning : context.palette.accentBright,
             size: 34,
             radius: 11,
           ),
@@ -609,11 +609,11 @@ class _BacklogRow extends StatelessWidget {
                   item.displayTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -621,10 +621,10 @@ class _BacklogRow extends StatelessWidget {
                   '${item.projectName} · ${item.contentTypeLabel}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
@@ -636,17 +636,17 @@ class _BacklogRow extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
               decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.12),
+                color: context.palette.accent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.accent.withValues(alpha: 0.26)),
+                border: Border.all(color: context.palette.accent.withValues(alpha: 0.26)),
               ),
-              child: const Text(
+              child:  Text(
                 'В план',
                 style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.accentBright,
+                  color: context.palette.accentBright,
                 ),
               ),
             ),
@@ -674,8 +674,8 @@ class _SmmProjectRow extends StatelessWidget {
           Container(
             width: 7,
             height: 7,
-            decoration: const BoxDecoration(
-              color: AppColors.accent,
+            decoration:  BoxDecoration(
+              color: context.palette.accent,
               shape: BoxShape.circle,
             ),
           ),
@@ -691,11 +691,11 @@ class _SmmProjectRow extends StatelessWidget {
                         project.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                     ),
@@ -720,17 +720,17 @@ class _SmmProjectRow extends StatelessWidget {
                   ].join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded,
-              size: 18, color: AppColors.textTertiary),
+           Icon(Icons.chevron_right_rounded,
+              size: 18, color: context.palette.textTertiary),
         ],
       ),
     );
@@ -821,7 +821,7 @@ class _SmmEventSheet extends ConsumerWidget {
                 value: event.projectName,
                 icon: Icons.folder_outlined,
               ),
-              const Divider(height: 1, color: AppColors.borderSoft),
+               Divider(height: 1, color: context.palette.borderSoft),
               KeyValueRow(
                 label: 'Дата',
                 value:
@@ -829,7 +829,7 @@ class _SmmEventSheet extends ConsumerWidget {
                 icon: Icons.event_outlined,
               ),
               if (event.location != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                 Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Место',
                   value: event.location!,
@@ -841,24 +841,24 @@ class _SmmEventSheet extends ConsumerWidget {
         ),
         if (event.scriptText != null && event.scriptText!.trim().isNotEmpty) ...[
           const SizedBox(height: 14),
-          const Text(
+           Text(
             'СЦЕНАРИЙ',
             style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 10,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.2,
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             event.scriptText!,
-            style: const TextStyle(
+            style:  TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 13,
               height: 1.55,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ],

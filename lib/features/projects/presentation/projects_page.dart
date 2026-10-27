@@ -268,10 +268,10 @@ class _ProjectCard extends StatelessWidget {
     return Icons.folder_outlined;
   }
 
-  Color get _color {
-    if (project.isSmm) return AppColors.accent;
-    if (project.isDev) return AppColors.ice;
-    return AppColors.info;
+  Color _colorFor(AppPalette palette) {
+    if (project.isSmm) return palette.accent;
+    if (project.isDev) return palette.ice;
+    return palette.info;
   }
 
   @override
@@ -291,7 +291,7 @@ class _ProjectCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SurfaceIcon(icon: _icon, color: _color, size: 44),
+              SurfaceIcon(icon: _icon, color: _colorFor(context.palette), size: 44),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -301,12 +301,12 @@ class _ProjectCard extends StatelessWidget {
                       project.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 14.5,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.15,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     const SizedBox(height: 5),
@@ -324,8 +324,8 @@ class _ProjectCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
-                  size: 19, color: AppColors.textTertiary),
+               Icon(Icons.chevron_right_rounded,
+                  size: 19, color: context.palette.textTertiary),
             ],
           ),
           const SizedBox(height: 14),
@@ -337,9 +337,9 @@ class _ProjectCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 5,
-                    backgroundColor: AppColors.surface3,
+                    backgroundColor: context.palette.surface3,
                     valueColor: AlwaysStoppedAnimation(
-                      progress >= 1 ? AppColors.success : _color,
+                      progress >= 1 ? context.palette.success : _colorFor(context.palette),
                     ),
                   ),
                 ),
@@ -347,24 +347,24 @@ class _ProjectCard extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 '${(progress * 100).round()}%',
-                style: AppTypography.number(size: 12, color: AppColors.textSecondary),
+                style: AppTypography.number(size: 12, color: context.palette.textSecondary),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.task_alt_rounded,
-                  size: 13, color: AppColors.textTertiary),
+               Icon(Icons.task_alt_rounded,
+                  size: 13, color: context.palette.textTertiary),
               const SizedBox(width: 5),
               Text(
                 project.taskCount == 0
                     ? 'Задач пока нет'
                     : '${project.doneTaskCount} из ${project.taskCount} задач',
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 10.5,
-                  color: AppColors.textTertiary,
+                  color: context.palette.textTertiary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -380,10 +380,10 @@ class _ProjectCard extends StatelessWidget {
                     project.manager!.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 10.5,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ),

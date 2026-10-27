@@ -89,13 +89,13 @@ class _EmployeeAccessPageState extends ConsumerState<EmployeeAccessPage> {
               // Search field
               TextField(
                 controller: _searchCtrl,
-                style: const TextStyle(fontSize: 14, color: AppColors.text),
+                style:  TextStyle(fontSize: 14, color: context.palette.text),
                 decoration: InputDecoration(
                   hintText: 'Поиск по имени или должности…',
-                  hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.textTertiary),
+                  hintStyle:  TextStyle(color: context.palette.textTertiary, fontSize: 13),
+                  prefixIcon:  Icon(Icons.search, size: 20, color: context.palette.textTertiary),
                   filled: true,
-                  fillColor: AppColors.surface2,
+                  fillColor: context.palette.surface2,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -104,9 +104,9 @@ class _EmployeeAccessPageState extends ConsumerState<EmployeeAccessPage> {
               const SizedBox(height: 12),
 
               usersAsync.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
-                  child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                  child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
                 ),
                 error: (e, _) => EmptyState(
                   icon: Icons.error_outline_rounded,
@@ -141,9 +141,9 @@ class _EmployeeAccessPageState extends ConsumerState<EmployeeAccessPage> {
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: AppColors.surface1,
+                              color: context.palette.surface1,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: context.palette.border),
                             ),
                             child: Row(
                               children: [
@@ -155,23 +155,23 @@ class _EmployeeAccessPageState extends ConsumerState<EmployeeAccessPage> {
                                       const SizedBox(height: 2),
                                       Text(
                                         u.position ?? u.role,
-                                        style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                                        style:  TextStyle(fontSize: 12, color: context.palette.textTertiary),
                                       ),
                                       if (u.extraPermissions.isNotEmpty) ...[
                                         const SizedBox(height: 6),
                                         Text(
                                           'Персональных прав: ${u.extraPermissions.length}',
-                                          style: const TextStyle(
+                                          style:  TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.accentBright,
+                                            color: context.palette.accentBright,
                                           ),
                                         ),
                                       ],
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.tune_rounded, size: 20, color: AppColors.textTertiary),
+                                 Icon(Icons.tune_rounded, size: 20, color: context.palette.textTertiary),
                               ],
                             ),
                           ),
@@ -221,7 +221,7 @@ class _UserPermissionsSheetState extends State<_UserPermissionsSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Роль: ${widget.user.role}', style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+          Text('Роль: ${widget.user.role}', style:  TextStyle(fontSize: 12, color: context.palette.textTertiary)),
           const SizedBox(height: 12),
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
@@ -231,9 +231,9 @@ class _UserPermissionsSheetState extends State<_UserPermissionsSheet> {
                 final isChecked = _selected.contains(cap.key);
                 return CheckboxListTile(
                   value: isChecked,
-                  activeColor: AppColors.accent,
-                  title: Text(cap.label, style: const TextStyle(fontSize: 13, color: AppColors.text)),
-                  subtitle: Text(cap.category, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                  activeColor: context.palette.accent,
+                  title: Text(cap.label, style:  TextStyle(fontSize: 13, color: context.palette.text)),
+                  subtitle: Text(cap.category, style:  TextStyle(fontSize: 11, color: context.palette.textTertiary)),
                   onChanged: (val) {
                     setState(() {
                       if (val == true) {

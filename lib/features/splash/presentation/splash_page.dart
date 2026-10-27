@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/design/brand_mark.dart';
 import '../../../core/design/glass_surface.dart';
+import '../../auth/presentation/widgets/animated_brand_mark.dart';
 import '../../../core/design/glass_tokens.dart';
 import '../../../core/design/motion.dart';
 import '../../../core/theme/app_colors.dart';
@@ -21,7 +22,7 @@ class SplashPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SabtGlassMark(size: 92),
+                const AnimatedBrandMark(size: 92),
                 const SizedBox(height: 22),
                 const SabtWordmark(fontSize: 40),
                 const SizedBox(height: 14),
@@ -31,7 +32,7 @@ class SplashPage extends StatelessWidget {
                     fontFamily: AppTypography.family,
                     fontSize: 13,
                     letterSpacing: 0.2,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 42),
@@ -46,12 +47,12 @@ class SplashPage extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(
+                       SizedBox(
                         width: 14,
                         height: 14,
                         child: CircularProgressIndicator(
                           strokeWidth: 1.8,
-                          color: AppColors.accentBright,
+                          color: context.palette.accentBright,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -61,7 +62,7 @@ class SplashPage extends StatelessWidget {
                           fontFamily: AppTypography.family,
                           fontSize: 11.5,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -75,7 +76,7 @@ class SplashPage extends StatelessWidget {
                     fontSize: 10.5,
                     letterSpacing: 0.8,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textDisabled,
+                    color: context.palette.textDisabled,
                   ),
                 ),
               ],

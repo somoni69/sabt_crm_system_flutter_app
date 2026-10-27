@@ -102,18 +102,18 @@ class AppCard extends StatelessWidget {
       padding: padding,
       clipBehavior: clip ? Clip.antiAlias : Clip.none,
       decoration: BoxDecoration(
-        color: color ?? AppColors.surface1,
+        color: color ?? context.palette.surface1,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(
           color: selected
-              ? AppColors.accent.withValues(alpha: 0.55)
-              : (borderColor ?? AppColors.borderSoft),
+              ? context.palette.accent.withValues(alpha: 0.55)
+              : (borderColor ?? context.palette.borderSoft),
           width: selected ? 1.3 : 1,
         ),
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: AppColors.accent.withValues(alpha: 0.10),
+                  color: context.palette.accent.withValues(alpha: 0.10),
                   blurRadius: 24,
                   offset: const Offset(0, 10),
                 ),
@@ -133,19 +133,20 @@ class SurfaceIcon extends StatelessWidget {
     super.key,
     required this.icon,
     this.size = 42,
-    this.color = AppColors.accent,
+    this.color,
     this.filled = false,
     this.radius = 14,
   });
 
   final IconData icon;
   final double size;
-  final Color color;
+  final Color? color;
   final bool filled;
   final double radius;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.palette.accent;
     return Container(
       width: size,
       height: size,
@@ -181,26 +182,27 @@ class AppChip extends StatelessWidget {
   final bool compact;
   final VoidCallback? onTap;
 
-  Color get _color => switch (tone) {
-    ChipTone.neutral => AppColors.textSecondary,
-    ChipTone.accent => AppColors.accentBright,
-    ChipTone.success => AppColors.success,
-    ChipTone.danger => AppColors.danger,
-    ChipTone.warning => AppColors.warning,
-    ChipTone.info => AppColors.info,
-  };
+  Color _colorFor(AppPalette palette) => switch (tone) {
+        ChipTone.neutral => palette.textSecondary,
+        ChipTone.accent => palette.accentBright,
+        ChipTone.success => palette.success,
+        ChipTone.danger => palette.danger,
+        ChipTone.warning => palette.warning,
+        ChipTone.info => palette.info,
+      };
 
   @override
   Widget build(BuildContext context) {
+    final chipColor = _colorFor(context.palette);
     final chip = Container(
       padding: EdgeInsets.symmetric(
         horizontal: compact ? 8 : 10,
         vertical: compact ? 4 : 6,
       ),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.10),
+        color: chipColor.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _color.withValues(alpha: 0.20)),
+        border: Border.all(color: chipColor.withValues(alpha: 0.20)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -209,12 +211,12 @@ class AppChip extends StatelessWidget {
             Container(
               width: 5,
               height: 5,
-              decoration: BoxDecoration(color: _color, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: chipColor, shape: BoxShape.circle),
             ),
             const SizedBox(width: 6),
           ],
           if (icon != null) ...[
-            Icon(icon, size: compact ? 11 : 13, color: _color),
+            Icon(icon, size: compact ? 11 : 13, color: chipColor),
             const SizedBox(width: 5),
           ],
           Text(
@@ -225,7 +227,7 @@ class AppChip extends StatelessWidget {
               height: 1.1,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.1,
-              color: _color,
+              color: chipColor,
             ),
           ),
         ],
@@ -312,7 +314,7 @@ class PriorityMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = AppColors.priority(priority);
+    final color = context.palette.priority(priority);
     if (!withLabel) {
       return Tooltip(
         message: _labels[priority] ?? priority,
@@ -383,7 +385,7 @@ class SectionHeader extends StatelessWidget {
                   Text(
                     overline!.toUpperCase(),
                     style: AppTypography.overline(
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                   const SizedBox(height: 5),
@@ -440,7 +442,7 @@ class EmptyState extends StatelessWidget {
             SurfaceIcon(
               icon: icon,
               size: compact ? 48 : 62,
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
               radius: compact ? 16 : 20,
             ),
             SizedBox(height: compact ? 12 : 18),
@@ -455,7 +457,7 @@ class EmptyState extends StatelessWidget {
                 message!,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: AppColors.textTertiary),
+                    ?.copyWith(color: context.palette.textTertiary),
               ),
             ],
             if (actionLabel != null) ...[
@@ -486,19 +488,19 @@ class InlineError extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(compact ? 12 : 16),
       decoration: BoxDecoration(
-        color: AppColors.danger.withValues(alpha: 0.08),
+        color: context.palette.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.danger.withValues(alpha: 0.24)),
+        border: Border.all(color: context.palette.danger.withValues(alpha: 0.24)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+           Padding(
             padding: EdgeInsets.only(top: 1),
             child: Icon(
               Icons.error_outline_rounded,
               size: 18,
-              color: AppColors.danger,
+              color: context.palette.danger,
             ),
           ),
           const SizedBox(width: 10),
@@ -546,16 +548,16 @@ class OfflineRibbon extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: AppColors.warning.withValues(alpha: 0.07),
+        color: context.palette.warning.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.18)),
+        border: Border.all(color: context.palette.warning.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
-          const Icon(
+           Icon(
             Icons.cloud_off_rounded,
             size: 15,
-            color: AppColors.warning,
+            color: context.palette.warning,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -574,13 +576,13 @@ class OfflineRibbon extends StatelessWidget {
           if (showRetry && onRetry != null)
             GestureDetector(
               onTap: onRetry,
-              child: const Text(
+              child:  Text(
                 'Обновить',
                 style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.warning,
+                  color: context.palette.warning,
                 ),
               ),
             ),
@@ -642,7 +644,7 @@ class _SkeletonBoxState extends State<SkeletonBox>
         width: widget.width,
         height: widget.height,
         decoration: BoxDecoration(
-          color: AppColors.surface3,
+          color: context.palette.surface3,
           borderRadius: BorderRadius.circular(widget.radius),
         ),
       );
@@ -659,10 +661,10 @@ class _SkeletonBoxState extends State<SkeletonBox>
             gradient: LinearGradient(
               begin: Alignment(x - 1, 0),
               end: Alignment(x + 1, 0),
-              colors: const [
-                AppColors.surface2,
-                AppColors.surface3,
-                AppColors.surface2,
+              colors:  [
+                context.palette.surface2,
+                context.palette.surface3,
+                context.palette.surface2,
               ],
             ),
           ),
@@ -695,16 +697,16 @@ class KeyValueRow extends StatelessWidget {
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 16, color: AppColors.textTertiary),
+            Icon(icon, size: 16, color: context.palette.textTertiary),
             const SizedBox(width: 10),
           ],
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 13,
-                color: AppColors.textTertiary,
+                color: context.palette.textTertiary,
               ),
             ),
           ),
@@ -716,17 +718,17 @@ class KeyValueRow extends StatelessWidget {
                 fontFamily: AppTypography.family,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: valueColor ?? AppColors.textSecondary,
+                color: valueColor ?? context.palette.textSecondary,
                 fontFeatures: AppTypography.tabular,
               ),
             ),
           ),
           if (onTap != null) ...[
             const SizedBox(width: 4),
-            const Icon(
+             Icon(
               Icons.chevron_right_rounded,
               size: 17,
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
             ),
           ],
         ],
@@ -746,15 +748,16 @@ class AccentNote extends StatelessWidget {
     super.key,
     required this.text,
     this.icon = Icons.info_outline_rounded,
-    this.color = AppColors.info,
+    this.color,
   });
 
   final String text;
   final IconData icon;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.palette.info;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       decoration: BoxDecoration(
@@ -773,11 +776,11 @@ class AccentNote extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 11,
                 height: 1.45,
-                color: AppColors.textTertiary,
+                color: context.palette.textTertiary,
               ),
             ),
           ),

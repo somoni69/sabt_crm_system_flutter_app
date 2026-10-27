@@ -123,10 +123,10 @@ class ProjectBoardSection extends ConsumerWidget {
                               asStringOr(note['title'], 'Объявление'),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style:  TextStyle(
                                 fontFamily: AppTypography.family,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                             if (asString(note['description']) != null) ...[
@@ -135,11 +135,11 @@ class ProjectBoardSection extends ConsumerWidget {
                                 asString(note['description'])!,
                                 maxLines: 6,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style:  TextStyle(
                                   fontFamily: AppTypography.family,
                                   fontSize: 12.5,
                                   height: 1.4,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
@@ -151,7 +151,7 @@ class ProjectBoardSection extends ConsumerWidget {
                         AppIconButton(
                           icon: Icons.delete_outline_rounded,
                           size: 44,
-                          color: AppColors.danger,
+                          color: context.palette.danger,
                           tooltip: 'Удалить',
                           onPressed: () => _removeNote(
                             context,
@@ -192,10 +192,10 @@ class ProjectBoardSection extends ConsumerWidget {
                         asStringOr(ad['title'], 'Кампания'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -204,11 +204,11 @@ class ProjectBoardSection extends ConsumerWidget {
                         '${asDouble(ad['budget']) == null ? '' : ' · ${Money.somoni(asDouble(ad['budget']))}'}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 12.5,
                           height: 1.35,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],

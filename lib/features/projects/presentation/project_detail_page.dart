@@ -6,6 +6,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -69,7 +70,8 @@ class ProjectDetailPage extends ConsumerWidget {
               size: 40,
               filled: true,
               color: Colors.white,
-              onPressed: () => showTaskForm(context, ref, projectId: project.id),
+              onPressed: () =>
+                  showTaskForm(context, ref, projectId: project.id),
               tooltip: 'Задача в проект',
             ),
         ],
@@ -91,7 +93,10 @@ class ProjectDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlaceholder(AsyncValue<dynamic> async, Future<void> Function() retry) {
+  Widget _buildPlaceholder(
+    AsyncValue<dynamic> async,
+    Future<void> Function() retry,
+  ) {
     if (async.hasError) {
       final error = async.error;
       return InlineError(
@@ -129,7 +134,8 @@ class _ProjectBody extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final canCreate = canCreateTask(user);
     final showFinance = canSeeFinance(user);
-    final tasks = ref.watch(projectTasksProvider(project.id)).value?.data ??
+    final tasks =
+        ref.watch(projectTasksProvider(project.id)).value?.data ??
         const <TaskModel>[];
     final planFact = project.isSmm
         ? ref.watch(planFactProvider(project.id)).value ?? const <PlanFactRow>[]
@@ -144,11 +150,7 @@ class _ProjectBody extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (snapshotError != null) ...[
-          OfflineRibbon(
-            cachedAt: savedAt,
-            showRetry: true,
-            onRetry: onRefresh,
-          ),
+          OfflineRibbon(cachedAt: savedAt, showRetry: true, onRetry: onRefresh),
           const SizedBox(height: 14),
         ],
         _ProjectHero(project: project, completion: completion),
@@ -160,7 +162,7 @@ class _ProjectBody extends ConsumerWidget {
                 icon: Icons.task_alt_rounded,
                 label: 'Задачи',
                 value: '${project.doneTaskCount}/${project.taskCount}',
-                color: AppColors.success,
+                color: context.palette.success,
               ),
             ),
             const SizedBox(width: 9),
@@ -169,7 +171,7 @@ class _ProjectBody extends ConsumerWidget {
                 icon: Icons.group_outlined,
                 label: 'Команда',
                 value: '${project.membersCount}',
-                color: AppColors.ice,
+                color: context.palette.ice,
               ),
             ),
             const SizedBox(width: 9),
@@ -179,8 +181,10 @@ class _ProjectBody extends ConsumerWidget {
                 label: 'Активность',
                 value: project.lastActivityAt == null
                     ? '—'
-                    : BizDate.relative(project.lastActivityAt!).split(' ').first,
-                color: AppColors.accentBright,
+                    : BizDate.relative(project.lastActivityAt!)
+                          .split(' ')
+                          .first,
+                color: context.palette.accentBright,
               ),
             ),
           ],
@@ -198,14 +202,14 @@ class _ProjectBody extends ConsumerWidget {
                 icon: Icons.support_agent_rounded,
               ),
               if (project.salesManager != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Менеджер продаж',
                   value: project.salesManager!.name,
                   icon: Icons.handshake_outlined,
                 ),
               ],
-              const Divider(height: 1, color: AppColors.borderSoft),
+              Divider(height: 1, color: context.palette.borderSoft),
               KeyValueRow(
                 label: 'Старт',
                 value: project.startDate == null
@@ -213,7 +217,7 @@ class _ProjectBody extends ConsumerWidget {
                     : BizDate.dateWithYear(project.startDate!),
                 icon: Icons.play_circle_outline_rounded,
               ),
-              const Divider(height: 1, color: AppColors.borderSoft),
+              Divider(height: 1, color: context.palette.borderSoft),
               KeyValueRow(
                 label: 'Завершение',
                 value: project.endDate == null
@@ -222,7 +226,7 @@ class _ProjectBody extends ConsumerWidget {
                 icon: Icons.flag_outlined,
               ),
               if (project.tariffNameSnapshot != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Тариф',
                   value: project.tariffNameSnapshot!,
@@ -230,7 +234,7 @@ class _ProjectBody extends ConsumerWidget {
                 ),
               ],
               if (showFinance && project.monthlyFee != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Ежемесячно',
                   value: Money.somoni(project.monthlyFee),
@@ -238,7 +242,7 @@ class _ProjectBody extends ConsumerWidget {
                 ),
               ],
               if (showFinance && project.nextPaymentDate != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Следующая оплата',
                   value: BizDate.dateWithYear(project.nextPaymentDate!),
@@ -246,14 +250,14 @@ class _ProjectBody extends ConsumerWidget {
                 ),
               ],
               if (project.paymentStatus != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Статус оплаты',
                   value: _paymentLabel(project.paymentStatus!),
                   icon: Icons.receipt_long_outlined,
                   valueColor: project.paymentStatus == 'paid'
-                      ? AppColors.success
-                      : AppColors.warning,
+                      ? context.palette.success
+                      : context.palette.warning,
                 ),
               ],
             ],
@@ -295,10 +299,10 @@ class _ProjectBody extends ConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: AppTypography.family,
                                 fontSize: 10,
-                                color: AppColors.textTertiary,
+                                color: context.palette.textTertiary,
                               ),
                             ),
                           ],
@@ -322,21 +326,21 @@ class _ProjectBody extends ConsumerWidget {
                   label: 'Рилсы',
                   value: project.normReels,
                   icon: Icons.movie_outlined,
-                  color: AppColors.accent,
+                  color: context.palette.accent,
                 ),
                 const SizedBox(width: 10),
                 _NormCell(
                   label: 'Посты',
                   value: project.normPosts,
                   icon: Icons.grid_view_rounded,
-                  color: AppColors.info,
+                  color: context.palette.info,
                 ),
                 const SizedBox(width: 10),
                 _NormCell(
                   label: 'Сторис',
                   value: project.storiesPerMonth,
                   icon: Icons.auto_awesome_motion_rounded,
-                  color: AppColors.ice,
+                  color: context.palette.ice,
                 ),
               ],
             ),
@@ -395,12 +399,12 @@ class _ProjectBody extends ConsumerWidget {
   }
 
   static String _paymentLabel(String status) => switch (status) {
-        'paid' => 'Оплачено',
-        'pending' => 'Ожидает оплаты',
-        'overdue' => 'Просрочено',
-        'partial' => 'Частично оплачено',
-        _ => status,
-      };
+    'paid' => 'Оплачено',
+    'pending' => 'Ожидает оплаты',
+    'overdue' => 'Просрочено',
+    'partial' => 'Частично оплачено',
+    _ => status,
+  };
 }
 
 class _ProjectHero extends StatelessWidget {
@@ -428,127 +432,139 @@ class _ProjectHero extends StatelessWidget {
           colors: [Color(0xFF1A2032), Color(0xFF111624), Color(0xFF171229)],
           stops: [0, 0.6, 1],
         ),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SurfaceIcon(
-                icon: _icon,
-                color: project.isSmm ? AppColors.accent : AppColors.ice,
-                size: 48,
-                radius: 15,
-              ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        AppChip(
-                          label: project.typeLabel,
-                          tone: project.isSmm ? ChipTone.accent : ChipTone.info,
-                          compact: true,
-                        ),
-                        StatusBadge(
-                          status: project.status,
-                          label: project.statusFieldLabel,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 9),
-                    Text(
-                      project.name,
-                      style: const TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 22,
-                        height: 1.2,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.4,
-                        color: AppColors.text,
+      child: OnDark(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SurfaceIcon(
+                  icon: _icon,
+                  color: project.isSmm
+                      ? context.palette.accent
+                      : context.palette.ice,
+                  size: 48,
+                  radius: 15,
+                ),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          AppChip(
+                            label: project.typeLabel,
+                            tone: project.isSmm
+                                ? ChipTone.accent
+                                : ChipTone.info,
+                            compact: true,
+                          ),
+                          StatusBadge(
+                            status: project.status,
+                            label: project.statusFieldLabel,
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 9),
+                      Text(
+                        project.name,
+                        style: TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 22,
+                          height: 1.2,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.4,
+                          color: context.palette.text,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (project.description != null &&
+                project.description!.trim().isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                project.description!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: AppTypography.family,
+                  fontSize: 12,
+                  height: 1.5,
+                  color: context.palette.textTertiary,
                 ),
               ),
             ],
-          ),
-          if (project.description != null &&
-              project.description!.trim().isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              project.description!,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontFamily: AppTypography.family,
-                fontSize: 12,
-                height: 1.5,
-                color: AppColors.textTertiary,
+            const SizedBox(height: 18),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${(completion * 100).round()}',
+                  style: AppTypography.number(
+                    size: 44,
+                    color: completion >= 1
+                        ? context.palette.success
+                        : context.palette.text,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6, left: 2),
+                  child: Text(
+                    '%',
+                    style: AppTypography.number(
+                      size: 16,
+                      color: completion >= 1
+                          ? context.palette.success
+                          : context.palette.textTertiary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'готовность проекта',
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 11,
+                      color: context.palette.textTertiary,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                if (project.hasActiveAd)
+                  const AppChip(
+                    label: 'Активная реклама',
+                    tone: ChipTone.warning,
+                    compact: true,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                value: completion.clamp(0.0, 1.0),
+                minHeight: 6,
+                backgroundColor: context.palette.surface3,
+                valueColor: AlwaysStoppedAnimation(
+                  completion >= 1
+                      ? context.palette.success
+                      : context.palette.accent,
+                ),
               ),
             ),
           ],
-          const SizedBox(height: 18),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${(completion * 100).round()}',
-                style: AppTypography.number(
-                  size: 44,
-                  color: completion >= 1 ? AppColors.success : AppColors.text,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6, left: 2),
-                child: Text(
-                  '%',
-                  style: AppTypography.number(
-                    size: 16,
-                    color: completion >= 1 ? AppColors.success : AppColors.textTertiary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'готовность проекта',
-                  style: const TextStyle(
-                    fontFamily: AppTypography.family,
-                    fontSize: 11,
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              if (project.hasActiveAd)
-                const AppChip(
-                  label: 'Активная реклама',
-                  tone: ChipTone.warning,
-                  compact: true,
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: LinearProgressIndicator(
-              value: completion.clamp(0.0, 1.0),
-              minHeight: 6,
-              backgroundColor: AppColors.surface3,
-              valueColor: AlwaysStoppedAnimation(
-                completion >= 1 ? AppColors.success : AppColors.accent,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -581,17 +597,17 @@ class _MiniStat extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTypography.number(size: 19, color: AppColors.text),
+            style: AppTypography.number(size: 19, color: context.palette.text),
           ),
           const SizedBox(height: 2),
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 9.5,
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
             ),
           ),
         ],
@@ -619,9 +635,9 @@ class _NormCell extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: AppColors.surface2,
+          color: context.palette.surface2,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.borderSoft),
+          border: Border.all(color: context.palette.borderSoft),
         ),
         child: Column(
           children: [
@@ -629,17 +645,20 @@ class _NormCell extends StatelessWidget {
             const SizedBox(height: 7),
             Text(
               value == null ? '—' : '$value',
-              style: AppTypography.number(size: 20, color: AppColors.text),
+              style: AppTypography.number(
+                size: 20,
+                color: context.palette.text,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 9.5,
-                color: AppColors.textTertiary,
+                color: context.palette.textTertiary,
               ),
             ),
           ],
@@ -669,11 +688,11 @@ class _PlanFactRowView extends StatelessWidget {
             Expanded(
               child: Text(
                 row.label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ),
@@ -683,7 +702,9 @@ class _PlanFactRowView extends StatelessWidget {
                 fontFamily: AppTypography.family,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: complete ? AppColors.success : AppColors.textTertiary,
+                color: complete
+                    ? context.palette.success
+                    : context.palette.textTertiary,
                 fontFeatures: AppTypography.tabular,
               ),
             ),
@@ -695,9 +716,9 @@ class _PlanFactRowView extends StatelessWidget {
           child: LinearProgressIndicator(
             value: fraction,
             minHeight: 4,
-            backgroundColor: AppColors.surface3,
+            backgroundColor: context.palette.surface3,
             valueColor: AlwaysStoppedAnimation(
-              complete ? AppColors.success : AppColors.accent,
+              complete ? context.palette.success : context.palette.accent,
             ),
           ),
         ),

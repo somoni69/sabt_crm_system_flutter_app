@@ -228,11 +228,11 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
           textCapitalization: TextCapitalization.sentences,
           textInputAction: TextInputAction.next,
           maxLength: 200,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Что нужно сделать?',
@@ -246,11 +246,11 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
           minLines: 2,
           maxLines: 5,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 14,
             height: 1.5,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Описание, ссылки, детали…',
@@ -292,26 +292,26 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
         AppChoiceChips<String>(
           selected: _priority,
           onChanged: (value) => setState(() => _priority = value),
-          options: const [
+          options:  [
             AppChoice(
               value: 'low',
               label: 'Низкий',
-              color: AppColors.textTertiary,
+              color: context.palette.textTertiary,
             ),
             AppChoice(
               value: 'medium',
               label: 'Средний',
-              color: AppColors.info,
+              color: context.palette.info,
             ),
             AppChoice(
               value: 'high',
               label: 'Высокий',
-              color: AppColors.warning,
+              color: context.palette.warning,
             ),
             AppChoice(
               value: 'critical',
               label: 'Критичный',
-              color: AppColors.danger,
+              color: context.palette.danger,
             ),
           ],
         ),
@@ -319,19 +319,19 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
         AppFieldRow(
           label: 'Дедлайн',
           onTrailingTap: _busy ? null : _pickDeadline,
-          trailing: const Icon(Icons.edit_calendar_outlined,
-              size: 18, color: AppColors.accentBright),
+          trailing:  Icon(Icons.edit_calendar_outlined,
+              size: 18, color: context.palette.accentBright),
           child: GestureDetector(
             onTap: _busy ? null : _pickDeadline,
             child: Row(
               children: [
                 Text(
                   '${BizDate.fullDate(_deadline)} · ${BizDate.time(_deadline)}',
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -349,7 +349,7 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
         AppChoiceChips<String>(
           selected: _kind,
           onChanged: (value) => setState(() => _kind = value),
-          options: const [
+          options:  [
             AppChoice(
               value: 'task',
               label: 'Задача',
@@ -359,7 +359,7 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
               value: 'meeting',
               label: 'Встреча',
               icon: Icons.videocam_outlined,
-              color: AppColors.ice,
+              color: context.palette.ice,
             ),
           ],
         ),
@@ -367,7 +367,7 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
         AppChoiceChips<String>(
           selected: _scope,
           onChanged: (value) => setState(() => _scope = value),
-          options: const [
+          options:  [
             AppChoice(
               value: 'business',
               label: 'Рабочая',
@@ -377,7 +377,7 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
               value: 'personal',
               label: 'Личная',
               icon: Icons.lock_outline_rounded,
-              color: AppColors.warning,
+              color: context.palette.warning,
             ),
           ],
         ),
@@ -389,14 +389,14 @@ class _TaskFormState extends ConsumerState<_TaskForm> {
           onPressed: _busy ? null : _submit,
         ),
         const SizedBox(height: 4),
-        const Text(
+         Text(
           'Исполнитель получит push-уведомление и увидит задачу в приложении.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 10,
             height: 1.35,
-            color: AppColors.textDisabled,
+            color: context.palette.textDisabled,
           ),
         ),
       ],

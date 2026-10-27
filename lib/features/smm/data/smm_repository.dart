@@ -114,7 +114,7 @@ class SmmRepository {
   Future<List<Map<String, dynamic>>> getSmmControl(String ym) async {
     final res = await deps.api.getJson('/smm-control', query: {'ym': ym});
     final map = asMap(res);
-    final projects = asList(map?['projects'] ?? (res is List ? res : []));
+    final projects = asList(map?['projects'] ?? (res is List ? res : const <dynamic>[]));
     return projects.map(asMap).whereType<Map<String, dynamic>>().toList();
   }
 }

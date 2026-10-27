@@ -168,9 +168,9 @@ class _EmployeeTile extends StatelessWidget {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: employee.isActive ? AppColors.success : AppColors.textDisabled,
+                    color: employee.isActive ? context.palette.success : context.palette.textDisabled,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.surface1, width: 2),
+                    border: Border.all(color: context.palette.surface1, width: 2),
                   ),
                 ),
               ),
@@ -188,20 +188,20 @@ class _EmployeeTile extends StatelessWidget {
                         employee.fullName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                     ),
                     if (employee.isStoryMaker) ...[
                       const SizedBox(width: 5),
-                      const Tooltip(
+                       Tooltip(
                         message: 'Сторисмейкер',
                         child: Icon(Icons.auto_awesome_motion_rounded,
-                            size: 13, color: AppColors.ice),
+                            size: 13, color: context.palette.ice),
                       ),
                     ],
                   ],
@@ -211,10 +211,10 @@ class _EmployeeTile extends StatelessWidget {
                   employee.position,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 11,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
@@ -226,7 +226,7 @@ class _EmployeeTile extends StatelessWidget {
             compact: true,
           ),
           const SizedBox(width: 2),
-          const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textTertiary),
+           Icon(Icons.chevron_right_rounded, size: 18, color: context.palette.textTertiary),
         ],
       ),
     );

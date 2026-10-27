@@ -15,8 +15,38 @@ abstract final class Motion {
   static const Duration sheet = Duration(milliseconds: 240);
   static const Duration exit = Duration(milliseconds: 160);
 
+  /// Route push, modelled on the native iOS push: the incoming page
+  /// slides over a parallaxing previous page. Occasional, spatial —
+  /// it earns its 300ms. The pop is a touch shorter so leaving always
+  /// feels faster than arriving.
+  static const Duration page = Duration(milliseconds: 300);
+  static const Duration pageExit = Duration(milliseconds: 260);
+
+  /// Spring for gesture-carrying elements (the nav lens). Underdamped
+  /// (ratio ~0.69), so a flick lands with one soft overshoot, exactly
+  /// like UIKit's interruptible springs. Only for elements the finger
+  /// can still be holding when the target changes.
+  static const SpringDescription springSnap = SpringDescription(
+    mass: 1,
+    stiffness: 380,
+    damping: 27,
+  );
+
+  /// Orchestrated entrance of a whole screen (login, splash, onboarding).
+  /// Individual elements take a slice of this timeline via an [Interval],
+  /// so the whole choreography runs on a single ticker.
+  static const Duration entrance = Duration(milliseconds: 950);
+
+  /// Slow, ambient loop (breathing glow, drifting orbs). Never used for
+  /// content that carries information — decoration only.
+  static const Duration ambient = Duration(seconds: 14);
+
   /// cubic-bezier(0.23, 1, 0.32, 1). Entrances and exits.
   static const Cubic easeOut = Cubic(0.23, 1, 0.32, 1);
+
+  /// Gentle overshoot for a single hero element (the brand mark landing).
+  /// Scale only, never layout, and never on more than one element at a time.
+  static const Cubic spring = Cubic(0.34, 1.28, 0.64, 1);
 
   /// cubic-bezier(0.77, 0, 0.175, 1). Motion between two on-screen points.
   static const Cubic easeInOut = Cubic(0.77, 0, 0.175, 1);
@@ -44,16 +74,28 @@ abstract final class Motion {
   }
 }
 
-/// Route enter and exit: fade plus a short vertical slide. No full-page
-/// scale, so the route layer is not resampled on cheap devices.
+/// Route transition modelled on the native iOS push.
+///
+/// * Push: the incoming page slides in from the right edge over the
+///   previous one, which parallaxes a quarter-width to the left and
+///   dims under a scrim — the spatial model every iOS user already
+///   knows. A soft shadow rides the incoming page's left edge.
+/// * Pop: the same system in reverse, slightly faster ([Motion.pageExit]
+///   at the page level), so leaving always feels lighter than arriving.
+///
+/// Only `transform` and `opacity` move. The previous-page effect is
+/// driven by [secondaryAnimation]; when nobody is covering this page
+/// it stays at rest and costs one static transform.
 class MotionPageTransition extends StatefulWidget {
   const MotionPageTransition({
     super.key,
     required this.animation,
     required this.child,
+    this.secondaryAnimation,
   });
 
   final Animation<double> animation;
+  final Animation<double>? secondaryAnimation;
   final Widget child;
 
   @override
@@ -77,7 +119,7 @@ class _MotionPageTransitionState extends State<MotionPageTransition> {
       reverseCurve: Motion.easeOut,
     );
     _slide = Tween<Offset>(
-      begin: const Offset(0, 0.02),
+      begin: const Offset(1, 0),
       end: Offset.zero,
     ).animate(_curved);
   }
@@ -99,9 +141,67 @@ class _MotionPageTransitionState extends State<MotionPageTransition> {
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _curved,
-      child: SlideTransition(position: _slide, child: widget.child),
+    final secondary = widget.secondaryAnimation;
+    // Edge shade instead of a BoxShadow: a 28px gradient strip riding
+    // the incoming page's left edge, visible only mid-flight. No blur
+    // filter ever runs on the page layer.
+    Widget page = SlideTransition(
+      position: _slide,
+      child: Stack(
+        children: [
+          widget.child,
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 28,
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _curved,
+                builder: (context, _) {
+                  final shade = (1 - _curved.value) * 0.22;
+                  if (shade <= 0) return const SizedBox.shrink();
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withValues(alpha: shade),
+                          Colors.black.withValues(alpha: 0),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (secondary == null) return page;
+
+    return AnimatedBuilder(
+      animation: secondary,
+      child: page,
+      builder: (context, child) {
+        final t = Motion.easeOut.transform(secondary.value.clamp(0, 1));
+        if (t == 0) return child!;
+        return Transform.translate(
+          offset: Offset(-0.25 * t * MediaQuery.sizeOf(context).width, 0),
+          child: Stack(
+            children: [
+              child!,
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: ColoredBox(
+                    color: Colors.black.withValues(alpha: 0.14 * t),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -176,7 +276,11 @@ class _MotionAppearState extends State<MotionAppear>
 
   @override
   Widget build(BuildContext context) {
-    if (_settled || !Motion.allowed(context)) return widget.child;
+    if (!Motion.allowed(context)) return widget.child;
+    // The AnimatedBuilder wrapper is kept even after settling: swapping
+    // to the bare child at completion would remount the subtree and
+    // reset any state inside it. At rest the controller no longer
+    // notifies, so the stable wrapper costs nothing.
     return AnimatedBuilder(
       animation: _controller,
       child: widget.child,
@@ -189,6 +293,66 @@ class _MotionAppearState extends State<MotionAppear>
             child: Transform.scale(
               scale: Motion.enterScale + (1 - Motion.enterScale) * t,
               alignment: widget.alignment,
+              filterQuality: FilterQuality.low,
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// One slice of a shared entrance timeline.
+///
+/// The parent owns a single [AnimationController] (usually
+/// [Motion.entrance] long) and every element declares the slice it
+/// occupies — `begin`/`end` as fractions of that timeline. One ticker
+/// therefore drives the whole choreography, elements never start before
+/// the first frame is painted, and reduced motion collapses the slice
+/// by jumping the parent controller straight to 1.
+///
+/// Only opacity and transform are animated; layout never moves, so a
+/// staggered column cannot reflow while it is still appearing.
+class StaggeredEntrance extends StatelessWidget {
+  const StaggeredEntrance({
+    super.key,
+    required this.animation,
+    required this.child,
+    this.begin = 0,
+    this.end = 1,
+    this.dy = 18,
+    this.scaleFrom = Motion.enterScale,
+    this.curve = Motion.easeOut,
+  }) : assert(begin >= 0 && begin < end && end <= 1);
+
+  final Animation<double> animation;
+  final Widget child;
+  final double begin;
+  final double end;
+  final double dy;
+  final double scaleFrom;
+  final Curve curve;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Motion.allowed(context)) return child;
+    return AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final raw = ((animation.value - begin) / (end - begin)).clamp(0.0, 1.0);
+        final t = curve.transform(raw);
+        // The wrapper structure never changes, even at t == 1: returning
+        // the bare child at the end would remount the subtree and reset
+        // any state inside it (a stateful hero would restart its own
+        // entrance, a field would lose its selection).
+        return Opacity(
+          opacity: t,
+          child: Transform.translate(
+            offset: Offset(0, (1 - t) * dy),
+            child: Transform.scale(
+              scale: scaleFrom + (1 - scaleFrom) * t,
               filterQuality: FilterQuality.low,
               child: child,
             ),

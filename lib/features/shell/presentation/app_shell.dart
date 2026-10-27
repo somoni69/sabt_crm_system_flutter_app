@@ -186,7 +186,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (canCreateTask(user))
         _QuickAction(
           icon: Icons.add_task_rounded,
-          color: AppColors.accentBright,
+          color: context.palette.accentBright,
           title: 'Новая задача',
           subtitle: 'Поставить задачу себе или команде',
           onTap: () => showTaskForm(context, ref),
@@ -194,7 +194,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (canCreateTask(user))
         _QuickAction(
           icon: Icons.videocam_outlined,
-          color: AppColors.ice,
+          color: context.palette.ice,
           title: 'Встреча',
           subtitle: 'Создать встречу или звонок в календаре',
           onTap: () => showTaskForm(
@@ -207,7 +207,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (canSeeSmmSection(user) && !isSmmViewOnly(user))
         _QuickAction(
           icon: Icons.auto_awesome_rounded,
-          color: AppColors.accent,
+          color: context.palette.accent,
           title: 'Контент в план',
           subtitle: 'Рилс, пост или макет на дату',
           onTap: () => showContentForm(context, ref),
@@ -215,7 +215,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (isStoryWriter(user))
         _QuickAction(
           icon: Icons.auto_awesome_motion_rounded,
-          color: AppColors.success,
+          color: context.palette.success,
           title: 'Внести сторис',
           subtitle: 'Отметить количество историй за сегодня',
           onTap: () => showStorySheet(context, ref),
@@ -223,7 +223,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (canCheckStories(user) && !user.isStoriesChecker)
         _QuickAction(
           icon: Icons.fact_check_outlined,
-          color: AppColors.warning,
+          color: context.palette.warning,
           title: 'Проверка сторис',
           subtitle: 'Кто не закрыл дневную норму',
           onTap: () => context.push('/stories-check'),
@@ -383,9 +383,9 @@ class _QuickActionRow extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.surface2,
+            color: context.palette.surface2,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderSoft),
+            border: Border.all(color: context.palette.borderSoft),
           ),
           child: Row(
             children: [
@@ -397,27 +397,27 @@ class _QuickActionRow extends StatelessWidget {
                   children: [
                     Text(
                       action.title,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       action.subtitle,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 11.5,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
-                  size: 18, color: AppColors.textTertiary),
+               Icon(Icons.chevron_right_rounded,
+                  size: 18, color: context.palette.textTertiary),
             ],
           ),
         ),

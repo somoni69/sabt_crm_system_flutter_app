@@ -148,14 +148,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.only(right: 20),
                         decoration: BoxDecoration(
-                          color: AppColors.danger.withValues(alpha: 0.16),
+                          color: context.palette.danger.withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(17),
                           border: Border.all(
-                            color: AppColors.danger.withValues(alpha: 0.28),
+                            color: context.palette.danger.withValues(alpha: 0.28),
                           ),
                         ),
-                        child: const Icon(Icons.delete_outline_rounded,
-                            color: AppColors.danger),
+                        child:  Icon(Icons.delete_outline_rounded,
+                            color: context.palette.danger),
                       ),
                       onDismissed: (_) {
                         ref
@@ -189,29 +189,29 @@ class _NotificationCard extends StatelessWidget {
   final AppNotification notification;
   final VoidCallback onTap;
 
-  ({IconData icon, Color color}) get _visual {
+  ({IconData icon, Color color}) _visualFor(AppPalette palette) {
     final type = notification.type;
     if (type.contains('overdue') || type.contains('payment')) {
-      return (icon: Icons.error_outline_rounded, color: AppColors.danger);
+      return (icon: Icons.error_outline_rounded, color: palette.danger);
     }
     if (type.contains('completed') || type.contains('deadline')) {
-      return (icon: Icons.check_circle_outline_rounded, color: AppColors.success);
+      return (icon: Icons.check_circle_outline_rounded, color: palette.success);
     }
     if (type.contains('review') || type.contains('returned')) {
-      return (icon: Icons.rate_review_outlined, color: AppColors.warning);
+      return (icon: Icons.rate_review_outlined, color: palette.warning);
     }
     if (type.contains('task') || type.contains('project')) {
-      return (icon: Icons.task_alt_rounded, color: AppColors.accentBright);
+      return (icon: Icons.task_alt_rounded, color: palette.accentBright);
     }
     if (type.contains('stor')) {
-      return (icon: Icons.auto_awesome_motion_rounded, color: AppColors.ice);
+      return (icon: Icons.auto_awesome_motion_rounded, color: palette.ice);
     }
-    return (icon: Icons.notifications_none_rounded, color: AppColors.info);
+    return (icon: Icons.notifications_none_rounded, color: palette.info);
   }
 
   @override
   Widget build(BuildContext context) {
-    final visual = _visual;
+    final visual = _visualFor(context.palette);
     return AppCard(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       radius: 17,
@@ -246,8 +246,8 @@ class _NotificationCard extends StatelessWidget {
                               ? FontWeight.w500
                               : FontWeight.w600,
                           color: notification.isRead
-                              ? AppColors.textSecondary
-                              : AppColors.text,
+                              ? context.palette.textSecondary
+                              : context.palette.text,
                         ),
                       ),
                     ),
@@ -256,8 +256,8 @@ class _NotificationCard extends StatelessWidget {
                       Container(
                         width: 7,
                         height: 7,
-                        decoration: const BoxDecoration(
-                          color: AppColors.accentBright,
+                        decoration:  BoxDecoration(
+                          color: context.palette.accentBright,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -270,11 +270,11 @@ class _NotificationCard extends StatelessWidget {
                     notification.message,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 11.5,
                       height: 1.4,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ],
@@ -283,23 +283,23 @@ class _NotificationCard extends StatelessWidget {
                   children: [
                     Text(
                       notification.timeLabel,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 9.5,
-                        color: AppColors.textDisabled,
+                        color: context.palette.textDisabled,
                       ),
                     ),
                     if (notification.link != null) ...[
                       const SizedBox(width: 8),
-                      const Icon(Icons.north_east_rounded,
-                          size: 10, color: AppColors.textDisabled),
+                       Icon(Icons.north_east_rounded,
+                          size: 10, color: context.palette.textDisabled),
                       const SizedBox(width: 3),
-                      const Text(
+                       Text(
                         'Открыть',
                         style: TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 9.5,
-                          color: AppColors.textDisabled,
+                          color: context.palette.textDisabled,
                         ),
                       ),
                     ],

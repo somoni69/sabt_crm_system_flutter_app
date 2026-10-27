@@ -83,33 +83,27 @@ double navFlingVelocity(double pixelsPerSecond, double tabWidth) {
   return (pixelsPerSecond / tabWidth).clamp(-3.5, 3.5).toDouble();
 }
 
-final BoxDecoration _lensDecoration = BoxDecoration(
+BoxDecoration _lensDecoration(AppPalette palette) => BoxDecoration(
   gradient: LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      AppColors.accent.withValues(alpha: 0.30),
-      AppColors.accentDeep.withValues(alpha: 0.42),
+      palette.accent.withValues(alpha: 0.30),
+      palette.accentDeep.withValues(alpha: 0.42),
     ],
   ),
   borderRadius: const BorderRadius.all(Radius.circular(GlassTokens.radiusPill)),
-  border: Border.all(color: AppColors.glassRim, width: GlassTokens.hairline),
+  border: Border.all(color: palette.glassRim, width: GlassTokens.hairline),
 );
 
-const _specularDecoration = BoxDecoration(
-  gradient: LinearGradient(
-    colors: [Color(0x00FFFFFF), Color(0x73FFFFFF), Color(0x00FFFFFF)],
-  ),
-);
-
-final BoxDecoration _actionDecoration = BoxDecoration(
+BoxDecoration _actionDecoration(AppPalette palette) => BoxDecoration(
   shape: BoxShape.circle,
-  gradient: const LinearGradient(
+  gradient: LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [AppColors.accent, AppColors.accentDeep],
+    colors: [palette.accent, palette.accentDeep],
   ),
-  border: Border.all(color: AppColors.glassRim, width: GlassTokens.hairline),
+  border: Border.all(color: palette.glassRim, width: GlassTokens.hairline),
   boxShadow: [
     BoxShadow(
       color: Colors.black.withValues(alpha: 0.32),
@@ -117,7 +111,7 @@ final BoxDecoration _actionDecoration = BoxDecoration(
       offset: const Offset(0, 4),
     ),
     BoxShadow(
-      color: AppColors.accent.withValues(alpha: 0.28),
+      color: palette.accent.withValues(alpha: 0.28),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
@@ -140,16 +134,12 @@ const _labelStyleActive = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
-const SpringDescription _navSpring = SpringDescription(
-  mass: 1,
-  stiffness: 380,
-  damping: 27,
-);
+const SpringDescription _navSpring = Motion.springSnap;
 
 /// Liquid glass navigation chrome: a floating capsule, a spring-driven
 /// lens, and a detached circular action.
 ///
-/// The plate is opaque glass: [AppColors.glassTint] composited on the
+/// The plate is opaque glass: [context.palette.glassTint] composited on the
 /// canvas, plus the shared rim. It stays on screen over scrolling pages and
 /// the ambient layer, so a live [BackdropFilter] would recomposite every
 /// frame on low-end GPUs. The lens is a solid tinted capsule. The action
@@ -460,10 +450,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                             child: SizedBox.expand(
                               key: LiquidGlassNavBar.lensKey,
                               child: DecoratedBox(
-                                decoration: _lensDecoration,
-                                child: const Stack(
-                                  children: [_SpecularLine(top: 5, inset: 12)],
-                                ),
+                                decoration: _lensDecoration(context.palette),
                               ),
                             ),
                           ),
@@ -519,12 +506,11 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                 width: 62,
                 height: 62,
                 child: DecoratedBox(
-                  decoration: _actionDecoration,
+                  decoration: _actionDecoration(context.palette),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       Icon(widget.actionIcon, color: Colors.white, size: 26),
-                      const _SpecularLine(top: 7, inset: 16),
                     ],
                   ),
                 ),
@@ -562,10 +548,10 @@ class _NavTab extends StatelessWidget {
     final proximity = 1 - distance;
     final scale = reduceMotion ? 1.0 : 1 + proximity * 0.09;
     final color = emphasized
-        ? AppColors.text
+        ? context.palette.text
         : Color.lerp(
-            AppColors.textTertiary,
-            AppColors.accentBright,
+            context.palette.textTertiary,
+            context.palette.accentBright,
             proximity * 0.55,
           )!;
 
@@ -598,26 +584,6 @@ class _NavTab extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SpecularLine extends StatelessWidget {
-  const _SpecularLine({required this.top, required this.inset});
-
-  final double top;
-  final double inset;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: top,
-      left: inset,
-      right: inset,
-      child: const DecoratedBox(
-        decoration: _specularDecoration,
-        child: SizedBox(height: 1),
       ),
     );
   }

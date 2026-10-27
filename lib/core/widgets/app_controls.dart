@@ -64,31 +64,31 @@ class _AppButtonState extends State<AppButton> {
         null,
         [
           BoxShadow(
-            color: AppColors.accent.withValues(alpha: 0.30),
+            color: context.palette.accent.withValues(alpha: 0.30),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
         ],
       ),
       AppButtonVariant.secondary => (
-        AppColors.surface2,
-        AppColors.text,
-        Border.all(color: AppColors.border),
+        context.palette.surface2,
+        context.palette.text,
+        Border.all(color: context.palette.border),
         null,
       ),
       AppButtonVariant.ghost => (
         Colors.transparent,
-        AppColors.textSecondary,
-        Border.all(color: AppColors.borderSoft),
+        context.palette.textSecondary,
+        Border.all(color: context.palette.borderSoft),
         null,
       ),
       AppButtonVariant.danger => (
-        AppColors.danger,
+        context.palette.danger,
         Colors.white,
-        Border.all(color: AppColors.danger.withValues(alpha: 0.45)),
+        Border.all(color: context.palette.danger.withValues(alpha: 0.45)),
         [
           BoxShadow(
-            color: AppColors.danger.withValues(alpha: 0.20),
+            color: context.palette.danger.withValues(alpha: 0.20),
             blurRadius: 22,
             offset: const Offset(0, 9),
           ),
@@ -156,10 +156,10 @@ class _AppButtonState extends State<AppButton> {
         border: border,
         boxShadow: shadows,
         gradient: widget.variant == AppButtonVariant.primary
-            ? const LinearGradient(
+            ?  LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF7E5DEB), Color(0xFF5B3EC8)],
+                colors: [Color(0xFF7A63E0), context.palette.brandPurple],
               )
             : null,
       ),
@@ -218,7 +218,7 @@ class AppIconButton extends StatelessWidget {
     this.onPressed,
     this.size = 42,
     this.badge,
-    this.color = AppColors.text,
+    this.color,
     this.filled = false,
     this.tooltip,
   });
@@ -227,7 +227,7 @@ class AppIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final double size;
   final int? badge;
-  final Color color;
+  final Color? color;
   final bool filled;
   final String? tooltip;
 
@@ -240,19 +240,19 @@ class AppIconButton extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           color: filled
-              ? AppColors.surface3
+              ? context.palette.surface3
               : Colors.white.withValues(alpha: 0.055),
           borderRadius: BorderRadius.circular(size * 0.34),
           border: Border.all(
             color: filled
-                ? AppColors.border
+                ? context.palette.border
                 : Colors.white.withValues(alpha: 0.10),
           ),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(icon, size: size * 0.46, color: color),
+            Icon(icon, size: size * 0.46, color: color ?? context.palette.text),
             if ((badge ?? 0) > 0)
               Positioned(
                 top: size * 0.17,
@@ -262,9 +262,9 @@ class AppIconButton extends StatelessWidget {
                   height: 15,
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.danger,
+                    color: context.palette.danger,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: AppColors.background, width: 1.5),
+                    border: Border.all(color: context.palette.background, width: 1.5),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -336,14 +336,14 @@ class GlassSegmentedControl<T> extends StatelessWidget {
                         height: constraints.maxHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: AppColors.surface3,
+                            color: context.palette.surface3,
                             borderRadius: BorderRadius.circular(height / 2),
                             border: Border.all(
-                              color: AppColors.accent.withValues(alpha: 0.26),
+                              color: context.palette.accent.withValues(alpha: 0.26),
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.accent.withValues(alpha: 0.14),
+                                color: context.palette.accent.withValues(alpha: 0.14),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
                               ),
@@ -377,8 +377,8 @@ class GlassSegmentedControl<T> extends StatelessWidget {
                                   : FontWeight.w500,
                               letterSpacing: 0.05,
                               color: active
-                                  ? AppColors.text
-                                  : AppColors.textTertiary,
+                                  ? context.palette.text
+                                  : context.palette.textTertiary,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -388,8 +388,8 @@ class GlassSegmentedControl<T> extends StatelessWidget {
                                     item.icon,
                                     size: 14,
                                     color: active
-                                        ? AppColors.accentBright
-                                        : AppColors.textTertiary,
+                                        ? context.palette.accentBright
+                                        : context.palette.textTertiary,
                                   ),
                                   const SizedBox(width: 6),
                                 ],
@@ -409,8 +409,8 @@ class GlassSegmentedControl<T> extends StatelessWidget {
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                       color: active
-                                          ? AppColors.accentBright
-                                          : AppColors.textTertiary,
+                                          ? context.palette.accentBright
+                                          : context.palette.textTertiary,
                                     ),
                                   ),
                                 ],
@@ -468,10 +468,10 @@ class AppSearchField extends StatelessWidget {
       onChanged: onChanged,
       autofocus: autofocus,
       textInputAction: TextInputAction.search,
-      style: const TextStyle(
+      style:  TextStyle(
         fontFamily: AppTypography.family,
         fontSize: 14,
-        color: AppColors.text,
+        color: context.palette.text,
       ),
       decoration: InputDecoration(
         hintText: hint,
@@ -529,7 +529,7 @@ class AppSheetHeader extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: AppColors.textTertiary),
+                      ?.copyWith(color: context.palette.textTertiary),
                 ),
               ],
             ],
@@ -575,7 +575,7 @@ class AppSwitchTile extends StatelessWidget {
         child: Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 18, color: AppColors.textTertiary),
+              Icon(icon, size: 18, color: context.palette.textTertiary),
               const SizedBox(width: 12),
             ],
             Expanded(
@@ -584,22 +584,22 @@ class AppSwitchTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 3),
                     Text(
                       subtitle!,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 12,
                         height: 1.35,
-                        color: AppColors.textTertiary,
+                        color: context.palette.textTertiary,
                       ),
                     ),
                   ],

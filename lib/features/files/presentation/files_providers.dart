@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/state/app_state.dart';
-import '../../projects/presentation/projects_providers.dart';
 import '../data/files_repository.dart';
 import '../domain/app_file.dart';
 
@@ -15,15 +14,19 @@ class SelectedFileProjectId extends Notifier<String?> {
 final selectedFileProjectIdProvider =
     NotifierProvider<SelectedFileProjectId, String?>(SelectedFileProjectId.new);
 
-final projectFilesProvider = FutureProvider.autoDispose<List<AppFile>>((ref) async {
+/// Files of one project, keyed by project id.
+///
+/// A cache-first stream, not a one-shot future: the Hive snapshot
+/// renders instantly and the network refresh lands on top of it, so
+/// returning to this page never shows a spinner. Family-keyed so
+/// switching projects never flashes the previous project's files while
+/// the next list loads — each project keeps its own state. Deliberately
+/// not `autoDispose`: leaving and re-entering the page must not throw
+/// the list away and start the network round-trip over.
+final projectFilesProvider = StreamProvider.family<List<AppFile>, String>((
+  ref,
+  projectId,
+) {
   ref.watch(dataRevisionProvider);
-  final projectId = ref.watch(selectedFileProjectIdProvider);
-  if (projectId == null || projectId.isEmpty) {
-    final projects = ref.watch(visibleProjectsProvider);
-    if (projects.isNotEmpty) {
-      return ref.watch(filesRepositoryProvider).getFilesByProject(projects.first.id);
-    }
-    return const [];
-  }
-  return ref.watch(filesRepositoryProvider).getFilesByProject(projectId);
+  return ref.watch(filesRepositoryProvider).watchFilesByProject(projectId);
 });

@@ -12,7 +12,7 @@ List<ProjectModel> parseProjects(dynamic raw) {
       ? raw
       : raw is Map && raw['data'] is List
           ? raw['data'] as List
-          : const [];
+          : const <dynamic>[];
   final projects = list
       .map(asMap)
       .whereType<Map<String, dynamic>>()
@@ -71,7 +71,7 @@ final projectProvider =
 final projectStatsProvider = FutureProvider.autoDispose<ProjectStats>((ref) async {
   ref.watch(dataRevisionProvider);
   final user = ref.watch(currentUserProvider);
-  if (user == null) return ProjectStats.fromJson(const []);
+  if (user == null) return ProjectStats.fromJson(const <dynamic>[]);
   final deps = ref.watch(dependenciesProvider);
   final raw = await deps.cachedJson.fetch(
     userId: user.id,

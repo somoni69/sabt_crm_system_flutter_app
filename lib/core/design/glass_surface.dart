@@ -3,15 +3,15 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'glass_tokens.dart';
 
 /// One translucent layer per Z-plane. Never nest another [GlassSurface]
 /// inside it — children must be solid surfaces or outline chips.
 ///
 /// [blurBackdrop] keeps the live [BackdropFilter]. Persistent chrome should
-/// pass false: the plate is then the opaque composite of [tint] over
-/// [AppColors.background], with the same rim, and scrolling content does
+/// pass false: the plate is then the opaque composite of [tint] over the
+/// palette background, with the same rim, and scrolling content does
 /// not pay for a blur every frame.
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
@@ -47,6 +47,7 @@ class GlassSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final allowTransparency = GlassTokens.transparencyAllowed(context);
     final radiusValue = BorderRadius.circular(radius);
 
@@ -54,23 +55,20 @@ class GlassSurface extends StatelessWidget {
 
     if (allowTransparency) {
       final liveBlur = blurBackdrop && blur > 0;
-      final rawTint = tint ?? AppColors.glassTint;
+      final rawTint = tint ?? palette.glassTint;
       final plateTint = liveBlur
           ? rawTint
-          : Color.alphaBlend(rawTint, AppColors.background);
+          : Color.alphaBlend(rawTint, palette.background);
       final painted = DecoratedBox(
         decoration: BoxDecoration(
-          gradient: GlassTokens.surfaceGradient(
+          gradient: palette.surfaceGradient(
             tint: plateTint,
             strong: strong,
           ),
         ),
         child: CustomPaint(
           foregroundPainter: border
-              ? _GlassRimPainter(
-                  radius: radius,
-                  highlight: strong ? 0.42 : 0.32,
-                )
+              ? _GlassRimPainter(radius: radius, palette: palette)
               : null,
           child: Padding(padding: padding, child: content),
         ),
@@ -88,11 +86,11 @@ class GlassSurface extends StatelessWidget {
     } else {
       content = Container(
         decoration: BoxDecoration(
-          color: strong ? AppColors.surface3 : AppColors.surface2,
+          color: strong ? palette.surface3 : palette.surface2,
           borderRadius: radiusValue,
           border: border
               ? Border.all(
-                  color: strong ? AppColors.borderStrong : AppColors.border,
+                  color: strong ? palette.borderStrong : palette.border,
                   width: 1.2,
                 )
               : null,
@@ -118,10 +116,10 @@ class GlassSurface extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: radiusValue,
         boxShadow: [
-          if (shadow) ...AppColors.glassShadow,
+          if (shadow) ...palette.glassShadow,
           if (glow)
             BoxShadow(
-              color: AppColors.accent.withValues(alpha: 0.16),
+              color: palette.accent.withValues(alpha: 0.16),
               blurRadius: 46,
               spreadRadius: -6,
               offset: const Offset(0, 18),
@@ -133,11 +131,18 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
+/// The glass rim: one hairline stroke around the surface, brighter at
+/// the top-left where light would catch it.
+///
+/// Deliberately nothing else. An earlier version also drew a specular
+/// arc inside the top-left corner; on wide pills (headers, the nav
+/// capsule) that arc read as a stray stripe floating inside the glass,
+/// so it was removed — the gradient stroke alone carries the effect.
 class _GlassRimPainter extends CustomPainter {
-  const _GlassRimPainter({required this.radius, required this.highlight});
+  const _GlassRimPainter({required this.radius, required this.palette});
 
   final double radius;
-  final double highlight;
+  final AppPalette palette;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -150,34 +155,14 @@ class _GlassRimPainter extends CustomPainter {
     final stroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = GlassTokens.hairline
-      ..shader = GlassTokens.rimGradient().createShader(rect);
+      ..shader = palette.rimGradient().createShader(rect);
 
     canvas.drawRRect(rrect, stroke);
-
-    // Pill radii (999) are larger than the control. Clamp the specular arc to
-    // the real corner so it stays on the capsule instead of drawing off-canvas.
-    final inset = rect.deflate(2.2);
-    final cap = size.shortestSide / 2;
-    final corner = radius > cap ? cap : radius;
-    final glint = Path()
-      ..addArc(
-        Rect.fromLTWH(inset.left, inset.top, corner * 2, corner * 2),
-        3.02,
-        0.84,
-      );
-    canvas.drawPath(
-      glint,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = 1.4
-        ..color = Colors.white.withValues(alpha: highlight),
-    );
   }
 
   @override
   bool shouldRepaint(covariant _GlassRimPainter oldDelegate) =>
-      oldDelegate.radius != radius || oldDelegate.highlight != highlight;
+      oldDelegate.radius != radius || oldDelegate.palette != palette;
 }
 
 /// A thin luminous rule used inside glass chrome.
@@ -189,6 +174,7 @@ class GlassHairline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final line = context.palette.isDark ? Colors.white : context.palette.text;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: indent),
       child: Container(
@@ -196,9 +182,9 @@ class GlassHairline extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.white.withValues(alpha: 0),
-              Colors.white.withValues(alpha: opacity),
-              Colors.white.withValues(alpha: 0),
+              line.withValues(alpha: 0),
+              line.withValues(alpha: opacity),
+              line.withValues(alpha: 0),
             ],
           ),
         ),

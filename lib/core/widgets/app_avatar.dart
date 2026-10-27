@@ -91,7 +91,7 @@ class AppAvatar extends StatelessWidget {
               height: size,
               fadeInDuration: const Duration(milliseconds: 180),
               placeholder: (context, _) => ColoredBox(
-                color: AppColors.surface3,
+                color: context.palette.surface3,
                 child: Center(
                   child: Text(
                     _initials,
@@ -99,13 +99,13 @@ class AppAvatar extends StatelessWidget {
                       fontFamily: AppTypography.family,
                       fontSize: size * 0.32,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
               ),
               errorWidget: (context, _, _) => ColoredBox(
-                color: AppColors.surface3,
+                color: context.palette.surface3,
                 child: Center(
                   child: Text(
                     _initials,
@@ -113,7 +113,7 @@ class AppAvatar extends StatelessWidget {
                       fontFamily: AppTypography.family,
                       fontSize: size * 0.32,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
@@ -161,7 +161,7 @@ class AvatarStack extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.surface1, width: 1.6),
+                  border: Border.all(color: context.palette.surface1, width: 1.6),
                 ),
                 child: AppAvatar(
                   name: visible[i].name,
@@ -177,9 +177,9 @@ class AvatarStack extends StatelessWidget {
                 width: size,
                 height: size,
                 decoration: BoxDecoration(
-                  color: AppColors.surface3,
+                  color: context.palette.surface3,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.surface1, width: 1.6),
+                  border: Border.all(color: context.palette.surface1, width: 1.6),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -188,7 +188,7 @@ class AvatarStack extends StatelessWidget {
                     fontFamily: AppTypography.family,
                     fontSize: size * 0.32,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),

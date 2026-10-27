@@ -37,7 +37,7 @@ List<TaskModel> parseTasks(dynamic raw) {
       ? raw
       : raw is Map && raw['data'] is List
           ? raw['data'] as List
-          : const [];
+          : const <dynamic>[];
   final tasks = list
       .map(asMap)
       .whereType<Map<String, dynamic>>()

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// Brand palette: "liquid graphite" — near-black glass with the sabt violet
-/// and the red brand dot. Red is reserved for overdue/errors, green for done.
+export 'app_palette.dart';
+
+/// Brand palette constants: "liquid graphite" — near-black glass with the
+/// sabt violet and the red brand dot. Red is reserved for overdue/errors,
+/// green for done.
+///
+/// These constants are the DARK preset. Widgets must read colours via
+/// `context.palette` (see [AppPalette]) so the light theme can take
+/// over; this class remains for the dark preset definition and the few
+/// non-widget helpers.
 abstract final class AppColors {
   // Canvas
   static const Color background = Color(0xFF06080E);
@@ -25,8 +33,11 @@ abstract final class AppColors {
   static const Color textTertiary = Color(0xFF71809A);
   static const Color textDisabled = Color(0xFF4E5A70);
 
-  // Brand
-  static const Color brandPurple = Color(0xFF6B4FCF);
+  // Brand. The canonical Sabt violet is #59479e — it is the anchor of the
+  // whole accent scale and must not drift. [accent] / [accentBright] /
+  // [accentDeep] are tints and shades of that same hue, lightened only
+  // enough to stay legible on the graphite canvas.
+  static const Color brandPurple = Color(0xFF59479E);
   static const Color brandRed = Color(0xFFEF4444);
   static const Color accent = Color(0xFF8B6CF6);
   static const Color accentBright = Color(0xFFB49BFF);

@@ -51,9 +51,9 @@ class ProfileWorkSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(profileWorkProvider);
     return async.when(
-      loading: () => const Padding(
+      loading: () =>  Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
-        child: LinearProgressIndicator(minHeight: 2, color: AppColors.accent),
+        child: LinearProgressIndicator(minHeight: 2, color: context.palette.accent),
       ),
       error: (error, _) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
@@ -131,18 +131,18 @@ class _SalaryCard extends StatelessWidget {
               'Зарплата · ${data['ym'] ?? ''}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14.5,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
             const SizedBox(height: 8),
-            _line('Оклад', asDoubleOr(row['salary'], 0)),
-            _line('Бонус', asDoubleOr(row['bonus'], 0)),
-            _line('Аванс', asDoubleOr(row['advance'], 0)),
-            _line('Штраф', asDoubleOr(row['fine'], 0)),
+            _line(context, 'Оклад', asDoubleOr(row['salary'], 0)),
+            _line(context, 'Бонус', asDoubleOr(row['bonus'], 0)),
+            _line(context, 'Аванс', asDoubleOr(row['advance'], 0)),
+            _line(context, 'Штраф', asDoubleOr(row['fine'], 0)),
             const SizedBox(height: 6),
             Text(
               paid ? 'Выплачено' : 'К выплате ${Money.somoni(toPay)}',
@@ -152,7 +152,7 @@ class _SalaryCard extends StatelessWidget {
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
-                color: paid ? AppColors.success : AppColors.text,
+                color: paid ? context.palette.success : context.palette.text,
                 fontFeatures: AppTypography.tabular,
               ),
             ),
@@ -162,7 +162,7 @@ class _SalaryCard extends StatelessWidget {
     );
   }
 
-  Widget _line(String label, double value) {
+  Widget _line(BuildContext context, String label, double value) {
     if (value <= 0 && label != 'Оклад') return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 3),
@@ -173,9 +173,9 @@ class _SalaryCard extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
-                color: AppColors.textTertiary,
+                color: context.palette.textTertiary,
                 fontSize: 12.5,
               ),
             ),
@@ -183,11 +183,11 @@ class _SalaryCard extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             Money.somoni(value),
-            style: const TextStyle(
+            style:  TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
               fontFeatures: AppTypography.tabular,
             ),
           ),
@@ -224,11 +224,11 @@ class _StatsCard extends ConsumerWidget {
               'Уровень ${asIntOr(level?['level'], 1)} · ${asIntOr(level?['points'], 0)} очков',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14.5,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
             if (percent != null) ...[
@@ -242,8 +242,8 @@ class _StatsCard extends ConsumerWidget {
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
                   color: percent >= 100
-                      ? AppColors.success
-                      : AppColors.textSecondary,
+                      ? context.palette.success
+                      : context.palette.textSecondary,
                 ),
               ),
             ],
@@ -252,10 +252,10 @@ class _StatsCard extends ConsumerWidget {
                 'Серия ${asIntOr(streak['current'], 0)} · лучшая ${asIntOr(streak['best'], 0)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 12.5,
-                  color: AppColors.textTertiary,
+                  color: context.palette.textTertiary,
                 ),
               ),
             if (goals.isNotEmpty) ...[
@@ -313,11 +313,11 @@ class _SalesCard extends StatelessWidget {
               'Продажи · ${data['ym'] ?? ''}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14.5,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
             const SizedBox(height: 8),
@@ -329,7 +329,7 @@ class _SalesCard extends StatelessWidget {
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
-                color: done ? AppColors.success : AppColors.text,
+                color: done ? context.palette.success : context.palette.text,
                 fontFeatures: AppTypography.tabular,
               ),
             ),
@@ -363,11 +363,11 @@ class _GoalRow extends StatelessWidget {
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13.5,
                     height: 1.3,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
               ),
@@ -377,7 +377,7 @@ class _GoalRow extends StatelessWidget {
                     ? Icons.check_circle_rounded
                     : Icons.radio_button_unchecked_rounded,
                 size: 22,
-                color: done ? AppColors.success : AppColors.textTertiary,
+                color: done ? context.palette.success : context.palette.textTertiary,
               ),
             ],
           ),

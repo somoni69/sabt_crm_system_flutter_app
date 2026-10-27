@@ -90,19 +90,19 @@ class _TextPromptFormState extends State<_TextPromptForm> {
           maxLines: widget.maxLines,
           maxLength: widget.maxLength,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 14.5,
             height: 1.45,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: InputDecoration(
             hintText: widget.hint,
             counterText: widget.maxLength > 500 ? null : '',
-            counterStyle: const TextStyle(
+            counterStyle:  TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 10,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
           ),
         ),

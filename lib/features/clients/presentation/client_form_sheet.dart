@@ -209,11 +209,11 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           autofocus: widget.client == null,
           maxLength: 200,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Название компании или бренда',
@@ -225,10 +225,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           controller: _sphere,
           enabled: !_busy,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 14,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Сфера: ресторан, клиника, блогер…',
@@ -240,10 +240,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           controller: _person,
           enabled: !_busy,
           textCapitalization: TextCapitalization.words,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 14,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Имя ЛПР',
@@ -255,10 +255,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           controller: _phone,
           enabled: !_busy,
           keyboardType: TextInputType.phone,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 14,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: '+992 __ ___ ____',
@@ -272,10 +272,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
               child: TextField(
                 controller: _instagram,
                 enabled: !_busy,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 13,
-                  color: AppColors.text,
+                  color: context.palette.text,
                 ),
                 decoration: const InputDecoration(
                   hintText: '@instagram',
@@ -290,10 +290,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
                 controller: _email,
                 enabled: !_busy,
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 13,
-                  color: AppColors.text,
+                  color: context.palette.text,
                 ),
                 decoration: const InputDecoration(
                   hintText: 'email',
@@ -334,21 +334,21 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
         AppChoiceChips<String>(
           selected: _interest,
           onChanged: (value) => setState(() => _interest = value),
-          options: const [
+          options:  [
             AppChoice(
               value: 'cold',
               label: 'Холодный',
-              color: AppColors.info,
+              color: context.palette.info,
             ),
             AppChoice(
               value: 'warm',
               label: 'Тёплый',
-              color: AppColors.warning,
+              color: context.palette.warning,
             ),
             AppChoice(
               value: 'hot',
               label: 'Горячий',
-              color: AppColors.danger,
+              color: context.palette.danger,
             ),
           ],
         ),
@@ -358,10 +358,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           enabled: !_busy,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 14,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Например, 12000',
@@ -373,8 +373,8 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
         AppFieldRow(
           label: 'Дата и время',
           onTrailingTap: _busy ? null : _pickNextContact,
-          trailing: const Icon(Icons.edit_calendar_outlined,
-              size: 18, color: AppColors.accentBright),
+          trailing:  Icon(Icons.edit_calendar_outlined,
+              size: 18, color: context.palette.accentBright),
           child: GestureDetector(
             onTap: _busy ? null : _pickNextContact,
             child: Text(
@@ -386,8 +386,8 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: _nextContact == null
-                    ? AppColors.textTertiary
-                    : AppColors.text,
+                    ? context.palette.textTertiary
+                    : context.palette.text,
               ),
             ),
           ),
@@ -399,11 +399,11 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           minLines: 1,
           maxLines: 3,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 13.5,
             height: 1.45,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(hintText: 'Что нужно сделать дальше?'),
         ),
@@ -414,11 +414,11 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
           minLines: 1,
           maxLines: 3,
           textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 13.5,
             height: 1.45,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(hintText: 'Какую задачу решаем?'),
         ),
@@ -426,10 +426,10 @@ class _ClientFormState extends ConsumerState<_ClientForm> {
         TextField(
           controller: _source,
           enabled: !_busy,
-          style: const TextStyle(
+          style:  TextStyle(
             fontFamily: AppTypography.family,
             fontSize: 13.5,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
           decoration: const InputDecoration(
             hintText: 'Instagram, рекомендация, обзвон…',

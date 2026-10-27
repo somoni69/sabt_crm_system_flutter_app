@@ -33,7 +33,7 @@ class FinancePage extends ConsumerWidget {
             size: 40,
             onPressed: () {
               final overview = asyncData.value;
-              showGlassSheet(
+              showGlassSheet<void>(
                 context: context,
                 title: 'Новая операция',
                 child: TransactionFormSheet(accounts: overview?.accounts ?? const []),
@@ -55,10 +55,10 @@ class FinancePage extends ConsumerWidget {
               _buildMonthNav(context, ref, ym),
               const SizedBox(height: 16),
               asyncData.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.accent),
+                    child: CircularProgressIndicator(color: context.palette.accent),
                   ),
                 ),
                 error: (error, _) => EmptyState(
@@ -82,11 +82,11 @@ class FinancePage extends ConsumerWidget {
                       children: [
                         Text(
                           'ПОСЛЕДНИЕ ОПЕРАЦИИ',
-                          style: AppTypography.overline(color: AppColors.textTertiary),
+                          style: AppTypography.overline(color: context.palette.textTertiary),
                         ),
                         Text(
                           '${data.recentTransactions.length}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style:  TextStyle(fontSize: 12, color: context.palette.textSecondary),
                         ),
                       ],
                     ),
@@ -117,9 +117,9 @@ class FinancePage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -161,7 +161,7 @@ class FinancePage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('РАЗДЕЛЫ', style: AppTypography.overline(color: AppColors.textTertiary)),
+        Text('РАЗДЕЛЫ', style: AppTypography.overline(color: context.palette.textTertiary)),
         const SizedBox(height: 10),
         for (final item in items)
           AppCard(
@@ -171,7 +171,7 @@ class FinancePage extends ConsumerWidget {
             onTap: () => context.push(item.$3),
             child: Row(
               children: [
-                Icon(item.$4, size: 18, color: AppColors.accentBright),
+                Icon(item.$4, size: 18, color: context.palette.accentBright),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -181,12 +181,12 @@ class FinancePage extends ConsumerWidget {
                         item.$1,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                           height: 1.25,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -194,18 +194,18 @@ class FinancePage extends ConsumerWidget {
                         item.$2,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 12,
                           height: 1.3,
-                          color: AppColors.textTertiary,
+                          color: context.palette.textTertiary,
                         ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textTertiary),
+                 Icon(Icons.chevron_right_rounded, size: 20, color: context.palette.textTertiary),
               ],
             ),
           ),
@@ -220,10 +220,10 @@ class FinancePage extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('СЧЕТА И БАЛАНСЫ', style: AppTypography.overline(color: AppColors.textTertiary)),
+            Text('СЧЕТА И БАЛАНСЫ', style: AppTypography.overline(color: context.palette.textTertiary)),
             Text(
               'Всего: ${Money.somoni(data.totalBalance)}',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.accentBright),
+              style:  TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.palette.accentBright),
             ),
           ],
         ),
@@ -232,10 +232,10 @@ class FinancePage extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface1,
+              color: context.palette.surface1,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Text('Счета ещё не настроены', style: TextStyle(color: AppColors.textTertiary, fontSize: 13)),
+            child:  Text('Счета ещё не настроены', style: TextStyle(color: context.palette.textTertiary, fontSize: 13)),
           )
         else
           SingleChildScrollView(
@@ -246,14 +246,14 @@ class FinancePage extends ConsumerWidget {
                   margin: const EdgeInsets.only(right: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.surface1,
+                    color: context.palette.surface1,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.borderSoft),
+                    border: Border.all(color: context.palette.borderSoft),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(acc.name, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(acc.name, style:  TextStyle(fontSize: 12, color: context.palette.textSecondary)),
                       const SizedBox(height: 4),
                       Text(
                         Money.somoni(acc.balance),
@@ -283,7 +283,7 @@ class FinancePage extends ConsumerWidget {
                 label: 'Доход за месяц',
                 amount: data.income,
                 icon: Icons.arrow_downward_rounded,
-                color: AppColors.success,
+                color: context.palette.success,
               ),
             ),
             const SizedBox(width: 10),
@@ -292,7 +292,7 @@ class FinancePage extends ConsumerWidget {
                 label: 'Расход за месяц',
                 amount: data.expense,
                 icon: Icons.arrow_upward_rounded,
-                color: AppColors.danger,
+                color: context.palette.danger,
               ),
             ),
           ],
@@ -305,7 +305,7 @@ class FinancePage extends ConsumerWidget {
                 label: 'Чистая прибыль',
                 amount: data.profit,
                 icon: Icons.account_balance_rounded,
-                color: data.profit >= 0 ? AppColors.accentBright : AppColors.danger,
+                color: data.profit >= 0 ? context.palette.accentBright : context.palette.danger,
               ),
             ),
             const SizedBox(width: 10),
@@ -314,7 +314,7 @@ class FinancePage extends ConsumerWidget {
                 label: 'Ожидается к оплате',
                 amount: data.receivables,
                 icon: Icons.hourglass_top_rounded,
-                color: AppColors.ice,
+                color: context.palette.ice,
               ),
             ),
           ],
@@ -328,28 +328,28 @@ class FinancePage extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surface1,
+          color: context.palette.surface1,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(
-          child: Text('За этот месяц операций не найдено', style: TextStyle(color: AppColors.textTertiary)),
+        child:  Center(
+          child: Text('За этот месяц операций не найдено', style: TextStyle(color: context.palette.textTertiary)),
         ),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Column(
         children: transactions.map((tx) {
           final isIncome = tx.isIncome;
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.borderSoft, width: 0.5)),
+            decoration:  BoxDecoration(
+              border: Border(bottom: BorderSide(color: context.palette.borderSoft, width: 0.5)),
             ),
             child: Row(
               children: [
@@ -357,13 +357,13 @@ class FinancePage extends ConsumerWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: isIncome ? AppColors.successSoft : AppColors.dangerSoft,
+                    color: isIncome ? context.palette.successSoft : context.palette.dangerSoft,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
                     size: 18,
-                    color: isIncome ? AppColors.success : AppColors.danger,
+                    color: isIncome ? context.palette.success : context.palette.danger,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -380,7 +380,7 @@ class FinancePage extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         '${tx.accountName ?? 'Счёт'} • ${tx.date != null ? BizDate.dateShort(tx.date!) : ''}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                        style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
                       ),
                     ],
                   ),
@@ -391,7 +391,7 @@ class FinancePage extends ConsumerWidget {
                     fontFamily: AppTypography.family,
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
-                    color: isIncome ? AppColors.success : AppColors.text,
+                    color: isIncome ? context.palette.success : context.palette.text,
                   ),
                 ),
               ],
@@ -421,9 +421,9 @@ class _FinanceKpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: context.palette.surface1,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +446,7 @@ class _FinanceKpiCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+            style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
           ),
         ],
       ),

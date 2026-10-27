@@ -305,7 +305,7 @@ class _ClientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final directionColor = client.isDev ? AppColors.ice : AppColors.accent;
+    final directionColor = client.isDev ? context.palette.ice : context.palette.accent;
     return AppCard(
       padding: const EdgeInsets.fromLTRB(13, 12, 12, 12),
       radius: 18,
@@ -331,18 +331,18 @@ class _ClientCard extends StatelessWidget {
                         client.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                     ),
                     if (client.isHot) ...[
                       const SizedBox(width: 5),
-                      const Icon(Icons.local_fire_department_rounded,
-                          size: 15, color: AppColors.danger),
+                       Icon(Icons.local_fire_department_rounded,
+                          size: 15, color: context.palette.danger),
                     ],
                   ],
                 ),
@@ -354,10 +354,10 @@ class _ClientCard extends StatelessWidget {
                   ].join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10.5,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 7),
@@ -389,10 +389,10 @@ class _ClientCard extends StatelessWidget {
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
                           color: client.nextContactOverdue
-                              ? AppColors.danger
+                              ? context.palette.danger
                               : client.nextContactToday
-                                  ? AppColors.warning
-                                  : AppColors.textTertiary,
+                                  ? context.palette.warning
+                                  : context.palette.textTertiary,
                         ),
                       ),
                   ],
@@ -407,11 +407,11 @@ class _ClientCard extends StatelessWidget {
               if (client.dealPotential != null && client.dealPotential! > 0)
                 Text(
                   Money.somoni(client.dealPotential, compact: true),
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     fontFeatures: AppTypography.tabular,
                   ),
                 ),

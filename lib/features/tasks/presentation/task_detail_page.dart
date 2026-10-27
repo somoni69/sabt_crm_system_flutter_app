@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/api_urls.dart';
 import '../../../core/utils/date_utils.dart';
@@ -62,24 +63,31 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
       String() => error,
       _ => 'Не удалось выполнить действие',
     };
-    _deps.banners.show(AppBanner(
-      title: 'Ошибка',
-      message: message,
-      tone: BannerTone.danger,
-      icon: Icons.error_outline_rounded,
-    ));
+    _deps.banners.show(
+      AppBanner(
+        title: 'Ошибка',
+        message: message,
+        tone: BannerTone.danger,
+        icon: Icons.error_outline_rounded,
+      ),
+    );
   }
 
   void _showSuccess(String title, [String? message]) {
-    _deps.banners.show(AppBanner(
-      title: title,
-      message: message ?? '',
-      tone: BannerTone.success,
-      icon: Icons.check_circle_outline_rounded,
-    ));
+    _deps.banners.show(
+      AppBanner(
+        title: title,
+        message: message ?? '',
+        tone: BannerTone.success,
+        icon: Icons.check_circle_outline_rounded,
+      ),
+    );
   }
 
-  Future<void> _runAction(Future<void> Function() action, String success) async {
+  Future<void> _runAction(
+    Future<void> Function() action,
+    String success,
+  ) async {
     if (_actionBusy) return;
     setState(() => _actionBusy = true);
     try {
@@ -121,7 +129,8 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     );
     if (reason == null || reason.trim().isEmpty) return;
     await _runAction(
-      () => ref.read(tasksRepositoryProvider).returnTask(task.id, reason.trim()),
+      () =>
+          ref.read(tasksRepositoryProvider).returnTask(task.id, reason.trim()),
       'Задача возвращена на доработку',
     );
   }
@@ -154,11 +163,9 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     );
     if (text == null || text.trim().isEmpty) return;
     try {
-      await ref.read(tasksRepositoryProvider).addResult(
-            task.id,
-            type: 'text',
-            content: text.trim(),
-          );
+      await ref
+          .read(tasksRepositoryProvider)
+          .addResult(task.id, type: 'text', content: text.trim());
       ref.read(dataRevisionProvider.notifier).bump();
       _showSuccess('Результат добавлен');
     } on ApiException catch (error) {
@@ -175,7 +182,9 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     );
     if (text == null || text.trim().isEmpty) return;
     try {
-      await ref.read(tasksRepositoryProvider).addChecklistItem(task.id, text.trim());
+      await ref
+          .read(tasksRepositoryProvider)
+          .addChecklistItem(task.id, text.trim());
       ref.read(dataRevisionProvider.notifier).bump();
     } on ApiException catch (error) {
       _showError(error);
@@ -184,7 +193,9 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
 
   Future<void> _toggleChecklist(TaskModel task, String itemId) async {
     try {
-      await ref.read(tasksRepositoryProvider).toggleChecklistItem(task.id, itemId);
+      await ref
+          .read(tasksRepositoryProvider)
+          .toggleChecklistItem(task.id, itemId);
       ref.read(dataRevisionProvider.notifier).bump();
     } on ApiException catch (error) {
       _showError(error);
@@ -196,11 +207,9 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
       final file = await FilePicker.pickFile();
       if (file == null) return;
       final bytes = await file.readAsBytes();
-      await ref.read(tasksRepositoryProvider).uploadTaskFile(
-            task.id,
-            bytes: bytes,
-            filename: file.name,
-          );
+      await ref
+          .read(tasksRepositoryProvider)
+          .uploadTaskFile(task.id, bytes: bytes, filename: file.name);
       ref.read(dataRevisionProvider.notifier).bump();
       _showSuccess('Файл прикреплён', file.name);
     } on ApiException catch (error) {
@@ -235,13 +244,17 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     final canReturn = userCan(user, Perm.tasksReturn);
     final canUpload = userCan(user, Perm.filesUpload);
 
-    final comments = ref.watch(taskCommentsProvider(widget.taskId)).value?.data ??
+    final comments =
+        ref.watch(taskCommentsProvider(widget.taskId)).value?.data ??
         const <TaskComment>[];
-    final results = ref.watch(taskResultsProvider(widget.taskId)).value?.data ??
+    final results =
+        ref.watch(taskResultsProvider(widget.taskId)).value?.data ??
         const <TaskResult>[];
-    final checklist = ref.watch(taskChecklistProvider(widget.taskId)).value?.data ??
+    final checklist =
+        ref.watch(taskChecklistProvider(widget.taskId)).value?.data ??
         const <TaskChecklistItem>[];
-    final files = ref.watch(taskFilesProvider(widget.taskId)).value?.data ??
+    final files =
+        ref.watch(taskFilesProvider(widget.taskId)).value?.data ??
         const <TaskFile>[];
 
     Widget? actionBar;
@@ -251,7 +264,8 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
 
     return AppPage(
       showBottomBarSpace: false,
-      bottomPadding: PageInsets.bottomPlain(context) + (actionBar == null ? 0 : 82),
+      bottomPadding:
+          PageInsets.bottomPlain(context) + (actionBar == null ? 0 : 82),
       header: AppHeader(
         title: 'Задача',
         subtitle: task?.projectLabel,
@@ -297,18 +311,27 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                       selected: _tab,
                       onChanged: (value) => setState(() => _tab = value),
                       options: [
-                        const AppChoice(value: _TaskTab.overview, label: 'Обзор'),
+                        const AppChoice(
+                          value: _TaskTab.overview,
+                          label: 'Обзор',
+                        ),
                         AppChoice(
                           value: _TaskTab.comments,
-                          label: comments.isEmpty ? 'Чат' : 'Чат ${comments.length}',
+                          label: comments.isEmpty
+                              ? 'Чат'
+                              : 'Чат ${comments.length}',
                         ),
                         AppChoice(
                           value: _TaskTab.results,
-                          label: results.isEmpty ? 'Итоги' : 'Итоги ${results.length}',
+                          label: results.isEmpty
+                              ? 'Итоги'
+                              : 'Итоги ${results.length}',
                         ),
                         AppChoice(
                           value: _TaskTab.files,
-                          label: files.isEmpty ? 'Файлы' : 'Файлы ${files.length}',
+                          label: files.isEmpty
+                              ? 'Файлы'
+                              : 'Файлы ${files.length}',
                         ),
                       ],
                     ),
@@ -352,7 +375,8 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (task.description != null && task.description!.trim().isNotEmpty) ...[
+        if (task.description != null &&
+            task.description!.trim().isNotEmpty) ...[
           SectionHeader(
             overline: 'ОПИСАНИЕ',
             title: 'Что нужно сделать',
@@ -363,11 +387,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
             radius: 18,
             child: Text(
               task.description!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 13.5,
                 height: 1.6,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -391,25 +415,25 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                     ? null
                     : () => context.push('/projects/${task.projectId}'),
               ),
-              const Divider(height: 1, color: AppColors.borderSoft),
+              Divider(height: 1, color: context.palette.borderSoft),
               KeyValueRow(
                 label: 'Срок',
                 value: task.deadlineLabel,
                 icon: Icons.schedule_rounded,
                 valueColor: task.isOverdue
-                    ? AppColors.danger
+                    ? context.palette.danger
                     : task.isDueToday
-                        ? AppColors.warning
-                        : null,
+                    ? context.palette.warning
+                    : null,
               ),
-              const Divider(height: 1, color: AppColors.borderSoft),
+              Divider(height: 1, color: context.palette.borderSoft),
               KeyValueRow(
                 label: 'Автор',
                 value: task.createdByName ?? '—',
                 icon: Icons.person_outline_rounded,
               ),
               if (task.estimatedHours > 0 || task.loggedHours > 0) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Часы',
                   value:
@@ -418,7 +442,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                 ),
               ],
               if (task.createdAt != null) ...[
-                const Divider(height: 1, color: AppColors.borderSoft),
+                Divider(height: 1, color: context.palette.borderSoft),
                 KeyValueRow(
                   label: 'Создана',
                   value: BizDate.relative(task.createdAt!),
@@ -442,7 +466,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
               children: [
                 for (var i = 0; i < task.assignees.length; i++) ...[
                   if (i > 0)
-                    const Divider(height: 1, color: AppColors.borderSoft),
+                    Divider(height: 1, color: context.palette.borderSoft),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
@@ -459,21 +483,21 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                             children: [
                               Text(
                                 task.assignees[i].name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: AppTypography.family,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.text,
+                                  color: context.palette.text,
                                 ),
                               ),
                               if (task.assignees[i].note != null) ...[
                                 const SizedBox(height: 2),
                                 Text(
                                   task.assignees[i].note!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: AppTypography.family,
                                     fontSize: 10.5,
-                                    color: AppColors.textTertiary,
+                                    color: context.palette.textTertiary,
                                   ),
                                 ),
                               ],
@@ -518,10 +542,12 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(99),
                   child: LinearProgressIndicator(
-                    value: acceptance.isEmpty ? 0 : acceptanceDone / acceptance.length,
+                    value: acceptance.isEmpty
+                        ? 0
+                        : acceptanceDone / acceptance.length,
                     minHeight: 4,
-                    backgroundColor: AppColors.surface3,
-                    valueColor: const AlwaysStoppedAnimation(AppColors.success),
+                    backgroundColor: context.palette.surface3,
+                    valueColor: AlwaysStoppedAnimation(context.palette.success),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -536,7 +562,9 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                               ? Icons.check_circle_rounded
                               : Icons.radio_button_unchecked_rounded,
                           size: 17,
-                          color: item.done ? AppColors.success : AppColors.textTertiary,
+                          color: item.done
+                              ? context.palette.success
+                              : context.palette.textTertiary,
                         ),
                         const SizedBox(width: 9),
                         Expanded(
@@ -547,10 +575,12 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                               fontSize: 12.5,
                               height: 1.4,
                               color: item.done
-                                  ? AppColors.textTertiary
-                                  : AppColors.textSecondary,
-                              decoration: item.done ? TextDecoration.lineThrough : null,
-                              decorationColor: AppColors.textTertiary,
+                                  ? context.palette.textTertiary
+                                  : context.palette.textSecondary,
+                              decoration: item.done
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              decorationColor: context.palette.textTertiary,
                             ),
                           ),
                         ),
@@ -573,7 +603,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
           radius: 18,
           child: checklist.isEmpty
-              ? const Padding(
+              ? Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'Чек-лист пока пуст. Добавьте шаги, чтобы не потерять детали.',
@@ -581,7 +611,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                       fontFamily: AppTypography.family,
                       fontSize: 12,
                       height: 1.45,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 )
@@ -589,7 +619,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                   children: [
                     for (var i = 0; i < checklist.length; i++) ...[
                       if (i > 0)
-                        const Divider(height: 1, color: AppColors.borderSoft),
+                        Divider(height: 1, color: context.palette.borderSoft),
                       InkWell(
                         onTap: () => _toggleChecklist(task, checklist[i].id),
                         borderRadius: BorderRadius.circular(10),
@@ -603,8 +633,8 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                                     : Icons.check_box_outline_blank_rounded,
                                 size: 19,
                                 color: checklist[i].isDone
-                                    ? AppColors.success
-                                    : AppColors.textTertiary,
+                                    ? context.palette.success
+                                    : context.palette.textTertiary,
                               ),
                               const SizedBox(width: 10),
                               Expanded(
@@ -614,12 +644,13 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                                     fontFamily: AppTypography.family,
                                     fontSize: 12.5,
                                     color: checklist[i].isDone
-                                        ? AppColors.textTertiary
-                                        : AppColors.textSecondary,
+                                        ? context.palette.textTertiary
+                                        : context.palette.textSecondary,
                                     decoration: checklist[i].isDone
                                         ? TextDecoration.lineThrough
                                         : null,
-                                    decorationColor: AppColors.textTertiary,
+                                    decorationColor:
+                                        context.palette.textTertiary,
                                   ),
                                 ),
                               ),
@@ -673,21 +704,21 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                                 comment.authorId == me?.id
                                     ? 'Вы'
                                     : comment.authorName ?? 'Сотрудник',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: AppTypography.family,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.text,
+                                  color: context.palette.text,
                                 ),
                               ),
                             ),
                             if (comment.createdAt != null)
                               Text(
                                 BizDate.relative(comment.createdAt!),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: AppTypography.family,
                                   fontSize: 9.5,
-                                  color: AppColors.textDisabled,
+                                  color: context.palette.textDisabled,
                                 ),
                               ),
                           ],
@@ -695,11 +726,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                         const SizedBox(height: 5),
                         Text(
                           comment.message,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 12.5,
                             height: 1.5,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -723,11 +754,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                   minLines: 1,
                   maxLines: 4,
                   textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13.5,
                     height: 1.45,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                   decoration: const InputDecoration(
                     hintText: 'Написать комментарий…',
@@ -735,7 +766,10 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
                     isDense: true,
                   ),
                 ),
@@ -747,11 +781,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.accent,
+                    color: context.palette.accent,
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.accent.withValues(alpha: 0.28),
+                        color: context.palette.accent.withValues(alpha: 0.28),
                         blurRadius: 14,
                         offset: const Offset(0, 6),
                       ),
@@ -765,8 +799,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                             color: Colors.white,
                           ),
                         )
-                      : const Icon(Icons.arrow_upward_rounded,
-                          size: 20, color: Colors.white),
+                      : const Icon(
+                          Icons.arrow_upward_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
                 ),
               ),
             ],
@@ -787,20 +824,20 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
             radius: 18,
             child: Row(
               children: [
-                const SurfaceIcon(
+                SurfaceIcon(
                   icon: Icons.verified_outlined,
-                  color: AppColors.success,
+                  color: context.palette.success,
                   size: 38,
                 ),
                 const SizedBox(width: 11),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Задача завершена. Результаты сохранены в истории проекта.',
                     style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 12,
                       height: 1.4,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
@@ -835,11 +872,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                       Expanded(
                         child: Text(
                           result.authorName ?? 'Сотрудник',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ),
@@ -867,10 +904,13 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                               }
                             },
                           ),
-                          child: const Padding(
+                          child: Padding(
                             padding: EdgeInsets.only(left: 6),
-                            child: Icon(Icons.delete_outline_rounded,
-                                size: 16, color: AppColors.textTertiary),
+                            child: Icon(
+                              Icons.delete_outline_rounded,
+                              size: 16,
+                              color: context.palette.textTertiary,
+                            ),
                           ),
                         ),
                     ],
@@ -879,11 +919,11 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                     const SizedBox(height: 10),
                     Text(
                       result.content,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 12.5,
                         height: 1.5,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -892,28 +932,34 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                     GestureDetector(
                       onTap: () => _openUrl(ApiUrls.file(result.filePath)),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: AppColors.surface2,
+                          color: context.palette.surface2,
                           borderRadius: BorderRadius.circular(11),
-                          border: Border.all(color: AppColors.borderSoft),
+                          border: Border.all(color: context.palette.borderSoft),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.attach_file_rounded,
-                                size: 14, color: AppColors.accentBright),
+                            Icon(
+                              Icons.attach_file_rounded,
+                              size: 14,
+                              color: context.palette.accentBright,
+                            ),
                             const SizedBox(width: 6),
                             Flexible(
                               child: Text(
                                 result.fileName ?? 'Открыть файл',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: AppTypography.family,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.accentBright,
+                                  color: context.palette.accentBright,
                                 ),
                               ),
                             ),
@@ -966,7 +1012,9 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                         : Icons.insert_drive_file_outlined,
                     size: 38,
                     radius: 12,
-                    color: file.isImage ? AppColors.ice : AppColors.textSecondary,
+                    color: file.isImage
+                        ? context.palette.ice
+                        : context.palette.textSecondary,
                   ),
                   const SizedBox(width: 11),
                   Expanded(
@@ -977,34 +1025,38 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                           file.originalName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.text,
+                            color: context.palette.text,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           [
                             if (file.sizeLabel.isNotEmpty) file.sizeLabel,
-                            if (file.uploadedByName != null) file.uploadedByName!,
+                            if (file.uploadedByName != null)
+                              file.uploadedByName!,
                             if (file.createdAt != null)
                               BizDate.dateShort(file.createdAt!),
                           ].join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: AppTypography.family,
                             fontSize: 10,
-                            color: AppColors.textTertiary,
+                            color: context.palette.textTertiary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.download_rounded,
-                      size: 18, color: AppColors.textTertiary),
+                  Icon(
+                    Icons.download_rounded,
+                    size: 18,
+                    color: context.palette.textTertiary,
+                  ),
                 ],
               ),
             ),
@@ -1032,17 +1084,20 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
         padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
         child: Row(
           children: [
-            const Icon(Icons.hourglass_top_rounded,
-                size: 18, color: AppColors.warning),
+            Icon(
+              Icons.hourglass_top_rounded,
+              size: 18,
+              color: context.palette.warning,
+            ),
             const SizedBox(width: 9),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Ожидает проверки руководителя',
                 style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ),
@@ -1063,8 +1118,8 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     final primaryLabel = task.status == 'on_review' && canApprove
         ? 'Принять работу'
         : task.assignees.length > 1
-            ? 'Моя часть готова'
-            : 'Завершить';
+        ? 'Моя часть готова'
+        : 'Завершить';
     final primaryIcon = task.status == 'on_review' && canApprove
         ? Icons.verified_rounded
         : Icons.check_rounded;
@@ -1080,8 +1135,10 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
       }
     }
 
-    final showSecondary = task.status == 'new' ||
-        ((task.status == 'in_progress' || task.status == 'on_review') && canReturn);
+    final showSecondary =
+        task.status == 'new' ||
+        ((task.status == 'in_progress' || task.status == 'on_review') &&
+            canReturn);
 
     return GlassSurface(
       radius: 22,
@@ -1101,13 +1158,13 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                 onPressed: _actionBusy
                     ? null
                     : task.status == 'new'
-                        ? () => _runAction(
-                              () => ref
-                                  .read(tasksRepositoryProvider)
-                                  .updateStatus(task.id, 'in_progress'),
-                              'Задача взята в работу',
-                            )
-                        : () => _return(task),
+                    ? () => _runAction(
+                        () => ref
+                            .read(tasksRepositoryProvider)
+                            .updateStatus(task.id, 'in_progress'),
+                        'Задача взята в работу',
+                      )
+                    : () => _return(task),
               ),
             ),
             const SizedBox(width: 8),
@@ -1134,14 +1191,14 @@ class _TaskHero extends StatelessWidget {
   final TaskModel task;
 
   static String _statusLabel(String status) => switch (status) {
-        'new' => 'Новая',
-        'in_progress' => 'В работе',
-        'on_review' => 'На проверке',
-        'done' => 'Готово',
-        'cancelled' => 'Отменена',
-        'returned' => 'Возвращена',
-        _ => status,
-      };
+    'new' => 'Новая',
+    'in_progress' => 'В работе',
+    'on_review' => 'На проверке',
+    'done' => 'Готово',
+    'cancelled' => 'Отменена',
+    'returned' => 'Возвращена',
+    _ => status,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -1157,119 +1214,125 @@ class _TaskHero extends StatelessWidget {
         ),
         border: Border.all(
           color: task.isOverdue
-              ? AppColors.danger.withValues(alpha: 0.28)
-              : AppColors.borderSoft,
+              ? context.palette.danger.withValues(alpha: 0.28)
+              : context.palette.borderSoft,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 7,
-            runSpacing: 6,
-            children: [
-              StatusBadge(
-                status: task.status,
-                label: _statusLabel(task.status),
-              ),
-              AppChip(
-                label: (const {
-                      'low': 'Низкий',
-                      'medium': 'Средний',
-                      'high': 'Высокий',
-                      'critical': 'Критичный',
-                    }[task.priority]) ??
-                    task.priority,
-                tone: switch (task.priority) {
-                  'critical' => ChipTone.danger,
-                  'high' => ChipTone.warning,
-                  'medium' => ChipTone.info,
-                  _ => ChipTone.neutral,
-                },
-                dot: true,
-                compact: true,
-              ),
-              if (task.isMeeting)
-                const AppChip(
-                  label: 'Встреча',
-                  tone: ChipTone.info,
-                  icon: Icons.videocam_outlined,
+      child: OnDark(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 7,
+              runSpacing: 6,
+              children: [
+                StatusBadge(
+                  status: task.status,
+                  label: _statusLabel(task.status),
+                ),
+                AppChip(
+                  label:
+                      (const {
+                        'low': 'Низкий',
+                        'medium': 'Средний',
+                        'high': 'Высокий',
+                        'critical': 'Критичный',
+                      }[task.priority]) ??
+                      task.priority,
+                  tone: switch (task.priority) {
+                    'critical' => ChipTone.danger,
+                    'high' => ChipTone.warning,
+                    'medium' => ChipTone.info,
+                    _ => ChipTone.neutral,
+                  },
+                  dot: true,
                   compact: true,
                 ),
-              if (task.isPersonal)
-                const AppChip(
-                  label: 'Личная',
-                  tone: ChipTone.neutral,
-                  compact: true,
-                ),
-              if (task.fromFounder)
-                const AppChip(
-                  label: 'От руководства',
-                  tone: ChipTone.accent,
-                  icon: Icons.workspace_premium_rounded,
-                  compact: true,
-                ),
-            ],
-          ),
-          const SizedBox(height: 13),
-          Text(
-            task.title,
-            style: const TextStyle(
-              fontFamily: AppTypography.family,
-              fontSize: 22,
-              height: 1.22,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.4,
-              color: AppColors.text,
+                if (task.isMeeting)
+                  const AppChip(
+                    label: 'Встреча',
+                    tone: ChipTone.info,
+                    icon: Icons.videocam_outlined,
+                    compact: true,
+                  ),
+                if (task.isPersonal)
+                  const AppChip(
+                    label: 'Личная',
+                    tone: ChipTone.neutral,
+                    compact: true,
+                  ),
+                if (task.fromFounder)
+                  const AppChip(
+                    label: 'От руководства',
+                    tone: ChipTone.accent,
+                    icon: Icons.workspace_premium_rounded,
+                    compact: true,
+                  ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                task.isOverdue
-                    ? Icons.error_outline_rounded
-                    : Icons.schedule_rounded,
-                size: 14,
-                color: task.isOverdue
-                    ? AppColors.danger
-                    : task.isDueToday
-                        ? AppColors.warning
-                        : AppColors.textTertiary,
+            const SizedBox(height: 13),
+            Text(
+              task.title,
+              style: TextStyle(
+                fontFamily: AppTypography.family,
+                fontSize: 22,
+                height: 1.22,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.4,
+                color: context.palette.text,
               ),
-              const SizedBox(width: 5),
-              Text(
-                task.deadlineLabel,
-                style: TextStyle(
-                  fontFamily: AppTypography.family,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  task.isOverdue
+                      ? Icons.error_outline_rounded
+                      : Icons.schedule_rounded,
+                  size: 14,
                   color: task.isOverdue
-                      ? AppColors.danger
+                      ? context.palette.danger
                       : task.isDueToday
-                          ? AppColors.warning
-                          : AppColors.textSecondary,
+                      ? context.palette.warning
+                      : context.palette.textTertiary,
                 ),
-              ),
-              const SizedBox(width: 12),
-              const Icon(Icons.folder_outlined,
-                  size: 13, color: AppColors.textTertiary),
-              const SizedBox(width: 5),
-              Flexible(
-                child: Text(
-                  task.projectLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                const SizedBox(width: 5),
+                Text(
+                  task.deadlineLabel,
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 11.5,
-                    color: AppColors.textTertiary,
+                    fontWeight: FontWeight.w600,
+                    color: task.isOverdue
+                        ? context.palette.danger
+                        : task.isDueToday
+                        ? context.palette.warning
+                        : context.palette.textSecondary,
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(width: 12),
+                Icon(
+                  Icons.folder_outlined,
+                  size: 13,
+                  color: context.palette.textTertiary,
+                ),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    task.projectLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 11.5,
+                      color: context.palette.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -24,14 +24,14 @@ class OnboardingPage extends ConsumerStatefulWidget {
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   String? _selectedStage;
 
-  static const _stages = [
-    ('negotiation', 'Переговор', AppColors.accentBright),
-    ('meeting', 'Встреча', AppColors.ice),
-    ('kp_creation', 'КП', AppColors.warning),
-    ('contract', 'Договор', AppColors.success),
-    ('implementation', 'Реализация', AppColors.accent),
-    ('cancelled', 'Отмена', AppColors.danger),
-  ];
+  List<(String, String, Color)> get _stages => [
+        ('negotiation', 'Переговор', context.palette.accentBright),
+        ('meeting', 'Встреча', context.palette.ice),
+        ('kp_creation', 'КП', context.palette.warning),
+        ('contract', 'Договор', context.palette.success),
+        ('implementation', 'Реализация', context.palette.accent),
+        ('cancelled', 'Отмена', context.palette.danger),
+      ];
 
   Future<void> _changeStage(
     BuildContext context,
@@ -107,7 +107,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     _StageChip(
                       label: 'Все этапы',
                       selected: _selectedStage == null,
-                      color: AppColors.accent,
+                      color: context.palette.accent,
                       onTap: () => setState(() => _selectedStage = null),
                     ),
                     ..._stages.map((st) {
@@ -128,10 +128,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               const SizedBox(height: 12),
 
               clientsAsync.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.accent),
+                    child: CircularProgressIndicator(color: context.palette.accent),
                   ),
                 ),
                 error: (error, _) => EmptyState(
@@ -171,7 +171,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         orElse: () => (
                           'negotiation',
                           'Переговор',
-                          AppColors.accentBright,
+                          context.palette.accentBright,
                         ),
                       );
 
@@ -180,7 +180,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         child: AppCard(
                           padding: const EdgeInsets.all(14),
                           radius: 16,
-                          borderColor: AppColors.border,
+                          borderColor: context.palette.border,
                           onTap: () => context.push('/clients/${client.id}'),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +193,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: AppTypography.textTheme.titleMedium
-                                          ?.copyWith(color: AppColors.text),
+                                          ?.copyWith(color: context.palette.text),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -242,7 +242,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                                         child: _ContactBit(
                                           icon: Icons.person_outline_rounded,
                                           text: client.contactPerson!,
-                                          color: AppColors.textSecondary,
+                                          color: context.palette.textSecondary,
                                         ),
                                       ),
                                     if (client.contactPerson != null &&
@@ -253,7 +253,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                                         child: _ContactBit(
                                           icon: Icons.phone_outlined,
                                           text: client.contactPhone!,
-                                          color: AppColors.textTertiary,
+                                          color: context.palette.textTertiary,
                                         ),
                                       ),
                                   ],
@@ -286,11 +286,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                                   'Потенциал: ${Money.somoni(client.dealPotential!)}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                     fontFamily: AppTypography.family,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                     fontFeatures: AppTypography.tabular,
                                   ),
                                 ),
@@ -335,9 +335,9 @@ class _StageChip extends StatelessWidget {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: selected ? color : AppColors.surface2,
+            color: selected ? color : context.palette.surface2,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: selected ? color : AppColors.borderSoft),
+            border: Border.all(color: selected ? color : context.palette.borderSoft),
           ),
           child: Text(
             label,
@@ -347,7 +347,7 @@ class _StageChip extends StatelessWidget {
               fontFamily: AppTypography.family,
               fontSize: 12,
               fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected ? Colors.white : AppColors.textSecondary,
+              color: selected ? Colors.white : context.palette.textSecondary,
             ),
           ),
         ),
@@ -389,15 +389,15 @@ class _StageSheetRow extends StatelessWidget {
                     fontFamily: AppTypography.family,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: danger ? AppColors.danger : AppColors.text,
+                    color: danger ? context.palette.danger : context.palette.text,
                   ),
                 ),
               ),
               if (selected) ...[
                 const SizedBox(width: 8),
-                const Icon(
+                 Icon(
                   Icons.check_rounded,
-                  color: AppColors.accentBright,
+                  color: context.palette.accentBright,
                   size: 20,
                 ),
               ],
@@ -424,7 +424,7 @@ class _ContactBit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 13, color: AppColors.textTertiary),
+        Icon(icon, size: 13, color: context.palette.textTertiary),
         const SizedBox(width: 4),
         Expanded(
           child: Text(

@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// The environment the glass refracts. A single custom painter keeps this
 /// cheap: no shader packages, no blur widgets behind every page.
@@ -52,6 +52,7 @@ class _AmbientBackgroundState extends State<AmbientBackground>
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final reduce = MediaQuery.disableAnimationsOf(context);
     final drifting = widget.animate && !reduce;
     return RepaintBoundary(
@@ -60,7 +61,7 @@ class _AmbientBackgroundState extends State<AmbientBackground>
         builder: (context, _) {
           final t = drifting ? _controller.value : 0.35;
           return CustomPaint(
-            painter: _AmbientPainter(t),
+            painter: _AmbientPainter(t, palette),
             size: Size.infinite,
             isComplex: true,
             willChange: drifting,
@@ -72,23 +73,31 @@ class _AmbientBackgroundState extends State<AmbientBackground>
 }
 
 class _AmbientPainter extends CustomPainter {
-  _AmbientPainter(this.t);
+  _AmbientPainter(this.t, this.palette);
 
   final double t;
+  final AppPalette palette;
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
+    final dark = palette.isDark;
 
-    // Deep graphite base.
+    // Canvas base: deep graphite in dark mode, porcelain in light.
     canvas.drawRect(
       rect,
       Paint()
-        ..shader = const LinearGradient(
+        ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF090C14), AppColors.background, Color(0xFF05070C)],
-          stops: [0.0, 0.48, 1.0],
+          colors: dark
+              ? const [Color(0xFF090C14), Color(0xFF06080E), Color(0xFF05070C)]
+              : [
+                  const Color(0xFFF8F9FC),
+                  palette.background,
+                  palette.backgroundDeep,
+                ],
+          stops: const [0.0, 0.48, 1.0],
         ).createShader(rect),
     );
 
@@ -102,7 +111,7 @@ class _AmbientPainter extends CustomPainter {
         size.height * (0.10 + math.cos(t * math.pi * 2) * 0.03),
       ),
       radius: size.width * 0.82,
-      color: AppColors.accent.withValues(alpha: 0.26),
+      color: palette.accent.withValues(alpha: dark ? 0.26 : 0.16),
     );
     _orb(
       canvas,
@@ -112,7 +121,7 @@ class _AmbientPainter extends CustomPainter {
         size.height * (0.56 + drift * 0.04),
       ),
       radius: size.width * 0.78,
-      color: AppColors.ice.withValues(alpha: 0.11),
+      color: palette.ice.withValues(alpha: dark ? 0.11 : 0.10),
     );
     _orb(
       canvas,
@@ -122,20 +131,21 @@ class _AmbientPainter extends CustomPainter {
         size.height * (1.04 - math.cos(t * math.pi * 2) * 0.03),
       ),
       radius: size.width * 0.62,
-      color: AppColors.brandRed.withValues(alpha: 0.045),
+      color: palette.brandRed.withValues(alpha: dark ? 0.045 : 0.05),
     );
     _orb(
       canvas,
       size,
       center: Offset(size.width * 0.12, size.height * 0.02),
       radius: size.width * 0.34,
-      color: Colors.white.withValues(alpha: 0.035),
+      color: Colors.white.withValues(alpha: dark ? 0.035 : 0.5),
     );
 
     // Fine engineering grid; almost invisible, but gives the glass a surface
     // to reflect instead of an empty gradient.
     final grid = Paint()
-      ..color = Colors.white.withValues(alpha: 0.018)
+      ..color = (dark ? Colors.white : palette.text)
+          .withValues(alpha: dark ? 0.018 : 0.03)
       ..strokeWidth = 0.6;
     const step = 44.0;
     for (double x = 0; x < size.width; x += step) {
@@ -152,7 +162,9 @@ class _AmbientPainter extends CustomPainter {
         ..shader = ui.Gradient.radial(
           Offset(size.width * 0.5, size.height * 0.42),
           size.longestSide * 0.78,
-          const [Color(0x00000000), Color(0x66000000)],
+          dark
+              ? const [Color(0x00000000), Color(0x66000000)]
+              : const [Color(0x00000000), Color(0x140F1830)],
           const [0.55, 1.0],
         ),
     );
@@ -176,8 +188,8 @@ class _AmbientPainter extends CustomPainter {
         ..shader = LinearGradient(
           colors: [
             Colors.transparent,
-            AppColors.accentBright.withValues(alpha: 0.16),
-            AppColors.ice.withValues(alpha: 0.10),
+            palette.accentBright.withValues(alpha: dark ? 0.16 : 0.22),
+            palette.ice.withValues(alpha: dark ? 0.10 : 0.16),
             Colors.transparent,
           ],
         ).createShader(rect),
@@ -206,5 +218,5 @@ class _AmbientPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _AmbientPainter oldDelegate) =>
-      oldDelegate.t != t;
+      oldDelegate.t != t || oldDelegate.palette != palette;
 }

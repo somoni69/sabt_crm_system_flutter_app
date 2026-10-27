@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
@@ -37,20 +38,38 @@ class DashboardPage extends ConsumerWidget {
     final isSmm = canSeeSmmSection(user);
     final canCheck = canCheckStories(user);
 
-    final tasksSnapshot = hasTasks ? ref.watch(tasksProvider(TaskFeed.mine)).value : null;
+    final tasksSnapshot = hasTasks
+        ? ref.watch(tasksProvider(TaskFeed.mine)).value
+        : null;
     final tasks = tasksSnapshot?.data ?? const <TaskModel>[];
-    final myDay = hasTasks ? ref.watch(myDayTasksProvider) : const <TaskModel>[];
+    final myDay = hasTasks
+        ? ref.watch(myDayTasksProvider)
+        : const <TaskModel>[];
     final unread = ref.watch(unreadNotificationsProvider).value?.data ?? 0;
-    final notifications = ref.watch(notificationsProvider).value?.data ?? const <AppNotification>[];
+    final notifications =
+        ref.watch(notificationsProvider).value?.data ??
+        const <AppNotification>[];
     final pulse = ref.watch(companyPulseProvider).value;
-    final storyProjects = isSmm ? ref.watch(dashboardStoryProjectsProvider) : const <SmmProject>[];
-    final storyLogs = isSmm ? ref.watch(todayStoryLogsProvider) : const <StoryLog>[];
-    final production = isSmm ? ref.watch(todayProductionItemsProvider) : const <SmmEvent>[];
+    final storyProjects = isSmm
+        ? ref.watch(dashboardStoryProjectsProvider)
+        : const <SmmProject>[];
+    final storyLogs = isSmm
+        ? ref.watch(todayStoryLogsProvider)
+        : const <StoryLog>[];
+    final production = isSmm
+        ? ref.watch(todayProductionItemsProvider)
+        : const <SmmEvent>[];
     final online = ref.watch(onlineProvider);
     final overdue = myDay.where((task) => task.isOverdue).length;
 
-    final storiesDone = storyLogs.fold<int>(0, (sum, log) => sum + log.storiesCount);
-    final storiesTarget = storyProjects.fold<int>(0, (sum, project) => sum + project.dailyStoriesTarget);
+    final storiesDone = storyLogs.fold<int>(
+      0,
+      (sum, log) => sum + log.storiesCount,
+    );
+    final storiesTarget = storyProjects.fold<int>(
+      0,
+      (sum, project) => sum + project.dailyStoriesTarget,
+    );
 
     Future<void> refresh() async {
       ref.read(dataRevisionProvider.notifier).bump();
@@ -83,7 +102,9 @@ class DashboardPage extends ConsumerWidget {
                     ? user.combinedRoleLabel
                     : '${user.displayPosition} · ${user.combinedRoleLabel}',
               ),
-              if (!online || (tasksSnapshot?.error != null && tasksSnapshot!.fromCache)) ...[
+              if (!online ||
+                  (tasksSnapshot?.error != null &&
+                      tasksSnapshot!.fromCache)) ...[
                 OfflineRibbon(
                   cachedAt: tasksSnapshot?.savedAt,
                   showRetry: true,
@@ -154,9 +175,9 @@ class DashboardPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(18),
                   child: Row(
                     children: [
-                      const SurfaceIcon(
+                      SurfaceIcon(
                         icon: Icons.wb_sunny_outlined,
-                        color: AppColors.success,
+                        color: context.palette.success,
                         size: 42,
                       ),
                       const SizedBox(width: 14),
@@ -169,13 +190,13 @@ class DashboardPage extends ConsumerWidget {
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
                             const SizedBox(height: 4),
-                            const Text(
+                            Text(
                               'Можно спокойно заняться контентом или новыми задачами.',
                               style: TextStyle(
                                 fontFamily: AppTypography.family,
                                 fontSize: 12,
                                 height: 1.4,
-                                color: AppColors.textTertiary,
+                                color: context.palette.textTertiary,
                               ),
                             ),
                           ],
@@ -234,7 +255,7 @@ class DashboardPage extends ConsumerWidget {
                         label: 'Выполнено',
                         value: '${pulse.completionRate}%',
                         hint: '${pulse.doneTasks} задач',
-                        color: AppColors.success,
+                        color: context.palette.success,
                       ),
                     ),
                   ],
@@ -249,8 +270,8 @@ class DashboardPage extends ConsumerWidget {
                         value: '${pulse.overdueTasks}',
                         hint: 'требуют внимания',
                         color: pulse.overdueTasks > 0
-                            ? AppColors.danger
-                            : AppColors.textSecondary,
+                            ? context.palette.danger
+                            : context.palette.textSecondary,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -260,7 +281,7 @@ class DashboardPage extends ConsumerWidget {
                         label: 'Часы за месяц',
                         value: Money.hours(pulse.hoursThisMonth),
                         hint: '${pulse.totalUsers} сотрудников',
-                        color: AppColors.ice,
+                        color: context.palette.ice,
                       ),
                     ),
                   ],
@@ -292,8 +313,7 @@ class DashboardPage extends ConsumerWidget {
                 const EmptyState(
                   icon: Icons.space_dashboard_outlined,
                   title: 'Рабочее пространство готово',
-                  message:
-                      'Здесь появятся ваши задачи, контент-план и события компании.',
+                  message: 'Здесь появятся ваши задачи, контент-план и события компании.',
                 ),
               ],
             ],
@@ -411,7 +431,9 @@ class _FocusCard extends StatelessWidget {
           colors: [Color(0xFF191F32), Color(0xFF111624), Color(0xFF151128)],
           stops: [0, 0.55, 1],
         ),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.18)),
+        border: Border.all(
+          color: context.palette.accent.withValues(alpha: 0.18),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.35),
@@ -421,151 +443,167 @@ class _FocusCard extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'ФОКУС ДНЯ',
-                style: AppTypography.overline(color: AppColors.accentBright),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                ),
-                child: Text(
-                  '${BizDate.weekdayShort(today)}, ${BizDate.dateShort(today)}',
-                  style: const TextStyle(
-                    fontFamily: AppTypography.family,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                allDone ? '0' : '$tasks',
-                style: AppTypography.number(
-                  size: 54,
-                  color: allDone ? AppColors.success : AppColors.text,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 7),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      allDone ? 'Всё закрыто' : 'на сегодня',
-                      style: const TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      allDone
-                          ? 'Можно планировать следующее'
-                          : overdue > 0
-                              ? '$overdue просрочено'
-                              : 'Дедлайны под контролем',
-                      style: TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                        color: overdue > 0 ? AppColors.danger : AppColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (showsStories) ...[
-            const SizedBox(height: 14),
+      child: OnDark(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                const Icon(Icons.auto_awesome_motion_rounded,
-                    size: 14, color: AppColors.ice),
-                const SizedBox(width: 6),
                 Text(
-                  'Сторис: $storiesDone / $storiesTarget',
-                  style: const TextStyle(
-                    fontFamily: AppTypography.family,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
+                  'ФОКУС ДНЯ',
+                  style: AppTypography.overline(
+                    color: context.palette.accentBright,
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ClipRRect(
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(99),
-                    child: LinearProgressIndicator(
-                      value: storiesTarget <= 0
-                          ? 0
-                          : (storiesDone / storiesTarget).clamp(0, 1),
-                      minHeight: 4,
-                      backgroundColor: AppColors.surface3,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.ice),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                  child: Text(
+                    '${BizDate.weekdayShort(today)}, ${BizDate.dateShort(today)}',
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
               ],
             ),
-          ],
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: 'Задачи',
-                  icon: Icons.checklist_rounded,
-                  compact: true,
-                  variant: AppButtonVariant.secondary,
-                  onPressed: onTasks,
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  allDone ? '0' : '$tasks',
+                  style: AppTypography.number(
+                    size: 54,
+                    color: allDone
+                        ? context.palette.success
+                        : context.palette.text,
+                  ),
                 ),
-              ),
-              if (canCalendar) ...[
-                const SizedBox(width: 9),
-                Expanded(
-                  child: AppButton(
-                    label: 'Календарь',
-                    icon: Icons.calendar_month_rounded,
-                    compact: true,
-                    onPressed: onCalendar,
+                const SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 7),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        allDone ? 'Всё закрыто' : 'на сегодня',
+                        style: TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: context.palette.text,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        allDone
+                            ? 'Можно планировать следующее'
+                            : overdue > 0
+                            ? '$overdue просрочено'
+                            : 'Дедлайны под контролем',
+                        style: TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w500,
+                          color: overdue > 0
+                              ? context.palette.danger
+                              : context.palette.textTertiary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-              if (canCheck) ...[
-                const SizedBox(width: 9),
+            ),
+            if (showsStories) ...[
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Icon(
+                    Icons.auto_awesome_motion_rounded,
+                    size: 14,
+                    color: context.palette.ice,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Сторис: $storiesDone / $storiesTarget',
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: context.palette.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        value: storiesTarget <= 0
+                            ? 0
+                            : (storiesDone / storiesTarget).clamp(0, 1),
+                        minHeight: 4,
+                        backgroundColor: context.palette.surface3,
+                        valueColor: AlwaysStoppedAnimation(context.palette.ice),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 16),
+            Row(
+              children: [
                 Expanded(
                   child: AppButton(
-                    label: 'Проверки',
-                    icon: Icons.fact_check_outlined,
+                    label: 'Задачи',
+                    icon: Icons.checklist_rounded,
                     compact: true,
                     variant: AppButtonVariant.secondary,
-                    onPressed: onCheck,
+                    onPressed: onTasks,
                   ),
                 ),
+                if (canCalendar) ...[
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Календарь',
+                      icon: Icons.calendar_month_rounded,
+                      compact: true,
+                      onPressed: onCalendar,
+                    ),
+                  ),
+                ],
+                if (canCheck) ...[
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Проверки',
+                      icon: Icons.fact_check_outlined,
+                      compact: true,
+                      variant: AppButtonVariant.secondary,
+                      onPressed: onCheck,
+                    ),
+                  ),
+                ],
               ],
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -588,52 +626,54 @@ class _ControlCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFF1A2130), Color(0xFF111624)],
         ),
-        border: Border.all(color: AppColors.borderSoft),
+        border: Border.all(color: context.palette.borderSoft),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const SurfaceIcon(
-                icon: Icons.fact_check_outlined,
-                color: AppColors.success,
-                size: 46,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Контроль качества',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 3),
-                    const Text(
-                      'Проверьте, как проекты закрывают дневную норму сторис.',
-                      style: TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 12,
-                        height: 1.4,
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                  ],
+      child: OnDark(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SurfaceIcon(
+                  icon: Icons.fact_check_outlined,
+                  color: context.palette.success,
+                  size: 46,
                 ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Контроль качества',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Проверьте, как проекты закрывают дневную норму сторис.',
+                        style: TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 12,
+                          height: 1.4,
+                          color: context.palette.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (canCheck) ...[
+              const SizedBox(height: 16),
+              AppButton(
+                label: 'Открыть проверки',
+                icon: Icons.arrow_forward_rounded,
+                compact: true,
+                onPressed: onCheck,
               ),
             ],
-          ),
-          if (canCheck) ...[
-            const SizedBox(height: 16),
-            AppButton(
-              label: 'Открыть проверки',
-              icon: Icons.arrow_forward_rounded,
-              compact: true,
-              onPressed: onCheck,
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -678,7 +718,9 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
       _busy = true;
     });
     try {
-      await ref.read(smmRepositoryProvider).upsertStory(
+      await ref
+          .read(smmRepositoryProvider)
+          .upsertStory(
             projectId: widget.project.id,
             date: BizDate.today(),
             storiesCount: next,
@@ -711,7 +753,9 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
                   width: 7,
                   height: 7,
                   decoration: BoxDecoration(
-                    color: complete ? AppColors.success : AppColors.ice,
+                    color: complete
+                        ? context.palette.success
+                        : context.palette.ice,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -721,11 +765,11 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
                     widget.project.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                 ),
@@ -739,7 +783,9 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
                   '$_count',
                   style: AppTypography.number(
                     size: 34,
-                    color: complete ? AppColors.success : AppColors.text,
+                    color: complete
+                        ? context.palette.success
+                        : context.palette.text,
                   ),
                 ),
                 const SizedBox(width: 5),
@@ -747,11 +793,11 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
                   padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
                     '/ $target',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textTertiary,
+                      color: context.palette.textTertiary,
                     ),
                   ),
                 ),
@@ -776,9 +822,9 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 4,
-                backgroundColor: AppColors.surface3,
+                backgroundColor: context.palette.surface3,
                 valueColor: AlwaysStoppedAnimation(
-                  complete ? AppColors.success : AppColors.ice,
+                  complete ? context.palette.success : context.palette.ice,
                 ),
               ),
             ),
@@ -789,7 +835,9 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
                 fontFamily: AppTypography.family,
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: complete ? AppColors.success : AppColors.textTertiary,
+                color: complete
+                    ? context.palette.success
+                    : context.palette.textTertiary,
               ),
             ),
           ],
@@ -822,17 +870,17 @@ class _StepperButton extends StatelessWidget {
           height: 30,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: accent ? AppColors.accent : AppColors.surface3,
+            color: accent ? context.palette.accent : context.palette.surface3,
             border: Border.all(
               color: accent
-                  ? AppColors.accentBright.withValues(alpha: 0.4)
-                  : AppColors.border,
+                  ? context.palette.accentBright.withValues(alpha: 0.4)
+                  : context.palette.border,
             ),
           ),
           child: Icon(
             icon,
             size: 16,
-            color: accent ? Colors.white : AppColors.textSecondary,
+            color: accent ? Colors.white : context.palette.textSecondary,
           ),
         ),
       ),
@@ -849,10 +897,10 @@ class _ProductionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = event.isStory
-        ? AppColors.ice
+        ? context.palette.ice
         : event.isReel
-            ? AppColors.accent
-            : AppColors.info;
+        ? context.palette.accent
+        : context.palette.info;
     return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       radius: 16,
@@ -874,7 +922,7 @@ class _ProductionRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Container(width: 1, height: 26, color: AppColors.borderSoft),
+          Container(width: 1, height: 26, color: context.palette.borderSoft),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -884,11 +932,11 @@ class _ProductionRow extends StatelessWidget {
                   event.displayTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -896,10 +944,10 @@ class _ProductionRow extends StatelessWidget {
                   event.projectName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10.5,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
@@ -924,12 +972,13 @@ class _NotificationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = notification.type.contains('overdue') ||
+    final color =
+        notification.type.contains('overdue') ||
             notification.type.contains('payment')
-        ? AppColors.danger
+        ? context.palette.danger
         : notification.type.contains('task')
-            ? AppColors.accent
-            : AppColors.ice;
+        ? context.palette.accent
+        : context.palette.ice;
     return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       radius: 16,
@@ -954,11 +1003,11 @@ class _NotificationRow extends StatelessWidget {
                         notification.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: AppTypography.family,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                     ),
@@ -967,8 +1016,8 @@ class _NotificationRow extends StatelessWidget {
                         width: 6,
                         height: 6,
                         margin: const EdgeInsets.only(left: 6),
-                        decoration: const BoxDecoration(
-                          color: AppColors.accentBright,
+                        decoration: BoxDecoration(
+                          color: context.palette.accentBright,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -979,10 +1028,10 @@ class _NotificationRow extends StatelessWidget {
                   notification.message,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 11,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ],
@@ -991,10 +1040,10 @@ class _NotificationRow extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             notification.timeLabel,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 9.5,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
           ),
         ],
@@ -1009,17 +1058,18 @@ class _MetricTile extends StatelessWidget {
     required this.label,
     required this.value,
     required this.hint,
-    this.color = AppColors.accentBright,
+    this.color,
   });
 
   final IconData icon;
   final String label;
   final String value;
   final String hint;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.palette.accentBright;
     return AppCard(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       radius: 18,
@@ -1035,11 +1085,11 @@ class _MetricTile extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textTertiary,
+                    color: context.palette.textTertiary,
                   ),
                 ),
               ),
@@ -1050,17 +1100,17 @@ class _MetricTile extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTypography.number(size: 23, color: AppColors.text),
+            style: AppTypography.number(size: 23, color: context.palette.text),
           ),
           const SizedBox(height: 2),
           Text(
             hint,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTypography.family,
               fontSize: 9.5,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
           ),
         ],

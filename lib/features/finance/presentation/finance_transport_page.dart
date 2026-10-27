@@ -52,9 +52,9 @@ class FinanceTransportPage extends ConsumerWidget {
               FinanceMonthBar(ym: ym),
               const SizedBox(height: 14),
               async.when(
-                loading: () => const Padding(
+                loading: () =>  Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
-                  child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                  child: Center(child: CircularProgressIndicator(color: context.palette.accent)),
                 ),
                 error: (error, _) => EmptyState(
                   icon: Icons.error_outline_rounded,
@@ -117,12 +117,12 @@ class _RequestCard extends ConsumerWidget {
               request.employeeName,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontWeight: FontWeight.w700,
                 fontSize: 14.5,
                 height: 1.25,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
             const SizedBox(height: 4),
@@ -130,11 +130,11 @@ class _RequestCard extends ConsumerWidget {
               '${request.projectName} · ${request.date}',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: AppTypography.family,
                 fontSize: 12,
                 height: 1.35,
-                color: AppColors.textTertiary,
+                color: context.palette.textTertiary,
               ),
             ),
             if (request.note != null && request.note!.isNotEmpty) ...[
@@ -143,11 +143,11 @@ class _RequestCard extends ConsumerWidget {
                 request.note!,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 12.5,
                   height: 1.35,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -160,10 +160,10 @@ class _RequestCard extends ConsumerWidget {
                 size: 16,
                 weight: FontWeight.w700,
                 color: done
-                    ? AppColors.success
+                    ? context.palette.success
                     : rejected
-                        ? AppColors.danger
-                        : AppColors.text,
+                        ? context.palette.danger
+                        : context.palette.text,
               ),
             ),
             if (pending) ...[
