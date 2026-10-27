@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/design/glass_surface.dart';
 import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -120,9 +121,16 @@ class _LoginButtonState extends State<LoginButton> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: success
-              ? const [Color(0xFF3ECF8E), Color(0xFF1F9D63)]
-              :  [Color(0xFF7A63E0), context.palette.brandPurple],
+        colors: success
+            ? const [Color(0xFF3ECF8E), Color(0xFF1F9D63)]
+            : [
+                Color.alphaBlend(
+                  Colors.white.withValues(alpha: 0.16),
+                  context.palette.brandPurple,
+                ),
+                context.palette.brandPurple,
+                context.palette.accentDeep,
+              ],
         ),
         boxShadow: [
           BoxShadow(
@@ -134,7 +142,11 @@ class _LoginButtonState extends State<LoginButton> {
           ),
         ],
       ),
-      child: Stack(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: GlassRim(
+          radius: 16,
+          child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
@@ -179,6 +191,8 @@ class _LoginButtonState extends State<LoginButton> {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
 

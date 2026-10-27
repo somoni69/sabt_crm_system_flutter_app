@@ -74,21 +74,6 @@ class _AuroraPainter extends CustomPainter {
   final double t;
   final AppPalette palette;
 
-  static final List<_Particle> _particles = _seedParticles();
-
-  static List<_Particle> _seedParticles() {
-    final random = math.Random(42);
-    return List.generate(22, (index) {
-      return _Particle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        radius: 0.8 + random.nextDouble() * 1.6,
-        speed: 0.012 + random.nextDouble() * 0.03,
-        twinkle: random.nextDouble() * math.pi * 2,
-      );
-    });
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
@@ -162,21 +147,6 @@ class _AuroraPainter extends CustomPainter {
     );
     canvas.restore();
 
-    // Rising particles with a soft twinkle.
-    for (final particle in _particles) {
-      final y = (particle.y - t * particle.speed * 10) % 1.0;
-      final resolvedY = y < 0 ? y + 1 : y;
-      final alpha =
-          0.10 + 0.16 * (0.5 + 0.5 * math.sin(phase * 2 + particle.twinkle));
-      canvas.drawCircle(
-        Offset(particle.x * size.width, resolvedY * size.height),
-        particle.radius,
-        Paint()
-          ..color = (palette.isDark ? Colors.white : palette.accent)
-              .withValues(alpha: alpha),
-      );
-    }
-
     // Readability vignette: darker at the very bottom where the
     // footnote and keyboard live.
     canvas.drawRect(
@@ -214,20 +184,4 @@ class _AuroraPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _AuroraPainter oldDelegate) =>
       oldDelegate.t != t || oldDelegate.palette != palette;
-}
-
-class _Particle {
-  const _Particle({
-    required this.x,
-    required this.y,
-    required this.radius,
-    required this.speed,
-    required this.twinkle,
-  });
-
-  final double x;
-  final double y;
-  final double radius;
-  final double speed;
-  final double twinkle;
 }

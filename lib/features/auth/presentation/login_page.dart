@@ -56,7 +56,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   late final AnimationController _entrance = AnimationController(
     vsync: this,
-    duration: Motion.entrance,
+    duration: const Duration(milliseconds: 560),
   );
 
   bool _obscure = true;
@@ -221,7 +221,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
                                   ? Motion.standard
                                   : Duration.zero,
                               curve: Motion.easeOut,
-                              child: const AnimatedBrandMark(size: 84),
+                              child: const AnimatedBrandMark(
+                                size: 84,
+                                playEntrance: false,
+                              ),
                             ),
                           ),
                           AnimatedOpacity(
@@ -266,8 +269,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       StaggeredEntrance(
                         animation: _entrance,
                         begin: 0.22,
-                        end: 0.75,
-                        dy: 24,
+                        end: 0.78,
+                        dy: 16,
+                        scaleFrom: 1,
                         child: Shake(
                           signal: _shakeSignal,
                           child: GlassSurface(
@@ -283,9 +287,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       const SizedBox(height: 18),
                       StaggeredEntrance(
                         animation: _entrance,
-                        begin: 0.55,
+                        begin: 0.62,
                         end: 1,
-                        dy: 10,
+                        dy: 8,
+                        scaleFrom: 1,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

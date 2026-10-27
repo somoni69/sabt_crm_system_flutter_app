@@ -49,51 +49,67 @@ class _AppButtonState extends State<AppButton> {
   @override
   Widget build(BuildContext context) {
     final animate = !MediaQuery.disableAnimationsOf(context);
+    final palette = context.palette;
     final height = widget.compact ? 42.0 : 52.0;
-    final radius = BorderRadius.circular(widget.compact ? 13 : 16);
+    final radius = widget.compact ? 13.0 : 16.0;
 
-    final (
-      Color bg,
-      Color fg,
-      Border? border,
-      List<BoxShadow>? shadows,
-    ) = switch (widget.variant) {
-      AppButtonVariant.primary => (
-        Colors.transparent,
-        Colors.white,
-        null,
-        [
+    final fg = switch (widget.variant) {
+      AppButtonVariant.primary || AppButtonVariant.danger => Colors.white,
+      AppButtonVariant.secondary => palette.text,
+      AppButtonVariant.ghost => palette.textSecondary,
+    };
+
+    final fill = switch (widget.variant) {
+      AppButtonVariant.primary => _enabled
+          ? palette.primaryGradient
+          : LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.lerp(palette.surface3, palette.brandPurple, 0.72)!,
+                Color.lerp(palette.surface3, palette.accentDeep, 0.72)!,
+              ],
+            ),
+      AppButtonVariant.secondary => LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            palette.surface1,
+            palette.isDark ? palette.surface2 : palette.surface1,
+          ],
+        ),
+      AppButtonVariant.ghost => const LinearGradient(
+          colors: [Colors.transparent, Colors.transparent],
+        ),
+      AppButtonVariant.danger => LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              Colors.white.withValues(alpha: 0.12),
+              palette.danger,
+            ),
+            palette.danger,
+          ],
+        ),
+    };
+
+    final shadows = switch (widget.variant) {
+      AppButtonVariant.primary => [
           BoxShadow(
-            color: context.palette.accent.withValues(alpha: 0.30),
-            blurRadius: 24,
+            color: palette.brandPurple.withValues(alpha: _enabled ? 0.28 : 0.08),
+            blurRadius: 22,
             offset: const Offset(0, 10),
           ),
         ],
-      ),
-      AppButtonVariant.secondary => (
-        context.palette.surface2,
-        context.palette.text,
-        Border.all(color: context.palette.border),
-        null,
-      ),
-      AppButtonVariant.ghost => (
-        Colors.transparent,
-        context.palette.textSecondary,
-        Border.all(color: context.palette.borderSoft),
-        null,
-      ),
-      AppButtonVariant.danger => (
-        context.palette.danger,
-        Colors.white,
-        Border.all(color: context.palette.danger.withValues(alpha: 0.45)),
-        [
+      AppButtonVariant.danger => [
           BoxShadow(
-            color: context.palette.danger.withValues(alpha: 0.20),
-            blurRadius: 22,
-            offset: const Offset(0, 9),
+            color: palette.danger.withValues(alpha: 0.22),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
-      ),
+      _ => null,
     };
 
     final content = Row(
@@ -130,64 +146,68 @@ class _AppButtonState extends State<AppButton> {
               fontSize: widget.compact ? 13.5 : 14.5,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.05,
+              height: 1,
               color: fg,
             ),
           ),
         ),
         if (widget.trailing != null) ...[
           const SizedBox(width: 8),
-          widget.trailing!,
+          IconTheme(
+            data: IconThemeData(color: fg, size: 18),
+            child: widget.trailing!,
+          ),
         ],
       ],
     );
 
-    Widget inner = AnimatedContainer(
-      duration: animate ? Motion.micro : Duration.zero,
-      curve: Motion.easeOut,
+    Widget inner = Container(
       height: height,
       width: widget.expanded ? double.infinity : null,
-      padding: EdgeInsets.symmetric(horizontal: widget.compact ? 16 : 20),
       decoration: BoxDecoration(
-        color: bg,
-        borderRadius: radius,
-        border: border,
+        borderRadius: BorderRadius.circular(radius),
         boxShadow: shadows,
-        gradient: widget.variant == AppButtonVariant.primary
-            ? (_enabled
-                  ? context.palette.primaryGradient
-                  : LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: context.palette.primaryGradient.colors
-                          .map((c) => c.withValues(alpha: 0.45))
-                          .toList(),
-                    ))
-            : null,
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (widget.variant == AppButtonVariant.primary)
-            Positioned(
-              top: 1,
-              left: 16,
-              right: 16,
-              child: Container(
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0),
-                      Colors.white.withValues(alpha: 0.32),
-                      Colors.white.withValues(alpha: 0),
-                    ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: GlassRim(
+          radius: radius,
+          child: DecoratedBox(
+            decoration: BoxDecoration(gradient: fill),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (widget.variant == AppButtonVariant.primary ||
+                    widget.variant == AppButtonVariant.danger)
+                  Positioned(
+                    top: 1,
+                    left: 18,
+                    right: 18,
+                    child: IgnorePointer(
+                      child: Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white.withValues(alpha: 0),
+                              Colors.white.withValues(alpha: 0.45),
+                              Colors.white.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(1),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: widget.compact ? 16 : 20,
+                  ),
+                  child: Opacity(opacity: _enabled ? 1 : 0.72, child: content),
                 ),
-              ),
+              ],
             ),
-          Opacity(opacity: _enabled ? 1 : 0.45, child: content),
-        ],
+          ),
+        ),
       ),
     );
 
@@ -234,54 +254,59 @@ class AppIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+    final radius = size * 0.34;
     Widget button = PressableScale(
       onTap: onPressed,
-      child: Container(
+      child: SizedBox(
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          // Theme-aware in both modes: white-alpha glass was invisible
-          // on the light theme (white icon well on a white header).
-          color: filled ? context.palette.surface3 : context.palette.surface2,
-          borderRadius: BorderRadius.circular(size * 0.34),
-          border: Border.all(
-            color: filled ? context.palette.border : context.palette.borderSoft,
-          ),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Icon(icon, size: size * 0.46, color: color ?? context.palette.text),
-            if ((badge ?? 0) > 0)
-              Positioned(
-                top: size * 0.17,
-                right: size * 0.16,
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 15),
-                  height: 15,
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    color: context.palette.danger,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: context.palette.background,
-                      width: 1.5,
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    badge! > 99 ? '99+' : '$badge',
-                    style: const TextStyle(
-                      fontFamily: AppTypography.family,
-                      fontSize: 8.5,
-                      height: 1,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: GlassRim(
+            radius: radius,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: filled
+                    ? palette.surface3
+                    : palette.isDark
+                    ? palette.glassTint.withValues(alpha: 0.5)
+                    : palette.surface1,
               ),
-          ],
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(icon, size: size * 0.46, color: color ?? palette.text),
+                  if ((badge ?? 0) > 0)
+                    Positioned(
+                      top: size * 0.17,
+                      right: size * 0.16,
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 15),
+                        height: 15,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: palette.danger,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: palette.background, width: 1.5),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          badge! > 99 ? '99+' : '$badge',
+                          style: const TextStyle(
+                            fontFamily: AppTypography.family,
+                            fontSize: 8.5,
+                            height: 1,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

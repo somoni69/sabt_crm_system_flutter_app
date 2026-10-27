@@ -50,7 +50,8 @@ class SabtWordmark extends StatelessWidget {
   }
 }
 
-/// Official launcher mark: the white S and red dot on black.
+/// Official launcher mark. Light theme uses the purple tile, dark theme
+/// the black one. Both carry the same white S and red dot.
 class SabtGlassMark extends StatelessWidget {
   const SabtGlassMark({super.key, this.size = 72});
 
@@ -58,6 +59,7 @@ class SabtGlassMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
     final radius = size * 0.22;
     return SizedBox(
       width: size,
@@ -65,7 +67,7 @@ class SabtGlassMark extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: Image.asset(
-          'assets/brand/sabt_icon.png',
+          dark ? 'assets/brand/sabt_icon.png' : 'assets/brand/sabt_icon_android.png',
           width: size,
           height: size,
           fit: BoxFit.cover,

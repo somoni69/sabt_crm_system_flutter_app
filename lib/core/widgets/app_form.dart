@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../design/glass_surface.dart';
 import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
@@ -66,13 +67,17 @@ class AppChoiceChips<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    return Container(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: GlassRim(
+        radius: 16,
+        child: Padding(
       padding: const EdgeInsets.all(3.5),
-      decoration: BoxDecoration(
-        color: palette.surface2,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: palette.borderSoft),
-      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.glassTint.withValues(alpha: palette.isDark ? 0.38 : 0.55),
+          borderRadius: BorderRadius.circular(16),
+        ),
       child: Row(
         children: options.map((option) {
           final active = option.value == selected;
@@ -151,6 +156,9 @@ class AppChoiceChips<T> extends StatelessWidget {
             ),
           );
         }).toList(),
+      ),
+        ),
+      ),
       ),
     );
   }

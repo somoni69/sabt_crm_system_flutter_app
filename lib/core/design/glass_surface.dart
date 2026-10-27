@@ -131,6 +131,27 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
+/// Specular rim used by glass plates and by buttons that sit on them.
+/// Buttons must not nest a second [GlassSurface]: the rim is enough to
+/// keep them in the same material.
+class GlassRim extends StatelessWidget {
+  const GlassRim({super.key, required this.radius, required this.child});
+
+  final double radius;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      foregroundPainter: _GlassRimPainter(
+        radius: radius,
+        palette: context.palette,
+      ),
+      child: child,
+    );
+  }
+}
+
 /// The glass rim: one hairline stroke around the surface, brighter at
 /// the top-left where light would catch it.
 ///

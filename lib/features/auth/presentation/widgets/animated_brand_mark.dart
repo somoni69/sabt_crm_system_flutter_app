@@ -14,9 +14,13 @@ import '../../../../core/theme/app_colors.dart';
 ///
 /// Tickers stop under reduced motion and when the route is covered.
 class AnimatedBrandMark extends StatefulWidget {
-  const AnimatedBrandMark({super.key, this.size = 84});
+  const AnimatedBrandMark({super.key, this.size = 84, this.playEntrance = true});
 
   final double size;
+
+  /// Splash plays its own arrival. Login already staggers the mark, so a
+  /// second scale on top of that makes the icon overshoot its slot.
+  final bool playEntrance;
 
   @override
   State<AnimatedBrandMark> createState() => _AnimatedBrandMarkState();
@@ -36,7 +40,11 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
   @override
   void initState() {
     super.initState();
-    _entrance.forward();
+    if (widget.playEntrance) {
+      _entrance.forward();
+    } else {
+      _entrance.value = 1;
+    }
   }
 
   @override
@@ -68,17 +76,18 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
         child: AnimatedBuilder(
           animation: Listenable.merge([_entrance, _breath]),
           builder: (context, _) {
-            final enter = Motion.spring.transform(_entrance.value.clamp(0, 1));
+            final enter = Motion.easeOut.transform(_entrance.value.clamp(0, 1));
             final breath = Motion.easeInOut.transform(_breath.value);
-            final floatY = math.sin(breath * math.pi) * -3;
-            final glowScale = 1 + breath * 0.10;
+            final floatY = math.sin(breath * math.pi) * -2;
+            final glowScale = 1 + breath * 0.04;
 
             return Opacity(
               opacity: enter.clamp(0, 1),
               child: Transform.translate(
                 offset: Offset(0, floatY + (1 - enter) * 10),
                 child: Transform.scale(
-                  scale: 0.82 + 0.18 * enter,
+                  scale: 0.96 + 0.04 * enter,
+                  filterQuality: FilterQuality.high,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -93,7 +102,7 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
                             gradient: RadialGradient(
                               colors: [
                                 context.palette.accent.withValues(
-                                  alpha: 0.30 + breath * 0.14,
+                                  alpha: 0.16 + breath * 0.06,
                                 ),
                                 context.palette.accent.withValues(alpha: 0),
                               ],

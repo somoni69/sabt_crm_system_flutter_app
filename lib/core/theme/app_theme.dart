@@ -163,7 +163,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: palette.accentBright,
+          foregroundColor: palette.accent,
           textStyle: const TextStyle(
             fontFamily: AppTypography.family,
             fontWeight: FontWeight.w600,
@@ -171,6 +171,30 @@ class AppTheme {
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: palette.text,
+          backgroundColor: Colors.transparent,
+          disabledForegroundColor: palette.textDisabled,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: palette.text,
+          backgroundColor: palette.glassTint.withValues(
+            alpha: isDark ? 0.35 : 0.55,
+          ),
+          side: BorderSide(color: palette.glassRim),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: AppTypography.family,
+            fontWeight: FontWeight.w600,
+            fontSize: 13.5,
           ),
         ),
       ),
