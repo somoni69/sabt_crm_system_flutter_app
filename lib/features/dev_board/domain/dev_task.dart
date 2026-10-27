@@ -54,8 +54,7 @@ class DevTask {
     'backlog',
     'todo',
     'in_progress',
-    'review',
-    'qa',
+    'testing',
     'done',
   ];
 
@@ -63,8 +62,7 @@ class DevTask {
         'backlog' => 'Бэклог',
         'todo' => 'К выполнению',
         'in_progress' => 'В работе',
-        'review' => 'Ревью',
-        'qa' => 'Тестирование',
+        'testing' => 'Тестирование',
         'done' => 'Готово',
         _ => status,
       };

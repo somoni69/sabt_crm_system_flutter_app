@@ -21,6 +21,7 @@ import '../../tasks/presentation/task_form_sheet.dart';
 import '../../tasks/presentation/tasks_providers.dart';
 import '../../tasks/presentation/widgets/task_card.dart';
 import '../domain/project.dart';
+import 'project_board_section.dart';
 import 'projects_providers.dart';
 
 class ProjectDetailPage extends ConsumerWidget {
@@ -357,6 +358,7 @@ class _ProjectBody extends ConsumerWidget {
             ),
           ],
         ],
+        ProjectBoardSection(projectId: project.id),
         const SizedBox(height: 20),
         SectionHeader(
           overline: 'ЗАДАЧИ',

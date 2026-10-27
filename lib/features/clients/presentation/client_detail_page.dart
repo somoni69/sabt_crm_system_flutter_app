@@ -11,8 +11,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_banner.dart';
-import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
+import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../domain/client_lead.dart';
@@ -114,6 +114,7 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
     }
 
     final canEdit = userCan(user, Perm.clientsEdit);
+    final canDelete = userCan(user, Perm.clientsDelete);
     final async = ref.watch(clientProvider(widget.clientId));
     final snapshot = async.value;
     final client = snapshot?.data;
@@ -360,6 +361,29 @@ class _ClientDetailPageState extends ConsumerState<ClientDetailPage> {
                             color: AppColors.danger,
                           ),
                         ),
+                      ),
+                    ],
+                    if (canDelete) ...[
+                      const SizedBox(height: 12),
+                      AppButton(
+                        label: 'Удалить клиента',
+                        icon: Icons.delete_outline_rounded,
+                        variant: AppButtonVariant.danger,
+                        compact: true,
+                        onPressed: _busy
+                            ? null
+                            : () => showConfirmSheet(
+                                  context: context,
+                                  title: 'Удалить клиента?',
+                                  message: client.name,
+                                  confirmLabel: 'Удалить',
+                                  danger: true,
+                                  onConfirm: () async {
+                                    await ref.read(clientsRepositoryProvider).remove(client.id);
+                                    ref.read(dataRevisionProvider.notifier).bump();
+                                    if (context.mounted) context.pop();
+                                  },
+                                ),
                       ),
                     ],
                     if (canEdit) ...[

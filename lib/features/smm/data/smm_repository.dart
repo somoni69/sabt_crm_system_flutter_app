@@ -103,6 +103,14 @@ class SmmRepository {
     });
   }
 
+  Future<void> clearPublishDate(String itemId) async {
+    await deps.api.patchJson('/content-plan/smart-item/$itemId', body: {'publishDate': null});
+  }
+
+  Future<void> updateControl(String projectId, Map<String, dynamic> body) async {
+    await deps.api.patchJson('/smm-control/$projectId', body: body);
+  }
+
   Future<List<Map<String, dynamic>>> getSmmControl(String ym) async {
     final res = await deps.api.getJson('/smm-control', query: {'ym': ym});
     final map = asMap(res);

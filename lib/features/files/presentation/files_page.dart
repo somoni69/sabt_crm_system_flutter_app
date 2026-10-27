@@ -239,6 +239,22 @@ class _FilesPageState extends ConsumerState<FilesPage> {
                                 onPressed: () => _openFile(file),
                                 tooltip: 'Открыть',
                               ),
+                              AppIconButton(
+                                icon: Icons.delete_outline_rounded,
+                                size: 36,
+                                onPressed: () => showConfirmSheet(
+                                  context: context,
+                                  title: 'Удалить файл?',
+                                  message: file.name,
+                                  confirmLabel: 'Удалить',
+                                  danger: true,
+                                  onConfirm: () async {
+                                    await ref.read(filesRepositoryProvider).deleteFile(file.id);
+                                    ref.read(dataRevisionProvider.notifier).bump();
+                                  },
+                                ),
+                                tooltip: 'Удалить',
+                              ),
                             ],
                           ),
                         ),

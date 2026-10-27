@@ -3,13 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/dependencies.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/state/app_state.dart';
+import '../../../core/widgets/app_banner.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/json_utils.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import 'smm_control_providers.dart';
+import 'smm_providers.dart';
 
 class SmmControlPage extends ConsumerWidget {
   const SmmControlPage({super.key});
@@ -31,6 +35,21 @@ class SmmControlPage extends ConsumerWidget {
         return AppColors.danger;
       default:
         return AppColors.textTertiary;
+    }
+  }
+
+  Future<void> _patch(WidgetRef ref, Map<String, dynamic> project, Map<String, dynamic> body) async {
+    final id = asString(project['id']);
+    if (id == null) return;
+    try {
+      await ref.read(smmRepositoryProvider).updateControl(id, body);
+      ref.read(dataRevisionProvider.notifier).bump();
+    } on ApiException catch (error) {
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Отметка не сохранилась',
+            message: error.message,
+            tone: BannerTone.danger,
+          ));
     }
   }
 
@@ -152,7 +171,14 @@ class SmmControlPage extends ConsumerWidget {
                             children: [
                               Row(
                                 children: [
-                                  Expanded(child: Text(name, style: AppTypography.textTheme.titleMedium)),
+                                  Expanded(
+                                    child: Text(
+                                      name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTypography.textTheme.titleMedium,
+                                    ),
+                                  ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
@@ -186,6 +212,53 @@ class SmmControlPage extends ConsumerWidget {
                                   ),
                                 ],
                               ),
+                              if (asBool(p['canEdit'])) ...[
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  children: [
+                                    for (final moodOption in const [
+                                      ('good', 'Доволен'),
+                                      ('meh', 'Так себе'),
+                                      ('bad', 'Недоволен'),
+                                    ])
+                                      _ToggleChip(
+                                        label: moodOption.$2,
+                                        selected: mood == moodOption.$1,
+                                        selectedColor: moodOption.$1 == 'bad' ? AppColors.danger : null,
+                                        onTap: () => _patch(ref, p, {
+                                          'ym': ym,
+                                          'mood': mood == moodOption.$1 ? null : moodOption.$1,
+                                        }),
+                                      ),
+                                    _ToggleChip(
+                                      label: 'На связи',
+                                      selected: asBool(p['contact']),
+                                      onTap: () => _patch(ref, p, {
+                                        'ym': ym,
+                                        'contact': !asBool(p['contact']),
+                                      }),
+                                    ),
+                                    _ToggleChip(
+                                      label: 'Отчёт',
+                                      selected: asBool(p['report']),
+                                      onTap: () => _patch(ref, p, {
+                                        'ym': ym,
+                                        'report': !asBool(p['report']),
+                                      }),
+                                    ),
+                                    _ToggleChip(
+                                      label: 'Реклама',
+                                      selected: asBool(asMap(p['ads'])?['running']),
+                                      onTap: () => _patch(ref, p, {
+                                        'ym': ym,
+                                        'ads': !asBool(asMap(p['ads'])?['running']),
+                                      }),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -198,6 +271,53 @@ class SmmControlPage extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ToggleChip extends StatelessWidget {
+  const _ToggleChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.selectedColor,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color? selectedColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = selectedColor ?? AppColors.accent;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 40, minWidth: 44),
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? tone.withValues(alpha: 0.16) : AppColors.surface2,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: selected ? tone : AppColors.borderSoft),
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: AppTypography.family,
+              fontSize: 12,
+              height: 1.2,
+              fontWeight: FontWeight.w600,
+              color: selected ? (selectedColor ?? AppColors.accentBright) : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -19,6 +19,7 @@ import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_prompt.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
+import 'profile_work_section.dart';
 
 final _sessionsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
@@ -196,6 +197,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 onAvatarTap: _pickAvatar,
               ),
               const SizedBox(height: 18),
+              ProfileWorkSection(user: user),
               const SectionHeader(overline: 'АККАУНТ', title: 'Данные профиля'),
               AppCard(
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),

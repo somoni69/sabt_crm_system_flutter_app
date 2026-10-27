@@ -52,6 +52,22 @@ class NavigationService {
       _push('/analytics');
       return;
     }
+    if (path.startsWith('/finance/transport')) {
+      _push('/finance/transport');
+      return;
+    }
+    if (path.startsWith('/finance/income/') || path == '/finance/income') {
+      _push(path.split('?').first);
+      return;
+    }
+    if (path.startsWith('/finance/expense') ||
+        path.startsWith('/finance/salary') ||
+        path.startsWith('/finance/subscriptions') ||
+        path.startsWith('/finance/debts') ||
+        path.startsWith('/finance/transactions')) {
+      _push(path.split('?').first);
+      return;
+    }
     if (path.startsWith('/finance')) {
       _push('/finance');
       return;
@@ -99,6 +115,10 @@ class NavigationService {
       _push(path);
       return;
     }
+    if (path.startsWith('/employees/sales-plan')) {
+      _push('/employees/sales-plan');
+      return;
+    }
     if (path.startsWith('/employees')) {
       _push(path);
       return;
@@ -116,7 +136,7 @@ class NavigationService {
       return;
     }
     if (path.startsWith('/stories-check')) {
-      _push('/stories-check');
+      _push(path.split('?').first);
       return;
     }
     if (path.startsWith('/my-notes')) {

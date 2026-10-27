@@ -66,7 +66,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Лиды, статусы и контакты',
           onTap: () => context.push('/clients'),
         ),
-      if (canClients || userCan(user, Perm.clientsView))
+      if (user.role == 'sales_manager_dev' || user.secondaryRole == 'sales_manager_dev')
         _MenuRow(
           icon: Icons.filter_alt_outlined,
           color: AppColors.accentBright,
@@ -81,6 +81,14 @@ class MorePage extends ConsumerWidget {
           title: 'Сотрудники',
           subtitle: 'Команда, контакты и загрузка',
           onTap: () => context.push('/employees'),
+        ),
+      if (user.isFounder)
+        _MenuRow(
+          icon: Icons.flag_outlined,
+          color: AppColors.success,
+          title: 'План продаж',
+          subtitle: 'Суммы менеджеров на месяц',
+          onTap: () => context.push('/employees/sales-plan'),
         ),
       if (user.isAdmin || user.isFounder)
         _MenuRow(
@@ -106,23 +114,25 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Здоровье проектов и публикации',
           onTap: () => context.push('/smm/control'),
         ),
-      _MenuRow(
-        icon: Icons.sticky_note_2_outlined,
-        color: AppColors.accent,
-        title: 'Мои заметки',
-        subtitle: 'Личные задачи и напоминания',
-        onTap: () => context.push('/my-notes'),
-      ),
+      if (user.isStoryMaker && userCan(user, Perm.notesUse))
+        _MenuRow(
+          icon: Icons.sticky_note_2_outlined,
+          color: AppColors.accent,
+          title: 'Мои заметки',
+          subtitle: 'Личные задачи и напоминания',
+          onTap: () => context.push('/my-notes'),
+        ),
     ];
 
     final systemTools = <Widget>[
-      _MenuRow(
-        icon: Icons.auto_awesome,
-        color: AppColors.accentBright,
-        title: 'ИИ-помощник',
-        subtitle: 'Умная аналитика и поиск по CRM',
-        onTap: () => context.push('/ai'),
-      ),
+      if (userCan(user, Perm.aiChat))
+        _MenuRow(
+          icon: Icons.auto_awesome,
+          color: AppColors.accentBright,
+          title: 'ИИ-помощник',
+          subtitle: 'Умная аналитика и поиск по CRM',
+          onTap: () => context.push('/ai'),
+        ),
       if (userCan(user, Perm.analyticsView))
         _MenuRow(
           icon: Icons.insights_outlined,

@@ -119,6 +119,27 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
     }
   }
 
+  Future<void> _unschedule() async {
+    final id = widget.event?.itemId;
+    if (id == null || _busy) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(smmRepositoryProvider).clearPublishDate(id);
+      ref.read(dataRevisionProvider.notifier).bump();
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ref.read(dependenciesProvider).banners.show(const AppBanner(
+            title: 'Снято с даты',
+            message: 'Позиция вернулась в незапланированное.',
+            tone: BannerTone.success,
+          ));
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _error = error.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _submit(List<SmmProject> projects) async {
     if (_busy) return;
     final topic = _topic.text.trim();
@@ -399,6 +420,14 @@ class _ContentFormState extends ConsumerState<_ContentForm> {
           loading: _busy,
           onPressed: _busy ? null : () => _submit(projects),
         ),
+        if (widget.event?.itemId != null) ...[
+          const SizedBox(height: 8),
+          AppButton(
+            label: 'Вернуть в незапланированное',
+            variant: AppButtonVariant.ghost,
+            onPressed: _busy ? null : _unschedule,
+          ),
+        ],
         const SizedBox(height: 4),
       ],
     );

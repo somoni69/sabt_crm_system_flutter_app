@@ -14,8 +14,11 @@ import '../../features/clients/presentation/clients_page.dart';
 import '../../features/dev_board/presentation/dev_board_page.dart';
 import '../../features/employees/presentation/employee_detail_page.dart';
 import '../../features/employees/presentation/employees_page.dart';
+import '../../features/employees/presentation/sales_plan_page.dart';
 import '../../features/files/presentation/files_page.dart';
 import '../../features/finance/presentation/finance_page.dart';
+import '../../features/finance/presentation/finance_sections.dart';
+import '../../features/finance/presentation/finance_transport_page.dart';
 import '../../features/misc/presentation/web_only_page.dart';
 import '../../features/notes/presentation/notes_page.dart';
 import '../../features/notifications/presentation/notifications_page.dart';
@@ -29,6 +32,7 @@ import '../../features/settings/presentation/settings_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/smm/presentation/smm_control_page.dart';
 import '../../features/smm/presentation/stories_check_page.dart';
+import '../../features/smm/presentation/stories_month_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
 import '../../features/tariffs/presentation/tariffs_page.dart';
 import '../../features/tasks/presentation/task_detail_page.dart';
@@ -165,6 +169,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/employees/sales-plan',
+        builder: (context, state) => const SalesPlanPage(),
+      ),
+      GoRoute(
         path: '/employees/:id',
         pageBuilder: (context, state) => motionPage(
           context: context,
@@ -183,12 +191,46 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/stories-check/month',
+        builder: (context, state) => const StoriesMonthPage(),
+      ),
+      GoRoute(
         path: '/analytics',
         builder: (context, state) => const AnalyticsPage(),
       ),
       GoRoute(
         path: '/finance',
         builder: (context, state) => const FinancePage(),
+      ),
+      GoRoute(
+        path: '/finance/income',
+        builder: (context, state) => const FinanceIncomePage(),
+      ),
+      GoRoute(
+        path: '/finance/income/:direction',
+        builder: (context, state) => FinanceIncomeDetailPage(
+          direction: state.pathParameters['direction'] ?? 'smm',
+        ),
+      ),
+      GoRoute(
+        path: '/finance/expense',
+        builder: (context, state) => const FinanceExpensePage(),
+      ),
+      GoRoute(
+        path: '/finance/salary',
+        builder: (context, state) => const FinanceSalaryPage(),
+      ),
+      GoRoute(
+        path: '/finance/subscriptions',
+        builder: (context, state) => const FinanceSubscriptionsPage(),
+      ),
+      GoRoute(
+        path: '/finance/debts',
+        builder: (context, state) => const FinanceDebtsPage(),
+      ),
+      GoRoute(
+        path: '/finance/transactions',
+        builder: (context, state) => const FinanceJournalPage(),
       ),
       GoRoute(
         path: '/dev-board',
@@ -228,7 +270,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/finance/transport',
-        builder: (context, state) => const TransportPage(),
+        builder: (context, state) => const FinanceTransportPage(),
       ),
       GoRoute(
         path: '/onboarding',

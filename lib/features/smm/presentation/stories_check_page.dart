@@ -74,6 +74,12 @@ class _StoriesCheckPageState extends ConsumerState<StoriesCheckPage> {
         onBack: widget.embedded ? null : () => context.pop(),
         actions: [
           AppIconButton(
+            icon: Icons.calendar_view_month_rounded,
+            size: 40,
+            onPressed: () => context.push('/stories-check/month'),
+            tooltip: 'Месяц',
+          ),
+          AppIconButton(
             icon: Icons.calendar_month_outlined,
             size: 40,
             onPressed: _pickDate,

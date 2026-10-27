@@ -9,6 +9,7 @@ import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/app_controls.dart';
+import '../../../core/widgets/app_form.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../data/dev_board_repository.dart';
@@ -17,6 +18,71 @@ import 'dev_board_providers.dart';
 
 class DevBoardPage extends ConsumerWidget {
   const DevBoardPage({super.key});
+
+  Future<void> _createTask(BuildContext context, WidgetRef ref) async {
+    final title = TextEditingController();
+    final description = TextEditingController();
+    var priority = 'medium';
+    final created = await showGlassSheet<bool>(
+      context: context,
+      title: 'Задача разработки',
+      child: StatefulBuilder(
+        builder: (context, setState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: title,
+              decoration: const InputDecoration(labelText: 'Название'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: description,
+              minLines: 2,
+              maxLines: 4,
+              decoration: const InputDecoration(labelText: 'Описание'),
+            ),
+            const SizedBox(height: 12),
+            AppChoiceChips<String>(
+              selected: priority,
+              onChanged: (value) => setState(() => priority = value),
+              options: const [
+                AppChoice(value: 'low', label: 'Низкий'),
+                AppChoice(value: 'medium', label: 'Средний'),
+                AppChoice(value: 'high', label: 'Высокий'),
+                AppChoice(value: 'critical', label: 'Критичный'),
+              ],
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              label: 'Создать',
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        ),
+      ),
+    );
+    final name = title.text.trim();
+    final text = description.text.trim();
+    title.dispose();
+    description.dispose();
+    if (created != true || name.isEmpty) return;
+    try {
+      await ref.read(devBoardRepositoryProvider).createTask({
+        'title': name,
+        'status': 'todo',
+        'priority': priority,
+        if (text.isNotEmpty) 'description': text,
+      });
+      ref.read(dataRevisionProvider.notifier).bump();
+    } catch (error) {
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Задача не создана',
+            message: error.toString(),
+            tone: BannerTone.danger,
+          ));
+    }
+  }
 
   void _showChangeStatusDialog(BuildContext context, WidgetRef ref, DevTask task) {
     showGlassSheet(
@@ -70,10 +136,27 @@ class DevBoardPage extends ConsumerWidget {
         subtitle: 'Канбан разработки',
         onBack: () => context.pop(),
         actions: [
-          AppIconButton(
-            icon: Icons.refresh_rounded,
-            size: 40,
-            onPressed: () => ref.read(dataRevisionProvider.notifier).bump(),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIconButton(
+                  icon: Icons.add_rounded,
+                  size: 40,
+                  tooltip: 'Новая задача',
+                  onPressed: () => _createTask(context, ref),
+                ),
+                const SizedBox(width: 7),
+                AppIconButton(
+                  icon: Icons.refresh_rounded,
+                  size: 40,
+                  tooltip: 'Обновить',
+                  onPressed: () => ref.read(dataRevisionProvider.notifier).bump(),
+                ),
+              ],
+            ),
           ),
         ],
       ),

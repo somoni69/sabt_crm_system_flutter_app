@@ -74,6 +74,8 @@ class FinancePage extends ConsumerWidget {
                     _buildAccountsSection(context, data),
                     const SizedBox(height: 18),
                     _buildKpiSection(context, data),
+                    const SizedBox(height: 18),
+                    _buildSections(context),
                     const SizedBox(height: 22),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,6 +145,71 @@ class FinancePage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSections(BuildContext context) {
+    const items = [
+      ('Доход', 'Принять оплату клиента', '/finance/income', Icons.south_west_rounded),
+      ('Расход', 'Зарплата, аренда, долги', '/finance/expense', Icons.north_east_rounded),
+      ('Зарплата', 'Выплата и аванс', '/finance/salary', Icons.payments_outlined),
+      ('Подписки', 'Аренда и сервисы', '/finance/subscriptions', Icons.subscriptions_outlined),
+      ('Долги', 'Платёж месяца', '/finance/debts', Icons.account_balance_outlined),
+      ('Журнал', 'Операции месяца', '/finance/transactions', Icons.receipt_long_outlined),
+      ('Транспорт', 'Заявки сотрудников', '/finance/transport', Icons.directions_car_outlined),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('РАЗДЕЛЫ', style: AppTypography.overline(color: AppColors.textTertiary)),
+        const SizedBox(height: 10),
+        for (final item in items)
+          AppCard(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            radius: 16,
+            onTap: () => context.push(item.$3),
+            child: Row(
+              children: [
+                Icon(item.$4, size: 18, color: AppColors.accentBright),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.$1,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          height: 1.25,
+                          color: AppColors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        item.$2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: AppTypography.family,
+                          fontSize: 12,
+                          height: 1.3,
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textTertiary),
+              ],
+            ),
+          ),
+      ],
     );
   }
 

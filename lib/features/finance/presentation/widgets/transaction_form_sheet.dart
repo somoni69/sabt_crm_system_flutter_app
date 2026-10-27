@@ -4,12 +4,13 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/dependencies.dart';
 import '../../../../core/state/app_state.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_banner.dart';
 import '../../../../core/widgets/app_controls.dart';
 import '../../../../core/widgets/app_form.dart';
 import '../../data/finance_repository.dart';
 import '../../domain/finance_models.dart';
+import '../finance_sections.dart';
 
 class TransactionFormSheet extends ConsumerStatefulWidget {
   const TransactionFormSheet({super.key, required this.accounts});
@@ -23,8 +24,9 @@ class TransactionFormSheet extends ConsumerStatefulWidget {
 class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   final _amountController = TextEditingController();
   final _descController = TextEditingController();
-  String _type = 'income'; // income, expense
+  String _type = 'income';
   String? _accountId;
+  String? _toAccountId;
   final DateTime _date = DateTime.now();
   bool _saving = false;
 
@@ -33,6 +35,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     super.initState();
     if (widget.accounts.isNotEmpty) {
       _accountId = widget.accounts.first.id;
+      if (widget.accounts.length > 1) _toAccountId = widget.accounts[1].id;
     }
   }
 
@@ -56,12 +59,24 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
 
     setState(() => _saving = true);
     try {
+      final moving = _type == 'transfer' || _type == 'saving';
+      if (moving && (_accountId == null || _toAccountId == null || _accountId == _toAccountId)) {
+        ref.read(dependenciesProvider).banners.show(const AppBanner(
+              title: 'Нужны два счёта',
+              message: 'Для перевода укажите разные счета списания и зачисления.',
+              tone: BannerTone.danger,
+            ));
+        setState(() => _saving = false);
+        return;
+      }
       await ref.read(financeRepositoryProvider).createOperation({
         'type': _type,
         'amount': amount,
-        'description': _descController.text.trim(),
-        'accountId': _accountId,
+        'comment': _descController.text.trim(),
         'date': DateFormat('yyyy-MM-dd').format(_date),
+        if (!moving) 'accountId': _accountId,
+        if (moving) 'fromAccountId': _accountId,
+        if (moving) 'toAccountId': _toAccountId,
       });
 
       ref.read(dataRevisionProvider.notifier).bump();
@@ -96,8 +111,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
           selected: _type,
           onChanged: (val) => setState(() => _type = val),
           options: const [
-            AppChoice(value: 'income', label: 'Доход', color: AppColors.success),
-            AppChoice(value: 'expense', label: 'Расход', color: AppColors.danger),
+            AppChoice(value: 'income', label: 'Доход'),
+            AppChoice(value: 'expense', label: 'Расход'),
+            AppChoice(value: 'transfer', label: 'Перевод'),
+            AppChoice(value: 'saving', label: 'Накопление'),
           ],
         ),
         const SizedBox(height: 16),
@@ -119,25 +136,22 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         ),
         if (widget.accounts.isNotEmpty) ...[
           const SizedBox(height: 14),
-          const FormSectionLabel('Счёт списания / зачисления'),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: widget.accounts.map((acc) {
-              final selected = _accountId == acc.id;
-              return ChoiceChip(
-                label: Text('${acc.name} (${acc.balance.toStringAsFixed(0)} с.)'),
-                selected: selected,
-                selectedColor: AppColors.accent,
-                backgroundColor: AppColors.surface2,
-                labelStyle: TextStyle(
-                  color: selected ? Colors.white : AppColors.textSecondary,
-                  fontSize: 12,
-                ),
-                onSelected: (_) => setState(() => _accountId = acc.id),
-              );
-            }).toList(),
+          FormSectionLabel(_type == 'transfer' || _type == 'saving' ? 'Откуда' : 'Счёт'),
+          FinanceAccountPicker(
+            accounts: widget.accounts,
+            selectedId: _accountId,
+            onSelected: (id) => setState(() => _accountId = id),
+            labelOf: (account) => '${account.name} (${Money.somoni(account.balance)})',
           ),
+          if (_type == 'transfer' || _type == 'saving') ...[
+            const SizedBox(height: 12),
+            const FormSectionLabel('Куда'),
+            FinanceAccountPicker(
+              accounts: widget.accounts,
+              selectedId: _toAccountId,
+              onSelected: (id) => setState(() => _toAccountId = id),
+            ),
+          ],
         ],
         const SizedBox(height: 20),
         AppButton(
