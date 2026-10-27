@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../design/glass_surface.dart';
 import '../design/glass_tokens.dart';
+import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import 'app_controls.dart';
@@ -43,7 +44,8 @@ class AppPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top = PageInsets.top(context);
-    final bottom = bottomPadding ??
+    final bottom =
+        bottomPadding ??
         (showBottomBarSpace
             ? PageInsets.bottomNav(context)
             : PageInsets.bottomPlain(context));
@@ -51,8 +53,11 @@ class AppPage extends StatelessWidget {
     Widget scroll = RepaintBoundary(
       child: CustomScrollView(
         controller: controller,
-        physics: scrollPhysics ??
-            const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics:
+            scrollPhysics ??
+            const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
         slivers: [
           SliverPadding(
             padding: EdgeInsets.only(top: top),
@@ -143,7 +148,8 @@ class AppHeader extends StatelessWidget {
                   onBack!();
                 },
               )
-            else ?leading,
+            else
+              ?leading,
             if (onBack != null || leading != null) const SizedBox(width: 11),
             Expanded(
               child: Column(
@@ -230,18 +236,13 @@ class PageIntro extends StatelessWidget {
                   style: AppTypography.overline(color: AppColors.accentBright),
                 ),
                 const SizedBox(height: 9),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
+                Text(title, style: Theme.of(context).textTheme.headlineMedium),
                 if (subtitle != null) ...[
                   const SizedBox(height: 7),
                   Text(
                     subtitle!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textTertiary,
-                          height: 1.45,
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: AppColors.textTertiary, height: 1.45),
                   ),
                 ],
               ],
@@ -270,14 +271,9 @@ Future<T?> showGlassSheet<T>({
     isDismissible: dismissible,
     enableDrag: dismissible,
     useSafeArea: true,
-    sheetAnimationStyle: AnimationStyle(
-      curve: GlassTokens.easeDrawer,
-      reverseCurve: GlassTokens.easeDrawer,
-      duration: GlassTokens.slow,
-      reverseDuration: GlassTokens.medium,
-    ),
     barrierColor: Colors.black.withValues(alpha: 0.62),
     backgroundColor: Colors.transparent,
+    sheetAnimationStyle: Motion.sheetStyle(context),
     builder: (sheetContext) {
       final media = MediaQuery.of(sheetContext);
       final width = media.size.width;
@@ -289,10 +285,15 @@ Future<T?> showGlassSheet<T>({
           bottom: media.viewInsets.bottom + 10,
         ),
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: media.size.height * maxHeightFactor),
+          constraints: BoxConstraints(
+            maxHeight: media.size.height * maxHeightFactor,
+          ),
           child: GlassSurface(
             radius: 28,
             blur: GlassTokens.blurXl,
+            // The sheet already slides and follows the finger. A live blur
+            // on that layer recomposites every frame of the gesture.
+            blurBackdrop: false,
             strong: true,
             padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
             child: Column(
@@ -355,10 +356,8 @@ Future<void> showConfirmSheet({
           children: [
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.5,
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: AppColors.textSecondary, height: 1.5),
             ),
             const SizedBox(height: 20),
             Row(

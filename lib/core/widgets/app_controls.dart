@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../design/glass_surface.dart';
 import '../design/glass_tokens.dart';
+import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import 'app_surfaces.dart';
@@ -51,61 +52,76 @@ class _AppButtonState extends State<AppButton> {
     final height = widget.compact ? 42.0 : 52.0;
     final radius = BorderRadius.circular(widget.compact ? 13 : 16);
 
-    final (Color bg, Color fg, Border? border, List<BoxShadow>? shadows) =
-        switch (widget.variant) {
+    final (
+      Color bg,
+      Color fg,
+      Border? border,
+      List<BoxShadow>? shadows,
+    ) = switch (widget.variant) {
       AppButtonVariant.primary => (
-          Colors.transparent,
-          Colors.white,
-          null,
-          [
-            BoxShadow(
-              color: AppColors.accent.withValues(alpha: 0.30),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
+        Colors.transparent,
+        Colors.white,
+        null,
+        [
+          BoxShadow(
+            color: AppColors.accent.withValues(alpha: 0.30),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       AppButtonVariant.secondary => (
-          AppColors.surface2,
-          AppColors.text,
-          Border.all(color: AppColors.border),
-          null,
-        ),
+        AppColors.surface2,
+        AppColors.text,
+        Border.all(color: AppColors.border),
+        null,
+      ),
       AppButtonVariant.ghost => (
-          Colors.transparent,
-          AppColors.textSecondary,
-          Border.all(color: AppColors.borderSoft),
-          null,
-        ),
+        Colors.transparent,
+        AppColors.textSecondary,
+        Border.all(color: AppColors.borderSoft),
+        null,
+      ),
       AppButtonVariant.danger => (
-          AppColors.danger,
-          Colors.white,
-          Border.all(color: AppColors.danger.withValues(alpha: 0.45)),
-          [
-            BoxShadow(
-              color: AppColors.danger.withValues(alpha: 0.20),
-              blurRadius: 22,
-              offset: const Offset(0, 9),
-            ),
-          ],
-        ),
+        AppColors.danger,
+        Colors.white,
+        Border.all(color: AppColors.danger.withValues(alpha: 0.45)),
+        [
+          BoxShadow(
+            color: AppColors.danger.withValues(alpha: 0.20),
+            blurRadius: 22,
+            offset: const Offset(0, 9),
+          ),
+        ],
+      ),
     };
 
     final content = Row(
       mainAxisSize: widget.expanded ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (widget.loading)
-          const SizedBox(
-            width: 17,
-            height: 17,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.white,
-            ),
-          )
-        else if (widget.icon != null)
-          Icon(widget.icon, size: 18, color: fg),
+        MotionSwap(
+          duration: Motion.micro,
+          scale: false,
+          child: widget.loading
+              ? const SizedBox(
+                  key: ValueKey('busy'),
+                  width: 17,
+                  height: 17,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : widget.icon != null
+              ? Icon(
+                  widget.icon,
+                  key: const ValueKey('icon'),
+                  size: 18,
+                  color: fg,
+                )
+              : const SizedBox.shrink(key: ValueKey('idle')),
+        ),
         if (widget.loading || widget.icon != null) const SizedBox(width: 9),
         Flexible(
           child: Text(
@@ -129,7 +145,8 @@ class _AppButtonState extends State<AppButton> {
     );
 
     Widget inner = AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
+      duration: animate ? Motion.micro : Duration.zero,
+      curve: Motion.easeOut,
       height: height,
       width: widget.expanded ? double.infinity : null,
       padding: EdgeInsets.symmetric(horizontal: widget.compact ? 16 : 20),
@@ -185,9 +202,9 @@ class _AppButtonState extends State<AppButton> {
         widget.onPressed!();
       },
       child: AnimatedScale(
-        scale: _pressed && animate ? 0.977 : 1,
-        duration: const Duration(milliseconds: 110),
-        curve: GlassTokens.easeOut,
+        scale: _pressed && animate ? Motion.pressScale : 1,
+        duration: animate ? Motion.press : Duration.zero,
+        curve: Motion.easeOut,
         child: inner,
       ),
     );
@@ -222,10 +239,14 @@ class AppIconButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: filled ? AppColors.surface3 : Colors.white.withValues(alpha: 0.055),
+          color: filled
+              ? AppColors.surface3
+              : Colors.white.withValues(alpha: 0.055),
           borderRadius: BorderRadius.circular(size * 0.34),
           border: Border.all(
-            color: filled ? AppColors.border : Colors.white.withValues(alpha: 0.10),
+            color: filled
+                ? AppColors.border
+                : Colors.white.withValues(alpha: 0.10),
           ),
         ),
         child: Stack(
@@ -303,29 +324,33 @@ class GlassSegmentedControl<T> extends StatelessWidget {
             final width = constraints.maxWidth / items.length;
             return Stack(
               children: [
-                AnimatedPositioned(
-                  duration: animate
-                      ? const Duration(milliseconds: 240)
-                      : Duration.zero,
-                  curve: GlassTokens.springOut,
-                  left: (index < 0 ? 0 : index) * width,
-                  top: 0,
-                  bottom: 0,
-                  width: width,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.surface3,
-                      borderRadius: BorderRadius.circular(height / 2),
-                      border: Border.all(
-                        color: AppColors.accent.withValues(alpha: 0.26),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.14),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: AnimatedSlide(
+                      offset: Offset(index < 0 ? 0 : index.toDouble(), 0),
+                      duration: animate ? Motion.micro : Duration.zero,
+                      curve: Motion.easeInOut,
+                      child: SizedBox(
+                        width: width,
+                        height: constraints.maxHeight,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: AppColors.surface3,
+                            borderRadius: BorderRadius.circular(height / 2),
+                            border: Border.all(
+                              color: AppColors.accent.withValues(alpha: 0.26),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.accent.withValues(alpha: 0.14),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -343,13 +368,17 @@ class GlassSegmentedControl<T> extends StatelessWidget {
                         },
                         child: Center(
                           child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 180),
+                            duration: Duration.zero,
                             style: TextStyle(
                               fontFamily: AppTypography.family,
                               fontSize: 12.5,
-                              fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                              fontWeight: active
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                               letterSpacing: 0.05,
-                              color: active ? AppColors.text : AppColors.textTertiary,
+                              color: active
+                                  ? AppColors.text
+                                  : AppColors.textTertiary,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -462,7 +491,10 @@ class AppSearchField extends StatelessWidget {
           },
         ),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 13,
+        ),
       ),
     );
   }
@@ -496,9 +528,8 @@ class AppSheetHeader extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   subtitle!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: AppColors.textTertiary),
                 ),
               ],
             ],

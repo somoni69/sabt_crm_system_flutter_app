@@ -47,7 +47,9 @@ class CalendarMonthBar extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  month.isCurrent ? 'Текущий месяц' : 'Нажмите, чтобы вернуться',
+                  month.isCurrent
+                      ? 'Текущий месяц'
+                      : 'Нажмите, чтобы вернуться',
                   style: const TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 9.5,
@@ -123,9 +125,7 @@ class MonthGrid extends StatelessWidget {
                 Expanded(
                   child: Center(
                     child: Text(
-                      BizDate.weekdayShort(
-                        DateTime(2024, 1, 1 + i),
-                      ),
+                      BizDate.weekdayShort(DateTime(2024, 1, 1 + i)),
                       style: const TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 9.5,
@@ -159,8 +159,7 @@ class MonthGrid extends StatelessWidget {
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onSelect(day),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
+                child: Container(
                   decoration: BoxDecoration(
                     gradient: isSelected
                         ? const LinearGradient(
@@ -175,8 +174,8 @@ class MonthGrid extends StatelessWidget {
                       color: isSelected
                           ? AppColors.accentBright.withValues(alpha: 0.5)
                           : isToday
-                              ? AppColors.accent.withValues(alpha: 0.55)
-                              : Colors.transparent,
+                          ? AppColors.accent.withValues(alpha: 0.55)
+                          : Colors.transparent,
                     ),
                     boxShadow: isSelected
                         ? [
@@ -203,10 +202,10 @@ class MonthGrid extends StatelessWidget {
                           color: isSelected
                               ? Colors.white
                               : inMonth
-                                  ? (isToday
-                                      ? AppColors.accentBright
-                                      : AppColors.text)
-                                  : AppColors.textDisabled,
+                              ? (isToday
+                                    ? AppColors.accentBright
+                                    : AppColors.text)
+                              : AppColors.textDisabled,
                           fontFeatures: AppTypography.tabular,
                         ),
                       ),
@@ -219,7 +218,9 @@ class MonthGrid extends StatelessWidget {
                               Container(
                                 width: 3.4,
                                 height: 3.4,
-                                margin: const EdgeInsets.symmetric(horizontal: 1),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 1,
+                                ),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? Colors.white.withValues(alpha: 0.9)

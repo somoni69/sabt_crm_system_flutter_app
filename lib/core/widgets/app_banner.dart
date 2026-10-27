@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../design/glass_surface.dart';
 import '../design/glass_tokens.dart';
+import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
@@ -53,35 +54,37 @@ class BannerService {
     String? id,
   }) {
     final tone = switch (type) {
-      'task_overdue' || 'payment_overdue_soon' || 'payment_reminder' => BannerTone.danger,
+      'task_overdue' ||
+      'payment_overdue_soon' ||
+      'payment_reminder' => BannerTone.danger,
       'task_completed' || 'deadline_tomorrow' => BannerTone.success,
       'review_needed' || 'task_returned' => BannerTone.warning,
-      'new_task' || 'project_assigned' || 'manager_assigned' => BannerTone.accent,
+      'new_task' ||
+      'project_assigned' ||
+      'manager_assigned' => BannerTone.accent,
       _ => BannerTone.info,
     };
-    show(AppBanner(
-      title: title,
-      message: message,
-      tone: tone,
-      link: link,
-      sourceId: id,
-      icon: tone == BannerTone.danger
-          ? LucideIcons.triangleAlert
-          : tone == BannerTone.success
-              ? LucideIcons.circleCheckBig
-              : LucideIcons.bellRing,
-    ));
+    show(
+      AppBanner(
+        title: title,
+        message: message,
+        tone: tone,
+        link: link,
+        sourceId: id,
+        icon: tone == BannerTone.danger
+            ? LucideIcons.triangleAlert
+            : tone == BannerTone.success
+            ? LucideIcons.circleCheckBig
+            : LucideIcons.bellRing,
+      ),
+    );
   }
 
   void dispose() => _controller.close();
 }
 
 class AppBannerHost extends StatefulWidget {
-  const AppBannerHost({
-    super.key,
-    required this.service,
-    required this.onOpen,
-  });
+  const AppBannerHost({super.key, required this.service, required this.onOpen});
 
   final BannerService service;
   final ValueChanged<String?> onOpen;
@@ -93,8 +96,9 @@ class AppBannerHost extends StatefulWidget {
 class _AppBannerHostState extends State<AppBannerHost>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  late final CurvedAnimation _slideCurve;
+  late final CurvedAnimation _fade;
   late final Animation<Offset> _slide;
-  late final Animation<double> _fade;
   final List<AppBanner> _queue = [];
   StreamSubscription<AppBanner>? _subscription;
   Timer? _timer;
@@ -105,21 +109,22 @@ class _AppBannerHostState extends State<AppBannerHost>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: GlassTokens.slow,
-      reverseDuration: GlassTokens.fast,
+      duration: Motion.standard,
+      reverseDuration: Motion.exit,
+    );
+    _slideCurve = CurvedAnimation(
+      parent: _controller,
+      curve: Motion.easeOut,
+      reverseCurve: Motion.easeOut,
     );
     _slide = Tween<Offset>(
-      begin: const Offset(0, -1.15),
+      begin: const Offset(0, -0.28),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: GlassTokens.springOut,
-      reverseCurve: GlassTokens.easeOut,
-    ));
+    ).animate(_slideCurve);
     _fade = CurvedAnimation(
       parent: _controller,
-      curve: GlassTokens.easeOut,
-      reverseCurve: GlassTokens.easeOut,
+      curve: Motion.easeOut,
+      reverseCurve: Motion.easeOut,
     );
     _subscription = widget.service.stream.listen(_enqueue);
   }
@@ -133,17 +138,28 @@ class _AppBannerHostState extends State<AppBannerHost>
     }
   }
 
+  bool get _motion => mounted && Motion.allowed(context);
+
   Future<void> _present(AppBanner banner) async {
     _timer?.cancel();
     setState(() => _current = banner);
-    await _controller.forward();
+    if (!_motion) {
+      _controller.value = 1;
+    } else {
+      await _controller.forward(from: 0);
+    }
+    if (!mounted) return;
     _timer = Timer(const Duration(seconds: 5), _dismiss);
   }
 
   Future<void> _dismiss() async {
     _timer?.cancel();
     if (!mounted || _current == null) return;
-    await _controller.reverse();
+    if (_motion) {
+      await _controller.reverse();
+    } else {
+      _controller.value = 0;
+    }
     if (!mounted) return;
     setState(() => _current = null);
     if (_queue.isNotEmpty) {
@@ -156,17 +172,19 @@ class _AppBannerHostState extends State<AppBannerHost>
   void dispose() {
     _timer?.cancel();
     _subscription?.cancel();
+    _slideCurve.dispose();
+    _fade.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   Color _toneColor(BannerTone tone) => switch (tone) {
-        BannerTone.accent => AppColors.accentBright,
-        BannerTone.success => AppColors.success,
-        BannerTone.danger => AppColors.danger,
-        BannerTone.warning => AppColors.warning,
-        BannerTone.info => AppColors.info,
-      };
+    BannerTone.accent => AppColors.accentBright,
+    BannerTone.success => AppColors.success,
+    BannerTone.danger => AppColors.danger,
+    BannerTone.warning => AppColors.warning,
+    BannerTone.info => AppColors.info,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +243,8 @@ class _AppBannerHostState extends State<AppBannerHost>
                                   const SizedBox(width: 11),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(

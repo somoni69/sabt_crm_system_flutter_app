@@ -7,6 +7,10 @@ import '../theme/app_colors.dart';
 
 /// The environment the glass refracts. A single custom painter keeps this
 /// cheap: no shader packages, no blur widgets behind every page.
+///
+/// The shell passes [animate] false. The drift is a full-screen tick that
+/// never goes idle, which keeps the GPU awake on cheap Android devices.
+/// One composed frame still draws the orbs, grid, and horizon.
 class AmbientBackground extends StatefulWidget {
   const AmbientBackground({super.key, this.animate = true});
 
@@ -49,16 +53,17 @@ class _AmbientBackgroundState extends State<AmbientBackground>
   @override
   Widget build(BuildContext context) {
     final reduce = MediaQuery.disableAnimationsOf(context);
+    final drifting = widget.animate && !reduce;
     return RepaintBoundary(
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
-          final t = reduce ? 0.35 : _controller.value;
+          final t = drifting ? _controller.value : 0.35;
           return CustomPaint(
             painter: _AmbientPainter(t),
             size: Size.infinite,
             isComplex: true,
-            willChange: !reduce,
+            willChange: drifting,
           );
         },
       ),
@@ -82,11 +87,7 @@ class _AmbientPainter extends CustomPainter {
         ..shader = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF090C14),
-            AppColors.background,
-            Color(0xFF05070C),
-          ],
+          colors: [Color(0xFF090C14), AppColors.background, Color(0xFF05070C)],
           stops: [0.0, 0.48, 1.0],
         ).createShader(rect),
     );
@@ -204,5 +205,6 @@ class _AmbientPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _AmbientPainter oldDelegate) => oldDelegate.t != t;
+  bool shouldRepaint(covariant _AmbientPainter oldDelegate) =>
+      oldDelegate.t != t;
 }

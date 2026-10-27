@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
@@ -12,7 +13,7 @@ class PressableScale extends StatefulWidget {
     required this.child,
     this.onTap,
     this.onLongPress,
-    this.scale = 0.978,
+    this.scale = Motion.pressScale,
     this.haptic = true,
   });
 
@@ -57,8 +58,8 @@ class _PressableScaleState extends State<PressableScale> {
             },
       child: AnimatedScale(
         scale: _pressed && animate ? widget.scale : 1,
-        duration: const Duration(milliseconds: 110),
-        curve: const Cubic(0.23, 1, 0.32, 1),
+        duration: animate ? Motion.press : Duration.zero,
+        curve: Motion.easeOut,
         child: widget.child,
       ),
     );
@@ -93,9 +94,10 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final motion = Motion.allowed(context);
     final card = AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
+      duration: motion ? Motion.standard : Duration.zero,
+      curve: Motion.easeOut,
       margin: margin,
       padding: padding,
       clipBehavior: clip ? Clip.antiAlias : Clip.none,
@@ -122,11 +124,7 @@ class AppCard extends StatelessWidget {
     );
 
     if (onTap == null && onLongPress == null) return card;
-    return PressableScale(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: card,
-    );
+    return PressableScale(onTap: onTap, onLongPress: onLongPress, child: card);
   }
 }
 
@@ -184,13 +182,13 @@ class AppChip extends StatelessWidget {
   final VoidCallback? onTap;
 
   Color get _color => switch (tone) {
-        ChipTone.neutral => AppColors.textSecondary,
-        ChipTone.accent => AppColors.accentBright,
-        ChipTone.success => AppColors.success,
-        ChipTone.danger => AppColors.danger,
-        ChipTone.warning => AppColors.warning,
-        ChipTone.info => AppColors.info,
-      };
+    ChipTone.neutral => AppColors.textSecondary,
+    ChipTone.accent => AppColors.accentBright,
+    ChipTone.success => AppColors.success,
+    ChipTone.danger => AppColors.danger,
+    ChipTone.warning => AppColors.warning,
+    ChipTone.info => AppColors.info,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -274,12 +272,15 @@ class StatusBadge extends StatelessWidget {
   };
 
   ChipTone get _tone => switch (status) {
-        'done' || 'completed' || 'published' || 'approved' => ChipTone.success,
-        'in_progress' || 'in_production' || 'on_review' || 'on_approval' => ChipTone.info,
-        'new' || 'planning' || 'planned' => ChipTone.neutral,
-        'cancelled' || 'archived' || 'on_hold' => ChipTone.warning,
-        _ => ChipTone.neutral,
-      };
+    'done' || 'completed' || 'published' || 'approved' => ChipTone.success,
+    'in_progress' ||
+    'in_production' ||
+    'on_review' ||
+    'on_approval' => ChipTone.info,
+    'new' || 'planning' || 'planned' => ChipTone.neutral,
+    'cancelled' || 'archived' || 'on_hold' => ChipTone.warning,
+    _ => ChipTone.neutral,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +294,11 @@ class StatusBadge extends StatelessWidget {
 }
 
 class PriorityMark extends StatelessWidget {
-  const PriorityMark({super.key, required this.priority, this.withLabel = false});
+  const PriorityMark({
+    super.key,
+    required this.priority,
+    this.withLabel = false,
+  });
 
   final String priority;
   final bool withLabel;
@@ -377,14 +382,13 @@ class SectionHeader extends StatelessWidget {
                 if (overline != null) ...[
                   Text(
                     overline!.toUpperCase(),
-                    style: AppTypography.overline(color: AppColors.textTertiary),
+                    style: AppTypography.overline(
+                      color: AppColors.textTertiary,
+                    ),
                   ),
                   const SizedBox(height: 5),
                 ],
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text(title, style: Theme.of(context).textTheme.titleLarge),
               ],
             ),
           ),
@@ -424,37 +428,42 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 24 : 42, horizontal: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SurfaceIcon(
-            icon: icon,
-            size: compact ? 48 : 62,
-            color: AppColors.textTertiary,
-            radius: compact ? 16 : 20,
-          ),
-          SizedBox(height: compact ? 12 : 18),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          if (message != null) ...[
-            const SizedBox(height: 7),
-            Text(
-              message!,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
+      padding: EdgeInsets.symmetric(
+        vertical: compact ? 24 : 42,
+        horizontal: 24,
+      ),
+      child: MotionAppear(
+        duration: Motion.micro,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SurfaceIcon(
+              icon: icon,
+              size: compact ? 48 : 62,
+              color: AppColors.textTertiary,
+              radius: compact ? 16 : 20,
             ),
+            SizedBox(height: compact ? 12 : 18),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            if (message != null) ...[
+              const SizedBox(height: 7),
+              Text(
+                message!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: AppColors.textTertiary),
+              ),
+            ],
+            if (actionLabel != null) ...[
+              const SizedBox(height: 18),
+              TextButton(onPressed: onAction, child: Text(actionLabel!)),
+            ],
           ],
-          if (actionLabel != null) ...[
-            const SizedBox(height: 18),
-            TextButton(onPressed: onAction, child: Text(actionLabel!)),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -486,7 +495,11 @@ class InlineError extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(top: 1),
-            child: Icon(Icons.error_outline_rounded, size: 18, color: AppColors.danger),
+            child: Icon(
+              Icons.error_outline_rounded,
+              size: 18,
+              color: AppColors.danger,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -539,7 +552,11 @@ class OfflineRibbon extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_rounded, size: 15, color: AppColors.warning),
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 15,
+            color: AppColors.warning,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -579,12 +596,7 @@ class OfflineRibbon extends StatelessWidget {
 }
 
 class SkeletonBox extends StatefulWidget {
-  const SkeletonBox({
-    super.key,
-    this.width,
-    this.height = 14,
-    this.radius = 8,
-  });
+  const SkeletonBox({super.key, this.width, this.height = 14, this.radius = 8});
 
   final double? width;
   final double height;
@@ -604,7 +616,17 @@ class _SkeletonBoxState extends State<SkeletonBox>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+      return;
+    }
+    if (!_controller.isAnimating) _controller.repeat();
   }
 
   @override
@@ -650,7 +672,8 @@ class _SkeletonBoxState extends State<SkeletonBox>
   }
 }
 
-class KeyValueRow extends StatelessWidget {  const KeyValueRow({
+class KeyValueRow extends StatelessWidget {
+  const KeyValueRow({
     super.key,
     required this.label,
     required this.value,
@@ -700,13 +723,21 @@ class KeyValueRow extends StatelessWidget {  const KeyValueRow({
           ),
           if (onTap != null) ...[
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded, size: 17, color: AppColors.textTertiary),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 17,
+              color: AppColors.textTertiary,
+            ),
           ],
         ],
       ),
     );
     if (onTap == null) return row;
-    return GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: row);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: row,
+    );
   }
 }
 

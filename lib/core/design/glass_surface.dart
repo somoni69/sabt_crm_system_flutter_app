@@ -8,6 +8,11 @@ import 'glass_tokens.dart';
 
 /// One translucent layer per Z-plane. Never nest another [GlassSurface]
 /// inside it — children must be solid surfaces or outline chips.
+///
+/// [blurBackdrop] keeps the live [BackdropFilter]. Persistent chrome should
+/// pass false: the plate is then the opaque composite of [tint] over
+/// [AppColors.background], with the same rim, and scrolling content does
+/// not pay for a blur every frame.
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
     super.key,
@@ -16,6 +21,7 @@ class GlassSurface extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.margin,
     this.blur = GlassTokens.blurLarge,
+    this.blurBackdrop = true,
     this.tint,
     this.strong = false,
     this.shadow = true,
@@ -30,6 +36,7 @@ class GlassSurface extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
   final double blur;
+  final bool blurBackdrop;
   final Color? tint;
   final bool strong;
   final bool shadow;
@@ -46,23 +53,37 @@ class GlassSurface extends StatelessWidget {
     Widget content = child;
 
     if (allowTransparency) {
+      final liveBlur = blurBackdrop && blur > 0;
+      final rawTint = tint ?? AppColors.glassTint;
+      final plateTint = liveBlur
+          ? rawTint
+          : Color.alphaBlend(rawTint, AppColors.background);
+      final painted = DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: GlassTokens.surfaceGradient(
+            tint: plateTint,
+            strong: strong,
+          ),
+        ),
+        child: CustomPaint(
+          foregroundPainter: border
+              ? _GlassRimPainter(
+                  radius: radius,
+                  highlight: strong ? 0.42 : 0.32,
+                )
+              : null,
+          child: Padding(padding: padding, child: content),
+        ),
+      );
       content = ClipRRect(
         borderRadius: radiusValue,
         clipBehavior: clipBehavior,
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: GlassTokens.surfaceGradient(tint: tint, strong: strong),
-            ),
-            child: CustomPaint(
-              foregroundPainter: border
-                  ? _GlassRimPainter(radius: radius)
-                  : null,
-              child: Padding(padding: padding, child: content),
-            ),
-          ),
-        ),
+        child: liveBlur
+            ? BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                child: painted,
+              )
+            : painted,
       );
     } else {
       content = Container(
@@ -113,9 +134,10 @@ class GlassSurface extends StatelessWidget {
 }
 
 class _GlassRimPainter extends CustomPainter {
-  const _GlassRimPainter({required this.radius});
+  const _GlassRimPainter({required this.radius, required this.highlight});
 
   final double radius;
+  final double highlight;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -131,11 +153,31 @@ class _GlassRimPainter extends CustomPainter {
       ..shader = GlassTokens.rimGradient().createShader(rect);
 
     canvas.drawRRect(rrect, stroke);
+
+    // Pill radii (999) are larger than the control. Clamp the specular arc to
+    // the real corner so it stays on the capsule instead of drawing off-canvas.
+    final inset = rect.deflate(2.2);
+    final cap = size.shortestSide / 2;
+    final corner = radius > cap ? cap : radius;
+    final glint = Path()
+      ..addArc(
+        Rect.fromLTWH(inset.left, inset.top, corner * 2, corner * 2),
+        3.02,
+        0.84,
+      );
+    canvas.drawPath(
+      glint,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 1.4
+        ..color = Colors.white.withValues(alpha: highlight),
+    );
   }
 
   @override
   bool shouldRepaint(covariant _GlassRimPainter oldDelegate) =>
-      oldDelegate.radius != radius;
+      oldDelegate.radius != radius || oldDelegate.highlight != highlight;
 }
 
 /// A thin luminous rule used inside glass chrome.

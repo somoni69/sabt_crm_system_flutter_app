@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/design/motion.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
@@ -76,8 +77,8 @@ class _TasksPageState extends ConsumerState<TasksPage> {
     final errorMessage = error is ApiException
         ? error.message
         : error is StateError
-            ? error.message
-            : 'Не удалось загрузить задачи';
+        ? error.message
+        : 'Не удалось загрузить задачи';
 
     Future<void> refresh() async {
       ref.read(dataRevisionProvider.notifier).bump();
@@ -135,16 +136,19 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                 onChanged: (value) => setState(() => _feed = value),
                 items: const [
                   SegmentItem(value: TaskFeed.mine, label: 'Мои'),
-                  SegmentItem(value: TaskFeed.management, label: 'От руководства'),
+                  SegmentItem(
+                    value: TaskFeed.management,
+                    label: 'От руководства',
+                  ),
                   SegmentItem(value: TaskFeed.assigned, label: 'Я выдал'),
                 ],
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
-                alignment: Alignment.topCenter,
+              MotionSwap(
+                duration: Motion.micro,
+                scale: false,
                 child: _searchOpen
                     ? Padding(
+                        key: const ValueKey('task-search'),
                         padding: const EdgeInsets.only(top: 10),
                         child: AppSearchField(
                           controller: _search,
@@ -153,7 +157,10 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                           onChanged: (value) => setState(() => _query = value),
                         ),
                       )
-                    : const SizedBox(width: double.infinity),
+                    : const SizedBox(
+                        key: ValueKey('task-search-closed'),
+                        width: double.infinity,
+                      ),
               ),
               const SizedBox(height: 12),
               SingleChildScrollView(
@@ -173,7 +180,8 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                       count: overdueCount,
                       active: _filter == _TaskFilter.overdue,
                       tone: ChipTone.danger,
-                      onTap: () => setState(() => _filter = _TaskFilter.overdue),
+                      onTap: () =>
+                          setState(() => _filter = _TaskFilter.overdue),
                     ),
                     const SizedBox(width: 7),
                     _FilterChip(
@@ -215,8 +223,8 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                     icon: _feed == TaskFeed.assigned
                         ? Icons.outbox_outlined
                         : _filter == _TaskFilter.done
-                            ? Icons.task_alt_rounded
-                            : Icons.self_improvement_rounded,
+                        ? Icons.task_alt_rounded
+                        : Icons.self_improvement_rounded,
                     title: _emptyTitle,
                     message: _emptyMessage,
                     actionLabel: canCreate && _feed == TaskFeed.mine
@@ -266,7 +274,9 @@ class _TasksPageState extends ConsumerState<TasksPage> {
   }
 
   String get _emptyMessage {
-    if (_query.trim().isNotEmpty) return 'Попробуйте изменить запрос или фильтр.';
+    if (_query.trim().isNotEmpty) {
+      return 'Попробуйте изменить запрос или фильтр.';
+    }
     if (_feed == TaskFeed.assigned) {
       return 'Назначьте задачу сотруднику — она появится в этом списке.';
     }
@@ -308,7 +318,11 @@ class _TasksPageState extends ConsumerState<TasksPage> {
       if (upcoming.isNotEmpty)
         _TaskGroup(overline: 'ДАЛЬШЕ', title: 'Ближайшие', tasks: upcoming),
       if (noDeadline.isNotEmpty)
-        _TaskGroup(overline: 'БЕЗ СРОКА', title: 'Без дедлайна', tasks: noDeadline),
+        _TaskGroup(
+          overline: 'БЕЗ СРОКА',
+          title: 'Без дедлайна',
+          tasks: noDeadline,
+        ),
       if (done.isNotEmpty)
         _TaskGroup(overline: 'ГОТОВО', title: 'Завершённые', tasks: done),
     ];

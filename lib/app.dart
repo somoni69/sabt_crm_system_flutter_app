@@ -64,7 +64,7 @@ class _SabtAppState extends ConsumerState<SabtApp> with WidgetsBindingObserver {
         return Stack(
           children: [
             const Positioned.fill(
-              child: RepaintBoundary(child: AmbientBackground()),
+              child: RepaintBoundary(child: AmbientBackground(animate: false)),
             ),
             Positioned.fill(child: child ?? const SizedBox.shrink()),
             AppBannerHost(
