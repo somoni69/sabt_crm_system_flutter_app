@@ -1,5 +1,6 @@
 import '../../../core/dependencies.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/json_utils.dart';
 
 class SmmRepository {
   SmmRepository(this.deps);
@@ -35,7 +36,7 @@ class SmmRepository {
       'contentType': contentType,
       'topic': topic,
       if (publishDate != null) 'publishDate': BizDate.toApiDate(publishDate),
-      if (assigneeId != null) 'assigneeId': assigneeId,
+      'assigneeId': ?assigneeId,
       if (scriptText != null && scriptText.isNotEmpty) 'scriptText': scriptText,
       if (caption != null && caption.isNotEmpty) 'caption': caption,
     });
@@ -100,5 +101,12 @@ class SmmRepository {
       'reels': reels,
       'posts': posts,
     });
+  }
+
+  Future<List<Map<String, dynamic>>> getSmmControl(String ym) async {
+    final res = await deps.api.getJson('/smm-control', query: {'ym': ym});
+    final map = asMap(res);
+    final projects = asList(map?['projects'] ?? (res is List ? res : []));
+    return projects.map(asMap).whereType<Map<String, dynamic>>().toList();
   }
 }

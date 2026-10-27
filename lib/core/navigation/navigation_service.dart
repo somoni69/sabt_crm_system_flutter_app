@@ -48,15 +48,28 @@ class NavigationService {
       return;
     }
 
-    if (_isWebOnly(path)) {
-      banners.show(AppBanner(
-        title: 'Откройте в веб-версии',
-        message: 'Этот раздел пока доступен только в Sabt для браузера.',
-        tone: BannerTone.info,
-        icon: null,
-        link: '/web-only?path=${Uri.encodeComponent(path)}',
-      ));
-      _push('/web-only?path=${Uri.encodeComponent(path)}');
+    if (path.startsWith('/analytics')) {
+      _push('/analytics');
+      return;
+    }
+    if (path.startsWith('/finance')) {
+      _push('/finance');
+      return;
+    }
+    if (path.startsWith('/dev-board') || path.startsWith('/dev/')) {
+      _push('/dev-board');
+      return;
+    }
+    if (path.startsWith('/files')) {
+      _push('/files');
+      return;
+    }
+    if (path.startsWith('/tariffs')) {
+      _push('/tariffs');
+      return;
+    }
+    if (path.startsWith('/archive')) {
+      _push('/archive');
       return;
     }
 
@@ -106,6 +119,47 @@ class NavigationService {
       _push('/stories-check');
       return;
     }
+    if (path.startsWith('/my-notes')) {
+      _push('/my-notes');
+      return;
+    }
+    if (path.startsWith('/ai')) {
+      _push('/ai');
+      return;
+    }
+    if (path.startsWith('/risks')) {
+      _push('/risks');
+      return;
+    }
+    if (path.startsWith('/security-log')) {
+      _push('/security-log');
+      return;
+    }
+    if (path.startsWith('/transport') || path.startsWith('/finance/transport')) {
+      _push('/transport');
+      return;
+    }
+    if (path.startsWith('/onboarding')) {
+      _push('/onboarding');
+      return;
+    }
+    if (path.startsWith('/employee-access')) {
+      _push('/employee-access');
+      return;
+    }
+    if (path.startsWith('/smm/control')) {
+      _push('/smm/control');
+      return;
+    }
+    if (path.startsWith('/team-activity')) {
+      _push('/employees');
+      return;
+    }
+
+    if (_isWebOnly(path)) {
+      _push('/web-only?path=${Uri.encodeComponent(path)}');
+      return;
+    }
 
     banners.show(const AppBanner(
       title: 'Переход недоступен',
@@ -126,21 +180,7 @@ class NavigationService {
   }
 
   bool _isWebOnly(String path) {
-    const prefixes = [
-      '/finance',
-      '/dev-board',
-      '/dev/',
-      '/analytics',
-      '/risks',
-      '/archive',
-      '/files',
-      '/tariffs',
-      '/security-log',
-      '/employee-access',
-      '/onboarding',
-      '/team-activity',
-    ];
-    return prefixes.any(path.startsWith);
+    return false;
   }
 
   String? _sectionFor(String path) {

@@ -294,7 +294,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 children: [
                   for (var i = 0; i < tabs.length; i++)
                     _visited.contains(tabs[i].id)
-                        ? KeyedSubtree(
+                        ? RepaintBoundary(
                             key: ValueKey(tabs[i].id),
                             child: tabs[i].page,
                           )

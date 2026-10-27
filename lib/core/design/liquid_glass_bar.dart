@@ -205,13 +205,13 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     _position = AnimationController.unbounded(vsync: this, value: initial);
     _lift = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 160),
-      reverseDuration: const Duration(milliseconds: 240),
+      duration: const Duration(milliseconds: 140),
+      reverseDuration: const Duration(milliseconds: 180),
     );
     _actionScale = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 130),
-      lowerBound: 0.90,
+      duration: const Duration(milliseconds: 110),
+      lowerBound: 0.92,
       upperBound: 1,
       value: 1,
     );

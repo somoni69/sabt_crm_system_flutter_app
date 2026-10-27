@@ -104,7 +104,7 @@ class AppAvatar extends StatelessWidget {
                   ),
                 ),
               ),
-              errorWidget: (context, _, __) => ColoredBox(
+              errorWidget: (context, _, _) => ColoredBox(
                 color: AppColors.surface3,
                 child: Center(
                   child: Text(

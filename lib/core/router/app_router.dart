@@ -2,23 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/access/presentation/employee_access_page.dart';
+import '../../features/ai/presentation/ai_chat_page.dart';
+import '../../features/analytics/presentation/analytics_page.dart';
+import '../../features/archive/presentation/archive_page.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/calendar/presentation/calendar_page.dart';
 import '../../features/clients/presentation/client_detail_page.dart';
 import '../../features/clients/presentation/clients_page.dart';
+import '../../features/dev_board/presentation/dev_board_page.dart';
 import '../../features/employees/presentation/employee_detail_page.dart';
 import '../../features/employees/presentation/employees_page.dart';
+import '../../features/files/presentation/files_page.dart';
+import '../../features/finance/presentation/finance_page.dart';
 import '../../features/misc/presentation/web_only_page.dart';
+import '../../features/notes/presentation/notes_page.dart';
 import '../../features/notifications/presentation/notifications_page.dart';
+import '../../features/onboarding/presentation/onboarding_page.dart';
 import '../../features/profile/presentation/profile_page.dart';
 import '../../features/projects/presentation/project_detail_page.dart';
 import '../../features/projects/presentation/projects_page.dart';
+import '../../features/risks/presentation/risks_page.dart';
+import '../../features/security_log/presentation/security_log_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
+import '../../features/smm/presentation/smm_control_page.dart';
 import '../../features/smm/presentation/stories_check_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
+import '../../features/tariffs/presentation/tariffs_page.dart';
 import '../../features/tasks/presentation/task_detail_page.dart';
+import '../../features/transport/presentation/transport_page.dart';
 import '../dependencies.dart';
 import 'motion_page.dart';
 
@@ -167,6 +181,66 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           pageKey: state.pageKey,
           child: const StoriesCheckPage(),
         ),
+      ),
+      GoRoute(
+        path: '/analytics',
+        builder: (context, state) => const AnalyticsPage(),
+      ),
+      GoRoute(
+        path: '/finance',
+        builder: (context, state) => const FinancePage(),
+      ),
+      GoRoute(
+        path: '/dev-board',
+        builder: (context, state) => const DevBoardPage(),
+      ),
+      GoRoute(
+        path: '/files',
+        builder: (context, state) => const FilesPage(),
+      ),
+      GoRoute(
+        path: '/tariffs',
+        builder: (context, state) => const TariffsPage(),
+      ),
+      GoRoute(
+        path: '/archive',
+        builder: (context, state) => const ArchivePage(),
+      ),
+      GoRoute(
+        path: '/my-notes',
+        builder: (context, state) => const MyNotesPage(),
+      ),
+      GoRoute(
+        path: '/ai',
+        builder: (context, state) => const AiChatPage(),
+      ),
+      GoRoute(
+        path: '/risks',
+        builder: (context, state) => const RisksPage(),
+      ),
+      GoRoute(
+        path: '/security-log',
+        builder: (context, state) => const SecurityLogPage(),
+      ),
+      GoRoute(
+        path: '/transport',
+        builder: (context, state) => const TransportPage(),
+      ),
+      GoRoute(
+        path: '/finance/transport',
+        builder: (context, state) => const TransportPage(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: '/employee-access',
+        builder: (context, state) => const EmployeeAccessPage(),
+      ),
+      GoRoute(
+        path: '/smm/control',
+        builder: (context, state) => const SmmControlPage(),
       ),
       GoRoute(
         path: '/web-only',

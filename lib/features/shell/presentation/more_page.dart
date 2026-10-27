@@ -66,6 +66,14 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Лиды, статусы и контакты',
           onTap: () => context.push('/clients'),
         ),
+      if (canClients || userCan(user, Perm.clientsView))
+        _MenuRow(
+          icon: Icons.filter_alt_outlined,
+          color: AppColors.accentBright,
+          title: 'Онбординг',
+          subtitle: 'Воронка клиентов и запуск',
+          onTap: () => context.push('/onboarding'),
+        ),
       if (canEmployees)
         _MenuRow(
           icon: Icons.badge_outlined,
@@ -74,7 +82,15 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Команда, контакты и загрузка',
           onTap: () => context.push('/employees'),
         ),
-      if (checks)
+      if (user.isAdmin || user.isFounder)
+        _MenuRow(
+          icon: Icons.admin_panel_settings_outlined,
+          color: AppColors.ice,
+          title: 'Доступы сотрудников',
+          subtitle: 'Матрица прав и персональные гранты',
+          onTap: () => context.push('/employee-access'),
+        ),
+      if (checks || userCan(user, Perm.storiesManage))
         _MenuRow(
           icon: Icons.fact_check_outlined,
           color: AppColors.warning,
@@ -82,62 +98,101 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Дневная норма по проектам',
           onTap: () => context.push('/stories-check'),
         ),
+      if (userCan(user, Perm.storiesView) || userCan(user, Perm.storiesManage))
+        _MenuRow(
+          icon: Icons.checklist_rounded,
+          color: AppColors.success,
+          title: 'SMM-Контроль',
+          subtitle: 'Здоровье проектов и публикации',
+          onTap: () => context.push('/smm/control'),
+        ),
+      _MenuRow(
+        icon: Icons.sticky_note_2_outlined,
+        color: AppColors.accent,
+        title: 'Мои заметки',
+        subtitle: 'Личные задачи и напоминания',
+        onTap: () => context.push('/my-notes'),
+      ),
     ];
 
-    final webItems = <Widget>[
+    final systemTools = <Widget>[
+      _MenuRow(
+        icon: Icons.auto_awesome,
+        color: AppColors.accentBright,
+        title: 'ИИ-помощник',
+        subtitle: 'Умная аналитика и поиск по CRM',
+        onTap: () => context.push('/ai'),
+      ),
       if (userCan(user, Perm.analyticsView))
         _MenuRow(
           icon: Icons.insights_outlined,
           color: AppColors.accentBright,
           title: 'Аналитика',
-          subtitle: 'Полные графики — в вебе',
-          trailingLabel: 'WEB',
-          onTap: () => context.push('/web-only?path=${Uri.encodeComponent('/analytics')}'),
+          subtitle: 'Сводные показатели и графики',
+          onTap: () => context.push('/analytics'),
+        ),
+      if (userCan(user, Perm.risksView) || user.isFounder || user.isAdmin)
+        _MenuRow(
+          icon: Icons.warning_amber_rounded,
+          color: AppColors.danger,
+          title: 'Риски',
+          subtitle: 'План-факт, отставания и перегрузка',
+          onTap: () => context.push('/risks'),
         ),
       if (canSeeFinance(user))
         _MenuRow(
           icon: Icons.account_balance_wallet_outlined,
           color: AppColors.success,
           title: 'Финансы',
-          subtitle: 'Оплаты и тарифы — в вебе',
-          trailingLabel: 'WEB',
-          onTap: () => context.push('/web-only?path=${Uri.encodeComponent('/finance')}'),
+          subtitle: 'Оплаты, счета и прибыль',
+          onTap: () => context.push('/finance'),
         ),
+      _MenuRow(
+        icon: Icons.directions_car_outlined,
+        color: AppColors.ice,
+        title: 'Транспорт',
+        subtitle: 'Компенсации за рабочие поездки',
+        onTap: () => context.push('/transport'),
+      ),
       if (canSeeDevSection(user) || userCan(user, Perm.devTrackerView))
         _MenuRow(
           icon: Icons.terminal_rounded,
           color: AppColors.ice,
           title: 'Dev-доска',
-          subtitle: 'Канбан разработки — в вебе',
-          trailingLabel: 'WEB',
-          onTap: () => context.push('/web-only?path=${Uri.encodeComponent('/dev-board')}'),
+          subtitle: 'Канбан разработки',
+          onTap: () => context.push('/dev-board'),
         ),
       if (userCan(user, Perm.filesView))
         _MenuRow(
           icon: Icons.folder_open_rounded,
           color: AppColors.warning,
           title: 'Файлы',
-          subtitle: 'Общее хранилище — в вебе',
-          trailingLabel: 'WEB',
-          onTap: () => context.push('/web-only?path=${Uri.encodeComponent('/files')}'),
+          subtitle: 'Хранилище документов и медиа',
+          onTap: () => context.push('/files'),
         ),
       if (userCan(user, Perm.tariffsManage))
         _MenuRow(
           icon: Icons.local_offer_outlined,
           color: AppColors.accent,
           title: 'Тарифы',
-          subtitle: 'Управление тарифами — в вебе',
-          trailingLabel: 'WEB',
-          onTap: () => context.push('/web-only?path=${Uri.encodeComponent('/tariffs')}'),
+          subtitle: 'Управление пакетами услуг',
+          onTap: () => context.push('/tariffs'),
         ),
       if (userCan(user, Perm.archiveView))
         _MenuRow(
           icon: Icons.inventory_2_outlined,
           color: AppColors.textSecondary,
           title: 'Архив',
-          subtitle: 'Завершённые проекты и задачи',
-          trailingLabel: 'WEB',
-          onTap: () => context.push('/web-only?path=${Uri.encodeComponent('/archive')}'),
+          subtitle: 'Завершённые проекты',
+          onTap: () => context.push('/archive'),
+        ),
+      if (userCan(user, Perm.securityLogView) || user.isAdmin || user.isFounder)
+        _MenuRow(
+          icon: Icons.shield_outlined,
+          color: AppColors.textSecondary,
+          title: 'Журнал безопасности',
+          subtitle: 'Аудит действий и авторизаций',
+          onTap: () => context.push('/security-log'),
         ),
     ];
 
@@ -170,8 +225,7 @@ class MorePage extends ConsumerWidget {
               PageIntro(
                 overline: 'НАВИГАЦИЯ',
                 title: 'Все разделы',
-                subtitle:
-                    'Рабочие инструменты Sabt: то, что удобно делать с телефона, и переходы в веб-версию.',
+                subtitle: 'Полный набор рабочих инструментов Sabt в вашем телефоне.',
                 trailing: AppChip(
                   label: user.roleLabel,
                   tone: ChipTone.accent,
@@ -218,13 +272,13 @@ class MorePage extends ConsumerWidget {
                   ),
                 ],
               ),
-              if (webItems.isNotEmpty) ...[
+              if (systemTools.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 const SectionHeader(
-                  overline: 'ВЕБ-ВЕРСИЯ',
-                  title: 'Полные инструменты',
+                  overline: 'СИСТЕМА',
+                  title: 'Аналитика и сервисы',
                 ),
-                _MenuGroup(children: webItems),
+                _MenuGroup(children: systemTools),
               ],
               const SizedBox(height: 22),
               AppCard(
@@ -302,7 +356,6 @@ class MorePage extends ConsumerWidget {
     );
   }
 }
-
 
 class _MenuGroup extends StatelessWidget {
   const _MenuGroup({required this.children});

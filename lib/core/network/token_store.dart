@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce/hive.dart';
+import '../utils/json_utils.dart';
 
 /// Tokens live in the platform keychain on mobile. On web (and on any platform
 /// where the secure plugin is unavailable) they fall back to the app's Hive
@@ -95,8 +96,7 @@ class TokenStore {
     final raw = _cachedUserJson;
     if (raw == null || raw.isEmpty) return null;
     try {
-      final decoded = jsonDecode(raw);
-      return decoded is Map<String, dynamic> ? decoded : null;
+      return asMap(jsonDecode(raw));
     } catch (_) {
       return null;
     }

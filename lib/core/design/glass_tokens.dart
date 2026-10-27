@@ -3,27 +3,34 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import 'motion.dart';
 
-/// Optical tokens for the Liquid Glass layer.
+/// Optical tokens and motion physics for the Liquid Glass layer.
 abstract final class GlassTokens {
-  static const double blurSmall = 10;
-  static const double blurMedium = 18;
-  static const double blurLarge = 26;
-  static const double blurXl = 36;
+  // Diffusion / Blur (Liquid Glass HIG specification)
+  static const double blurSmall = 8;
+  static const double blurMedium = 16;
+  static const double blurLarge = 24;
+  static const double blurXl = 32;
 
+  // Curvature
   static const double radiusSmall = 14;
   static const double radiusMedium = 20;
   static const double radiusLarge = 28;
   static const double radiusPill = 999;
 
-  static const double hairline = 1.1;
+  // Specular rim stroke
+  static const double hairline = 1.2;
 
-  static const Duration fast = Motion.exit;
+  // Aliases of [Motion]. fast matches the 120ms value landed on main.
+  static const Duration fast = Motion.micro;
   static const Duration medium = Motion.standard;
-  static const Duration slow = Motion.sheet;
+  static const Duration slow = Duration(milliseconds: 260);
+
+  static const Curve easeOut = Motion.easeOut;
+  static const Curve easeInOut = Motion.easeInOut;
+  static const Curve easeDrawer = Motion.drawer;
 
   /// Overshoot curve. Not for UI entrances. Gesture springs live on the nav bar.
   static const Curve springOut = Cubic(0.16, 1.08, 0.3, 1);
-  static const Curve easeOut = Motion.easeOut;
 
   static LinearGradient rimGradient({double angle = -0.7}) => LinearGradient(
     begin: Alignment(angle, -1),
@@ -58,8 +65,8 @@ abstract final class GlassTokens {
   }
 
   static bool transparencyAllowed(BuildContext context) {
-    final media = MediaQuery.of(context);
-    return !media.highContrast && !media.accessibleNavigation;
+    return !MediaQuery.highContrastOf(context) &&
+        !MediaQuery.accessibleNavigationOf(context);
   }
 
   static bool motionAllowed(BuildContext context) =>

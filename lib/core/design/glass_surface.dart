@@ -154,9 +154,8 @@ class _GlassRimPainter extends CustomPainter {
 
     canvas.drawRRect(rrect, stroke);
 
-    // A crisp specular glint on the top-left curve — the physical edge catching
-    // the ambient light. Pill radii (999) are larger than the control, so the
-    // arc has to follow the real corner or it is drawn off the capsule.
+    // Pill radii (999) are larger than the control. Clamp the specular arc to
+    // the real corner so it stays on the capsule instead of drawing off-canvas.
     final inset = rect.deflate(2.2);
     final cap = size.shortestSide / 2;
     final corner = radius > cap ? cap : radius;

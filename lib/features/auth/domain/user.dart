@@ -58,6 +58,7 @@ class UserModel {
   }
 
   bool get isTop => role == 'founder' || role == 'admin' || isSubAdmin;
+  bool get isAdmin => role == 'admin' || role == 'founder';
   bool get isFounder => role == 'founder';
   bool get isSmmTeam => ['founder', 'admin', 'smm_director', 'smm_specialist'].contains(role);
   bool get isSalesManager => role == 'sales_manager_smm' || role == 'sales_manager_dev';

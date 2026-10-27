@@ -535,7 +535,7 @@ class AppSheetHeader extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null) trailing!,
+        ?trailing,
         if (onClose != null) ...[
           const SizedBox(width: 6),
           AppIconButton(

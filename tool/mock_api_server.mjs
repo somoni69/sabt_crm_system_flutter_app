@@ -844,7 +844,141 @@ const routes = [
     taskByStatus: [
       { status: 'new', count: 3 }, { status: 'in_progress', count: 3 }, { status: 'done', count: 1 },
     ],
-    taskByPriority: [], empActivity: [], hoursPerDay: [], projPerf: [], empEff: [],
+    taskByPriority: [{ priority: 'critical', count: 2 }, { priority: 'high', count: 5 }, { priority: 'medium', count: 12 }],
+    empActivity: [
+      { id: 'u-1', name: 'Мадина Каримова', completedTasks: 8, loggedHours: 34.5 },
+      { id: 'u-2', name: 'Рустам Назаров', completedTasks: 6, loggedHours: 28.0 },
+    ],
+    hoursPerDay: [], projPerf: [], empEff: [],
+  })],
+
+  ['GET', /^\/api\/finance\/overview/, () => ({
+    income: 148500,
+    expense: 86200,
+    profit: 62300,
+    receivables: 32000,
+    balances: [
+      { id: 'acc-1', name: 'Алиф Банк', balance: 74200, currency: 'TJS' },
+      { id: 'acc-2', name: 'Касса офис', balance: 18500, currency: 'TJS' },
+      { id: 'acc-3', name: 'Сейф', balance: 55800, currency: 'TJS' },
+    ],
+    recentTransactions: [
+      { id: 'tx-1', type: 'income', amount: 24000, description: 'Оплата за SMM пакет Premium', accountName: 'Алиф Банк', date: at(-1, 14) },
+      { id: 'tx-2', type: 'expense', amount: 8500, description: 'Аренда офиса за текущий месяц', accountName: 'Касса офис', date: at(-3, 11) },
+      { id: 'tx-3', type: 'income', amount: 12500, description: 'Разработка лендинга (этап 1)', accountName: 'Алиф Банк', date: at(-5, 16) },
+    ],
+  })],
+  ['POST', /^\/api\/finance\/operations$/, () => ({ ok: true, id: 'tx-new' })],
+
+  ['GET', /^\/api\/dev-tracker/, () => [
+    { id: 'dt-1', taskNumber: 101, title: 'Аутентификация через биометрию', status: 'in_progress', priority: 'high', type: 'feature', projectName: 'Sabt Mobile', assigneeName: 'Далер Холов' },
+    { id: 'dt-2', taskNumber: 102, title: 'Оптимизация оффлайн-кэша Hive', status: 'review', priority: 'critical', type: 'refactor', projectName: 'Sabt Mobile', assigneeName: 'Фарход Сафаров' },
+    { id: 'dt-3', taskNumber: 103, title: 'Фикс отображения графиков на iOS', status: 'todo', priority: 'medium', type: 'bug', projectName: 'Sabt Mobile' },
+    { id: 'dt-4', taskNumber: 104, title: 'Синхронизация фоновых пушей FCM', status: 'done', priority: 'high', type: 'feature', projectName: 'Sabt Mobile', assigneeName: 'Фарход Сафаров' },
+  ]],
+  ['PATCH', /^\/api\/dev-tracker\/[^/]+(\/move)?$/, () => ({ ok: true })],
+
+  ['GET', /^\/api\/files\/project\/[^/]+$/, () => [
+    { id: 'f-1', originalName: 'Brandbook_WeBrand_2026.pdf', mimeType: 'application/pdf', size: 14857600, createdAt: at(-10, 11), userName: 'Фарход Сафаров', url: 'uploads/brandbook.pdf' },
+    { id: 'f-2', originalName: 'KeyVisual_Sabt_Final.png', mimeType: 'image/png', size: 3420000, createdAt: at(-4, 15), userName: 'Рустам Назаров', url: 'uploads/kv.png' },
+    { id: 'f-3', originalName: 'Contracts_Archive.zip', mimeType: 'application/zip', size: 8540000, createdAt: at(-2, 9), userName: 'Мадина Каримова', url: 'uploads/contracts.zip' },
+  ]],
+  ['DELETE', /^\/api\/files\/[^/]+$/, () => ({ ok: true })],
+
+  ['GET', /^\/api\/smm-tariffs/, () => [
+    { id: 'st-1', name: 'Start SMM', description: 'Базовое ведение аккаунта', monthlyPrice: 4500, storiesPerMonth: 60, reelsPerMonth: 8, postsPerMonth: 12, designsPerMonth: 4, shootingDaysPerMonth: 1, isActive: true },
+    { id: 'st-2', name: 'Business Pro', description: 'Комплексный маркетинг с видеосъемкой', monthlyPrice: 8900, storiesPerMonth: 120, reelsPerMonth: 16, postsPerMonth: 20, designsPerMonth: 8, shootingDaysPerMonth: 2, isActive: true },
+    { id: 'st-3', name: 'Enterprise Elite', description: 'Полное медиасопровождение бренда', monthlyPrice: 16000, storiesPerMonth: 200, reelsPerMonth: 30, postsPerMonth: 30, designsPerMonth: 16, shootingDaysPerMonth: 4, isActive: true },
+  ]],
+  ['PATCH', /^\/api\/smm-tariffs\/[^/]+\/toggle-active$/, () => ({ ok: true })],
+  ['PATCH', /^\/api\/projects\/[^/]+\/archive$/, () => ({ ok: true })],
+
+  // ── Notes ─────────────────────────────────────────────────────────────
+  ['GET', /^\/api\/my-notes$/, () => [
+    { id: 'note-1', text: 'Согласовать концепцию рилсов для Mila Coffee', date: today, done: false, createdAt: at(-1, 10) },
+    { id: 'note-2', text: 'Проверить рендеры сторис к запуску акции', date: today, done: true, createdAt: at(-2, 12) },
+    { id: 'note-3', text: 'Подготовить KPI-отчет за прошлый месяц', date: day(2), done: false, createdAt: at(-3, 16) },
+  ]],
+  ['POST', /^\/api\/my-notes$/, () => ({ id: 'note-new', text: 'Новая заметка', date: today, done: false })],
+  ['PATCH', /^\/api\/my-notes\/[^/]+$/, () => ({ ok: true })],
+  ['DELETE', /^\/api\/my-notes\/[^/]+$/, () => ({ ok: true })],
+
+  // ── AI Assistant ──────────────────────────────────────────────────────
+  ['GET', /^\/api\/ai\/models$/, () => ['gemini-2.0-flash', 'gemini-1.5-pro']],
+  ['POST', /^\/api\/ai\/chat$/, () => ({
+    reply: 'Привет! По проекту Mila Coffee все 12 задач выполнены в срок. По проекту Payk мобильная версия завершена и проходит тестирование. Рекомендую обратить внимание на дедлайн по проекту Rangorang.'
+  })],
+
+  // ── Risks ─────────────────────────────────────────────────────────────
+  ['GET', /^\/api\/risk-analytics\/risks\/projects$/, () => [
+    {
+      projectId: 'p-1', projectName: 'Mila Coffee', managerName: 'Фарход Сафаров', level: 'green', score: 10,
+      factors: [{ key: 'deadline', label: 'Дедлайны в норме', triggered: false }]
+    },
+    {
+      projectId: 'p-2', projectName: 'Rangorang Fashion', managerName: 'Рустам Назаров', level: 'yellow', score: 45,
+      factors: [{ key: 'late_content', label: 'Отставание от контент-плана на 2 дня', triggered: true }]
+    },
+    {
+      projectId: 'p-3', projectName: 'Payk Mobile App', managerName: 'Фарход Сафаров', level: 'red', score: 80,
+      factors: [
+        { key: 'delay_review', label: 'Задержка ревью в App Store более 5 дней', triggered: true },
+        { key: 'overdue_tasks', label: '3 просроченные критические задачи', triggered: true }
+      ]
+    },
+  ]],
+  ['GET', /^\/api\/risk-analytics\/workload\/employees$/, () => [
+    { userId: 'u-1', userName: 'Мадина Каримова', role: 'SMM специалист', projectCount: 4, tasksInProgress: 6, tasksInQueue: 2, overload: 'green' },
+    { userId: 'u-2', userName: 'Рустам Назаров', role: 'Дизайнер', projectCount: 5, tasksInProgress: 9, tasksInQueue: 5, overload: 'red' },
+    { userId: 'u-3', userName: 'Далер Холов', role: 'Видеограф', projectCount: 3, tasksInProgress: 4, tasksInQueue: 1, overload: 'yellow' },
+  ]],
+
+  // ── Security Log ──────────────────────────────────────────────────────
+  ['GET', /^\/api\/activity-log/, () => [
+    { id: 'act-1', action: 'LOGIN', userName: 'Фарход Сафаров', details: 'Успешная авторизация по паролю', ipAddress: '212.11.34.12', createdAt: minutesAgo(12) },
+    { id: 'act-2', action: 'TASK_STATUS', userName: 'Рустам Назаров', details: 'Задача переведена в статус "Готово"', ipAddress: '212.11.34.15', createdAt: minutesAgo(45) },
+    { id: 'act-3', action: 'FILE_UPLOAD', userName: 'Мадина Каримова', details: 'Загружен файл Brandbook_2026.pdf', ipAddress: '212.11.34.18', createdAt: minutesAgo(120) },
+    { id: 'act-4', action: 'PROJECT_UPDATE', userName: 'Фарход Сафаров', details: 'Обновлен тариф проекта Mila Coffee', ipAddress: '212.11.34.12', createdAt: minutesAgo(240) },
+  ]],
+
+  // ── Transport Requests ────────────────────────────────────────────────
+  ['GET', /^\/api\/transport-requests\/my$/, () => ({
+    totalPaidThisMonth: 450,
+    totalPending: 85,
+    requests: [
+      { id: 'tr-1', employeeName: 'Фарход Сафаров', projectName: 'Mila Coffee', amount: 45, date: today, status: 'pending', note: 'Такси на локацию съемок (Рудаки 55)' },
+      { id: 'tr-2', employeeName: 'Фарход Сафаров', projectName: 'Payk Mobile App', amount: 40, date: day(-1), status: 'pending', note: 'Поездка на встречу с клиентом' },
+      { id: 'tr-3', employeeName: 'Фарход Сафаров', projectName: 'Mila Coffee', amount: 120, date: day(-5), status: 'paid', note: 'Транспорт команды с оборудованием' },
+    ]
+  })],
+  ['POST', /^\/api\/transport-requests$/, () => ({ ok: true })],
+  ['DELETE', /^\/api\/transport-requests\/[^/]+$/, () => ({ ok: true })],
+
+  // ── Employee Access ───────────────────────────────────────────────────
+  ['GET', /^\/api\/users\/access$/, () => [
+    { id: 'u-founder', name: 'Фарход Сафаров', email: 'farhod@webbrand.tj', role: 'founder', position: 'Основатель', extraPermissions: ['finance.manage', 'risks.view', 'ai.chat'], isActive: true },
+    { id: 'u-1', name: 'Мадина Каримова', email: 'madina@webbrand.tj', role: 'smm_specialist', position: 'SMM специалист', extraPermissions: ['stories.manage', 'notes.use'], isActive: true },
+    { id: 'u-2', name: 'Рустам Назаров', email: 'rustam@webbrand.tj', role: 'designer', position: 'Графический дизайнер', extraPermissions: ['files.upload'], isActive: true },
+  ]],
+  ['GET', /^\/api\/users\/access-catalog$/, () => [
+    { key: 'finance.view', label: 'Просмотр финансов', category: 'Финансы', danger: false },
+    { key: 'finance.manage', label: 'Управление кассой и счетами', category: 'Финансы', danger: true },
+    { key: 'risks.view', label: 'Просмотр рисков и нагрузки', category: 'Аналитика', danger: false },
+    { key: 'smm.manage', label: 'Управление SMM-проектами', category: 'SMM', danger: false },
+    { key: 'stories.manage', label: 'Управление сторис', category: 'SMM', danger: false },
+    { key: 'notes.use', label: 'Личные заметки', category: 'Инструменты', danger: false },
+    { key: 'ai.chat', label: 'Доступ к ИИ-помощнику', category: 'Инструменты', danger: false },
+  ]],
+  ['PATCH', /^\/api\/users\/[^/]+\/permissions$/, () => ({ ok: true })],
+
+  // ── SMM Control ───────────────────────────────────────────────────────
+  ['GET', /^\/api\/smm-control/, () => ({
+    ym: today.slice(0, 7),
+    projects: [
+      { id: 'p-1', name: 'Mila Coffee', mood: 'good', reels: { done: 12, norm: 12 }, posts: { done: 15, norm: 15 } },
+      { id: 'p-2', name: 'Rangorang Fashion', mood: 'meh', reels: { done: 6, norm: 10 }, posts: { done: 8, norm: 12 } },
+      { id: 'p-3', name: 'Payk Mobile', mood: 'good', reels: { done: 4, norm: 4 }, posts: { done: 6, norm: 6 } },
+    ]
   })],
 ];
 

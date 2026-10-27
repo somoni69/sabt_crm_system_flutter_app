@@ -503,7 +503,7 @@ class _SecurityRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (trailing != null) trailing!,
+            ?trailing,
             const SizedBox(width: 4),
             const Icon(Icons.chevron_right_rounded,
                 size: 18, color: AppColors.textTertiary),

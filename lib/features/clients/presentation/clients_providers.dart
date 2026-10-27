@@ -57,6 +57,11 @@ final clientsProvider =
       .map((payload) => Snapshot.fromPayload(payload, parseClients));
 });
 
+final clientsListProvider = Provider.autoDispose<List<ClientLeadModel>>((ref) {
+  final snap = ref.watch(clientsProvider).value;
+  return snap?.data ?? const [];
+});
+
 final clientProvider =
     StreamProvider.autoDispose.family<Snapshot<ClientLeadModel>, String>((ref, id) {
   ref.watch(dataRevisionProvider);
