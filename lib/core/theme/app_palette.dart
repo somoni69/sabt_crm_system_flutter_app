@@ -200,14 +200,14 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   List<BoxShadow> get glassShadow => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: isDark ? 0.42 : 0.14),
-      blurRadius: 30,
-      offset: const Offset(0, 14),
+      color: Colors.black.withValues(alpha: isDark ? 0.42 : 0.07),
+      blurRadius: isDark ? 30 : 20,
+      offset: Offset(0, isDark ? 14 : 8),
     ),
     BoxShadow(
-      color: accent.withValues(alpha: isDark ? 0.08 : 0.10),
-      blurRadius: 40,
-      offset: const Offset(0, 10),
+      color: accent.withValues(alpha: isDark ? 0.08 : 0.05),
+      blurRadius: isDark ? 40 : 28,
+      offset: Offset(0, isDark ? 10 : 6),
     ),
   ];
 

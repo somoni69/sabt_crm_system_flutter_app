@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/dependencies.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_avatar.dart';
+import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
@@ -68,18 +70,108 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
         (project.manager?.name ?? '').toLowerCase().contains(query);
   }
 
+  Future<void> _createProject(BuildContext context) async {
+    final nameCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    var projectType = 'SMM';
+    final ok = await showGlassSheet<bool>(
+      context: context,
+      title: 'Новый проект',
+      subtitle: 'Добавьте проект в портфель агентства',
+      child: StatefulBuilder(
+        builder: (context, setModalState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Название проекта'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: descCtrl,
+              minLines: 2,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Описание (необязательно)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final t in const [
+                  'SMM',
+                  'Таргет',
+                  'Сайт',
+                  'Мобильное приложение',
+                  'CRM система',
+                  'Телеграм бот',
+                ])
+                  AppFilterChip(
+                    label: t,
+                    active: projectType == t,
+                    onTap: () => setModalState(() => projectType = t),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              label: 'Создать проект',
+              icon: Icons.check_rounded,
+              expand: true,
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        ),
+      ),
+    );
+    final name = nameCtrl.text.trim();
+    final desc = descCtrl.text.trim();
+    nameCtrl.dispose();
+    descCtrl.dispose();
+    if (ok != true || name.isEmpty) return;
+    try {
+      await ref.read(dependenciesProvider).api.postJson(
+        '/projects',
+        body: {
+          'name': name,
+          'projectType': projectType,
+          if (desc.isNotEmpty) 'description': desc,
+        },
+      );
+      ref.read(dataRevisionProvider.notifier).bump();
+      ref.read(dependenciesProvider).banners.show(const AppBanner(
+            title: 'Проект создан',
+            message: 'Новый проект добавлен в список.',
+            tone: BannerTone.success,
+          ));
+    } on ApiException catch (e) {
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Ошибка создания проекта',
+            message: e.message,
+            tone: BannerTone.danger,
+          ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final canSee = canSeeProjects(user);
+    final canCreate = canCreateProject(user);
     final async = ref.watch(projectsProvider);
     final snapshot = async.value;
     final all = snapshot?.data ?? const <ProjectModel>[];
     final projects = all.where(_matches).toList();
     final active = all.where((project) => !project.isArchived).length;
-    final inProgress = all.where((project) => project.status == 'in_progress').length;
-    final planning = all.where((project) => project.status == 'planning').length;
-    final completed = all.where((project) => project.status == 'completed').length;
+    final inProgress =
+        all.where((project) => project.status == 'in_progress').length;
+    final planning =
+        all.where((project) => project.status == 'planning').length;
+    final completed =
+        all.where((project) => project.status == 'completed').length;
     final archived = all.where((project) => project.isArchived).length;
 
     final error = async.error;
@@ -100,6 +192,13 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
             : '$active активных · $inProgress в работе',
         onBack: widget.standalone ? () => context.pop() : null,
         actions: [
+          if (canCreate)
+            AppIconButton(
+              icon: Icons.add_rounded,
+              size: 40,
+              tooltip: 'Новый проект',
+              onPressed: () => _createProject(context),
+            ),
           AppIconButton(
             icon: _searchOpen ? Icons.close_rounded : Icons.search_rounded,
             size: 40,
@@ -154,7 +253,8 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                         label: 'Активные',
                         count: active,
                         active: _filter == _ProjectFilter.active,
-                        onTap: () => setState(() => _filter = _ProjectFilter.active),
+                        onTap: () =>
+                            setState(() => _filter = _ProjectFilter.active),
                       ),
                       const SizedBox(width: 7),
                       AppFilterChip(
@@ -186,7 +286,8 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                         label: 'Архив',
                         count: archived,
                         active: _filter == _ProjectFilter.archived,
-                        onTap: () => setState(() => _filter = _ProjectFilter.archived),
+                        onTap: () =>
+                            setState(() => _filter = _ProjectFilter.archived),
                       ),
                     ],
                   ),
@@ -201,7 +302,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                 else if (projects.isEmpty)
                   EmptyState(
                     icon: Icons.workspaces_outline,
-                    title: _query.isEmpty ? 'Здесь пока пусто' : 'Проекты не найдены',
+                    title: _query.isEmpty
+                        ? 'Здесь пока пусто'
+                        : 'Проекты не найдены',
                     message: _query.isEmpty
                         ? 'Проекты появятся, когда менеджеры заведут клиентов.'
                         : 'Измените запрос или выберите другой фильтр.',
@@ -238,7 +341,9 @@ class _ProjectCard extends StatelessWidget {
     if (project.isSmm) return Icons.auto_awesome_rounded;
     if (project.projectType == 'Лендинг') return Icons.web_asset_rounded;
     if (project.projectType == 'Телеграм бот') return Icons.smart_toy_outlined;
-    if (project.projectType == 'CRM система') return Icons.dashboard_customize_outlined;
+    if (project.projectType == 'CRM система') {
+      return Icons.dashboard_customize_outlined;
+    }
     if (project.isDev) return Icons.code_rounded;
     return Icons.folder_outlined;
   }
@@ -266,7 +371,11 @@ class _ProjectCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SurfaceIcon(icon: _icon, color: _colorFor(context.palette), size: 44),
+              SurfaceIcon(
+                icon: _icon,
+                color: _colorFor(context.palette),
+                size: 44,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -276,7 +385,7 @@ class _ProjectCard extends StatelessWidget {
                       project.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style:  TextStyle(
+                      style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 14.5,
                         fontWeight: FontWeight.w600,
@@ -293,14 +402,20 @@ class _ProjectCard extends StatelessWidget {
                           compact: true,
                         ),
                         const SizedBox(width: 6),
-                        StatusBadge(status: project.status, label: project.statusFieldLabel),
+                        StatusBadge(
+                          status: project.status,
+                          label: project.statusFieldLabel,
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-               Icon(Icons.chevron_right_rounded,
-                  size: 19, color: context.palette.textTertiary),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 19,
+                color: context.palette.textTertiary,
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -314,7 +429,9 @@ class _ProjectCard extends StatelessWidget {
                     minHeight: 5,
                     backgroundColor: context.palette.surface3,
                     valueColor: AlwaysStoppedAnimation(
-                      progress >= 1 ? context.palette.success : _colorFor(context.palette),
+                      progress >= 1
+                          ? context.palette.success
+                          : _colorFor(context.palette),
                     ),
                   ),
                 ),
@@ -322,21 +439,27 @@ class _ProjectCard extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 '${(progress * 100).round()}%',
-                style: AppTypography.number(size: 12, color: context.palette.textSecondary),
+                style: AppTypography.number(
+                  size: 12,
+                  color: context.palette.textSecondary,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-               Icon(Icons.task_alt_rounded,
-                  size: 13, color: context.palette.textTertiary),
+              Icon(
+                Icons.task_alt_rounded,
+                size: 13,
+                color: context.palette.textTertiary,
+              ),
               const SizedBox(width: 5),
               Text(
                 project.taskCount == 0
                     ? 'Задач пока нет'
                     : '${project.doneTaskCount} из ${project.taskCount} задач',
-                style:  TextStyle(
+                style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 10.5,
                   color: context.palette.textTertiary,
@@ -355,7 +478,7 @@ class _ProjectCard extends StatelessWidget {
                     project.manager!.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style:  TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 10.5,
                       color: context.palette.textTertiary,

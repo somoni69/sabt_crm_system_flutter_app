@@ -56,6 +56,10 @@ class AppPage extends StatelessWidget {
             ? PageInsets.bottomNav(context)
             : PageInsets.bottomPlain(context));
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalInset =
+        screenWidth > 960 ? (screenWidth - 900) / 2 : 0.0;
+
     Widget scroll = RepaintBoundary(
       child: CustomScrollView(
         controller: controller,
@@ -66,7 +70,11 @@ class AppPage extends StatelessWidget {
             ),
         slivers: [
           SliverPadding(
-            padding: EdgeInsets.only(top: top),
+            padding: EdgeInsets.only(
+              top: top,
+              left: horizontalInset,
+              right: horizontalInset,
+            ),
             sliver: SliverList(delegate: SliverChildListDelegate(slivers)),
           ),
           SliverPadding(padding: EdgeInsets.only(bottom: bottom)),
@@ -92,8 +100,8 @@ class AppPage extends StatelessWidget {
           Positioned.fill(child: scroll),
           Positioned(
             top: 0,
-            left: 0,
-            right: 0,
+            left: horizontalInset,
+            right: horizontalInset,
             child: SafeArea(
               bottom: false,
               child: Padding(
@@ -104,15 +112,20 @@ class AppPage extends StatelessWidget {
           ),
           if (floatingAction != null)
             Positioned(
-              left: 16,
-              right: 16,
+              left: 16 + horizontalInset,
+              right: 16 + horizontalInset,
               bottom: showBottomBarSpace
                   ? MediaQuery.paddingOf(context).bottom + 94
                   : MediaQuery.paddingOf(context).bottom + 16,
               child: floatingAction!,
             ),
           if (footer != null)
-            Positioned(left: 0, right: 0, bottom: 0, child: footer!),
+            Positioned(
+              left: horizontalInset,
+              right: horizontalInset,
+              bottom: 0,
+              child: footer!,
+            ),
         ],
       ),
     );
@@ -142,6 +155,7 @@ class AppHeader extends StatelessWidget {
     return GlassSurface(
       radius: 24,
       blur: blur,
+      blurBackdrop: false,
       padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
       child: SizedBox(
         height: 54,
@@ -283,18 +297,18 @@ Future<T?> showGlassSheet<T>({
     isDismissible: dismissible,
     enableDrag: dismissible,
     useSafeArea: true,
+    constraints: const BoxConstraints(maxWidth: 580),
     barrierColor: Colors.black.withValues(alpha: 0.62),
     backgroundColor: Colors.transparent,
     sheetAnimationStyle: Motion.sheetStyle(context),
     builder: (sheetContext) {
       final media = MediaQuery.of(sheetContext);
-      final width = media.size.width;
-      final horizontal = width > 620 ? (width - 560) / 2 : 10.0;
       return Padding(
-        padding: EdgeInsets.only(
-          left: horizontal,
-          right: horizontal,
-          bottom: media.viewInsets.bottom + 10,
+        padding: EdgeInsets.fromLTRB(
+          12,
+          0,
+          12,
+          media.viewInsets.bottom + 12,
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(

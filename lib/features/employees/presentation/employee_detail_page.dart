@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/dependencies.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
+import '../../../core/widgets/app_banner.dart';
+import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/domain/user.dart';
@@ -269,12 +272,262 @@ class EmployeeDetailPage extends ConsumerWidget {
                     ],
                   ),
                 ),
+                if (canManageAccess(user)) ...[
+                  const SizedBox(height: 20),
+                  const SectionHeader(
+                    overline: 'АДМИНИСТРИРОВАНИЕ',
+                    title: 'Роль и доступы',
+                  ),
+                  _AdminRoleAccessCard(
+                    employee: employee,
+                    isFounder: user?.isFounder ?? false,
+                  ),
+                ],
                 const SizedBox(height: 28),
               ],
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AdminRoleAccessCard extends ConsumerStatefulWidget {
+  const _AdminRoleAccessCard({
+    required this.employee,
+    required this.isFounder,
+  });
+
+  final EmployeeModel employee;
+  final bool isFounder;
+
+  @override
+  ConsumerState<_AdminRoleAccessCard> createState() =>
+      _AdminRoleAccessCardState();
+}
+
+class _AdminRoleAccessCardState extends ConsumerState<_AdminRoleAccessCard> {
+  bool _busy = false;
+
+  Future<void> _toggleFlag(String endpoint, String successMessage) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await ref
+          .read(dependenciesProvider)
+          .api
+          .patchJson('/employees/${widget.employee.id}/$endpoint');
+      ref.read(dataRevisionProvider.notifier).bump();
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Сохранено',
+            message: successMessage,
+            tone: BannerTone.success,
+          ));
+    } catch (e) {
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Ошибка',
+            message: e.toString(),
+            tone: BannerTone.danger,
+          ));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _openRoleSheet() async {
+    String selectedRole = widget.employee.role;
+    String? selectedSecondary = widget.employee.secondaryRole;
+
+    final saved = await showGlassSheet<bool>(
+      context: context,
+      title: 'Роль сотрудника',
+      subtitle: widget.employee.fullName,
+      child: StatefulBuilder(
+        builder: (context, setModalState) {
+          final palette = context.palette;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'ОСНОВНАЯ РОЛЬ',
+                style: AppTypography.overline(
+                  color: palette.textTertiary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: roleLabels.entries.map((entry) {
+                  return AppFilterChip(
+                    label: entry.value,
+                    active: selectedRole == entry.key,
+                    onTap: () => setModalState(() {
+                      selectedRole = entry.key;
+                      if (selectedSecondary == selectedRole) {
+                        selectedSecondary = null;
+                      }
+                    }),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'ДОПОЛНИТЕЛЬНАЯ РОЛЬ (НЕОБЯЗАТЕЛЬНО)',
+                style: AppTypography.overline(
+                  color: palette.textTertiary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  AppFilterChip(
+                    label: 'Нет',
+                    active: selectedSecondary == null,
+                    onTap: () => setModalState(() => selectedSecondary = null),
+                  ),
+                  ...roleLabels.entries
+                      .where((e) => e.key != selectedRole)
+                      .map((entry) {
+                    return AppFilterChip(
+                      label: entry.value,
+                      active: selectedSecondary == entry.key,
+                      onTap: () =>
+                          setModalState(() => selectedSecondary = entry.key),
+                    );
+                  }),
+                ],
+              ),
+              const SizedBox(height: 18),
+              AppButton(
+                label: 'Сохранить роль',
+                icon: Icons.check_rounded,
+                expand: true,
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (saved != true || _busy) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(dependenciesProvider).api.patchJson(
+        '/employees/${widget.employee.id}',
+        body: {
+          'role': selectedRole,
+          'secondaryRole': selectedSecondary ?? '',
+        },
+      );
+      ref.read(dataRevisionProvider.notifier).bump();
+      ref.read(dependenciesProvider).banners.show(const AppBanner(
+            title: 'Роль обновлена',
+            message: 'Новые права сотрудника вступили в силу.',
+            tone: BannerTone.success,
+          ));
+    } catch (e) {
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Ошибка сохранения роли',
+            message: e.toString(),
+            tone: BannerTone.danger,
+          ));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final emp = widget.employee;
+    return AppCard(
+      padding: const EdgeInsets.all(15),
+      radius: 20,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            value: emp.isStoryMaker,
+            activeTrackColor: palette.accent,
+            onChanged: _busy
+                ? null
+                : (_) => _toggleFlag(
+                      'toggle-story-maker',
+                      'Статус сторисмейкера обновлён',
+                    ),
+            title: Text(
+              'Сторисмейкер',
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: palette.text,
+              ),
+            ),
+            subtitle: Text(
+              'Доступ к разделу «Мои заметки» и публикациям сторис',
+              style: TextStyle(fontSize: 11.5, color: palette.textTertiary),
+            ),
+          ),
+          if (widget.isFounder) ...[
+            Divider(height: 12, color: palette.borderSoft),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              value: emp.isSubAdmin,
+              activeTrackColor: palette.warning,
+              onChanged: _busy
+                  ? null
+                  : (_) => _toggleFlag(
+                        'toggle-sub-admin',
+                        'Статус суб-админа обновлён',
+                      ),
+              title: Text(
+                'Суб-админ (Сооснователь)',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: palette.text,
+                ),
+              ),
+              subtitle: Text(
+                'Наследует административные права управления в CRM',
+                style: TextStyle(fontSize: 11.5, color: palette.textTertiary),
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Изменить роль',
+                  icon: Icons.badge_outlined,
+                  variant: AppButtonVariant.secondary,
+                  busy: _busy,
+                  onPressed: _openRoleSheet,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: AppButton(
+                  label: 'Точечные права',
+                  icon: Icons.tune_rounded,
+                  variant: AppButtonVariant.ghost,
+                  onPressed: () => context.push('/employee-access'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/design/ambient_background.dart';
 import 'core/dependencies.dart';
+import 'core/design/ambient_background.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_provider.dart';
@@ -100,19 +100,22 @@ class _SabtAppState extends ConsumerState<SabtApp> with WidgetsBindingObserver {
                 : Brightness.dark,
             systemNavigationBarDividerColor: Colors.transparent,
           ),
-          child: Stack(
-            children: [
-              const Positioned.fill(
-                child: RepaintBoundary(
-                  child: AmbientBackground(animate: false),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(decoration: TextDecoration.none),
+            child: Stack(
+              children: [
+                const Positioned.fill(
+                  child: RepaintBoundary(
+                    child: AmbientBackground(animate: false),
+                  ),
                 ),
-              ),
-              Positioned.fill(child: child ?? const SizedBox.shrink()),
-              AppBannerHost(
-                service: deps.banners,
-                onOpen: (link) => deps.navigation.handleLink(link),
-              ),
-            ],
+                Positioned.fill(child: child ?? const SizedBox.shrink()),
+                AppBannerHost(
+                  service: deps.banners,
+                  onOpen: (link) => deps.navigation.handleLink(link),
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/dependencies.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
@@ -9,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_avatar.dart';
+import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
@@ -50,6 +52,7 @@ class ProjectDetailPage extends ConsumerWidget {
     final snapshot = async.value;
     final project = snapshot?.data;
     final canCreate = canCreateTask(user);
+    final canEdit = userCan(user, Perm.projectsEdit);
 
     Future<void> refresh() async {
       ref.read(dataRevisionProvider.notifier).bump();
@@ -63,6 +66,13 @@ class ProjectDetailPage extends ConsumerWidget {
         subtitle: project?.typeLabel,
         onBack: () => context.pop(),
         actions: [
+          if (project != null && canEdit)
+            AppIconButton(
+              icon: Icons.edit_outlined,
+              size: 40,
+              tooltip: 'Редактировать проект',
+              onPressed: () => _showEditProjectSheet(context, ref, project),
+            ),
           if (project != null && canCreate)
             AppIconButton(
               icon: Icons.add_task_rounded,
@@ -89,6 +99,117 @@ class ProjectDetailPage extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _showEditProjectSheet(
+    BuildContext context,
+    WidgetRef ref,
+    ProjectModel project,
+  ) async {
+    final nameCtrl = TextEditingController(text: project.name);
+    final descCtrl = TextEditingController(text: project.description ?? '');
+    var status = project.status;
+    final canArchive = userCan(ref.read(currentUserProvider), Perm.projectsArchive);
+
+    final action = await showGlassSheet<String>(
+      context: context,
+      title: 'Настройки проекта',
+      subtitle: project.name,
+      child: StatefulBuilder(
+        builder: (context, setModalState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Название проекта'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: descCtrl,
+              minLines: 2,
+              maxLines: 4,
+              decoration: const InputDecoration(labelText: 'Описание'),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final entry in const [
+                  ('planning', 'Планирование'),
+                  ('in_progress', 'В работе'),
+                  ('completed', 'Завершён'),
+                ])
+                  AppFilterChip(
+                    label: entry.$2,
+                    active: status == entry.$1,
+                    onTap: () => setModalState(() => status = entry.$1),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              label: 'Сохранить изменения',
+              icon: Icons.check_rounded,
+              expand: true,
+              onPressed: () => Navigator.of(context).pop('save'),
+            ),
+            if (canArchive) ...[
+              const SizedBox(height: 8),
+              AppButton(
+                label: project.isArchived
+                    ? 'Восстановить из архива'
+                    : 'Отправить в архив',
+                icon: project.isArchived
+                    ? Icons.unarchive_outlined
+                    : Icons.archive_outlined,
+                variant: AppButtonVariant.ghost,
+                expand: true,
+                onPressed: () => Navigator.of(context).pop('archive'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+
+    final name = nameCtrl.text.trim();
+    final desc = descCtrl.text.trim();
+    nameCtrl.dispose();
+    descCtrl.dispose();
+
+    if (action == null) return;
+    try {
+      final api = ref.read(dependenciesProvider).api;
+      if (action == 'archive') {
+        await api.patchJson(
+          '/projects/${project.id}',
+          body: {'isArchived': !project.isArchived},
+        );
+      } else if (action == 'save' && name.isNotEmpty) {
+        await api.patchJson(
+          '/projects/${project.id}',
+          body: {
+            'name': name,
+            'description': desc,
+            'status': status,
+          },
+        );
+      }
+      ref.read(dataRevisionProvider.notifier).bump();
+      ref.read(dependenciesProvider).banners.show(const AppBanner(
+            title: 'Проект обновлён',
+            message: 'Изменения успешно сохранены.',
+            tone: BannerTone.success,
+          ));
+    } on ApiException catch (e) {
+      ref.read(dependenciesProvider).banners.show(AppBanner(
+            title: 'Ошибка сохранения',
+            message: e.message,
+            tone: BannerTone.danger,
+          ));
+    }
   }
 
   Widget _buildPlaceholder(
@@ -152,7 +273,30 @@ class _ProjectBody extends ConsumerWidget {
           const SizedBox(height: 14),
         ],
         _ProjectHero(project: project, completion: completion),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (canCreate)
+              AppButton(
+                label: 'Новая задача',
+                icon: Icons.add_task_rounded,
+                compact: true,
+                onPressed: () =>
+                    showTaskForm(context, ref, projectId: project.id),
+              ),
+            if (project.isDev && canSeeDevSection(user))
+              AppButton(
+                label: 'Этапы разработки',
+                icon: Icons.code_rounded,
+                variant: AppButtonVariant.secondary,
+                compact: true,
+                onPressed: () => context.push('/dev/projects/${project.id}'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 14),
         Row(
           children: [
             Expanded(

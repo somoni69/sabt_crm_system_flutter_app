@@ -64,7 +64,11 @@ class NavigationService {
         path.startsWith('/finance/salary') ||
         path.startsWith('/finance/subscriptions') ||
         path.startsWith('/finance/debts') ||
-        path.startsWith('/finance/transactions')) {
+        path.startsWith('/finance/transactions') ||
+        path.startsWith('/finance/planning') ||
+        path.startsWith('/finance/inventory') ||
+        path.startsWith('/finance/activity') ||
+        path.startsWith('/finance/settings')) {
       _push(path.split('?').first);
       return;
     }
@@ -72,7 +76,25 @@ class NavigationService {
       _push('/finance');
       return;
     }
-    if (path.startsWith('/dev-board') || path.startsWith('/dev/')) {
+    if (path.startsWith('/dev/projects')) {
+      _push(path.split('?').first);
+      return;
+    }
+    if (path.startsWith('/dev-board/task/') ||
+        path.startsWith('/dev-board/kpi') ||
+        path.startsWith('/dev-board/reports')) {
+      _push(path.split('?').first);
+      return;
+    }
+    if (path.startsWith('/dev/kpi')) {
+      _push('/dev-board/kpi');
+      return;
+    }
+    if (path.startsWith('/dev/reports')) {
+      _push('/dev-board/reports');
+      return;
+    }
+    if (path.startsWith('/dev-board') || path.startsWith('/dev')) {
       _push('/dev-board');
       return;
     }
@@ -120,7 +142,7 @@ class NavigationService {
       return;
     }
     if (path.startsWith('/employees')) {
-      _push(path);
+      _push(path.split('?').first);
       return;
     }
     if (path.startsWith('/notifications')) {
@@ -172,7 +194,7 @@ class NavigationService {
       return;
     }
     if (path.startsWith('/team-activity')) {
-      _push('/employees');
+      _push('/employees/activity');
       return;
     }
 

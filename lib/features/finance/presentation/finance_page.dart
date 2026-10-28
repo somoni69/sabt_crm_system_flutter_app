@@ -152,11 +152,15 @@ class FinancePage extends ConsumerWidget {
     const items = [
       ('Доход', 'Принять оплату клиента', '/finance/income', Icons.south_west_rounded),
       ('Расход', 'Зарплата, аренда, долги', '/finance/expense', Icons.north_east_rounded),
+      ('Планирование', 'Платёжный календарь и прогноз', '/finance/planning', Icons.event_available_outlined),
       ('Зарплата', 'Выплата и аванс', '/finance/salary', Icons.payments_outlined),
       ('Подписки', 'Аренда и сервисы', '/finance/subscriptions', Icons.subscriptions_outlined),
       ('Долги', 'Платёж месяца', '/finance/debts', Icons.account_balance_outlined),
       ('Журнал', 'Операции месяца', '/finance/transactions', Icons.receipt_long_outlined),
+      ('Инвентарь', 'Оборудование и амортизация', '/finance/inventory', Icons.inventory_2_outlined),
       ('Транспорт', 'Заявки сотрудников', '/finance/transport', Icons.directions_car_outlined),
+      ('Активность', 'История изменений финансов', '/finance/activity', Icons.history_edu_rounded),
+      ('Настройки', 'Счета, категории и снимки', '/finance/settings', Icons.tune_rounded),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

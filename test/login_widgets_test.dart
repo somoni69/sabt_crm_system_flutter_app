@@ -243,6 +243,90 @@ void main() {
       expect(find.text('Подтвердите вход'), findsOneWidget);
       expect(find.byType(OtpField), findsOneWidget);
     });
+
+    testWidgets('interactive hero pillars switch the workspace preview card', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final fake = _FakeAuthController();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authControllerProvider.overrideWith(() => fake)],
+          child: MaterialApp(
+            theme: AppTheme.light,
+            home: const MediaQuery(
+              data: MediaQueryData(disableAnimations: true),
+              child: LoginPage(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.text('Редизайн айдентики и гайдлайна'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Контент.'));
+      await tester.pump();
+
+      expect(
+        find.text('Сетка Reels и проверка сторис'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Клиенты.'));
+      await tester.pump();
+
+      expect(
+        find.text('Аналитика, тарифы и отчёты'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+      'horizontal drag on workspace preview card switches pillar and theme pill toggles brightness',
+      (tester) async {
+        usePhoneViewport(tester);
+        final fake = _FakeAuthController();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [authControllerProvider.overrideWith(() => fake)],
+            child: MaterialApp(
+              theme: AppTheme.light,
+              home: const MediaQuery(
+                data: MediaQueryData(disableAnimations: true),
+                child: LoginPage(),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(
+          find.text('Редизайн айдентики и гайдлайна'),
+          findsOneWidget,
+        );
+
+        await tester.drag(
+          find.text('Редизайн айдентики и гайдлайна'),
+          const Offset(-120, 0),
+        );
+        await tester.pump();
+
+        expect(
+          find.text('Сетка Reels и проверка сторис'),
+          findsOneWidget,
+        );
+
+        // Toggle theme pill from Light -> Dark.
+        expect(find.text('Тёмная'), findsOneWidget);
+        await tester.tap(find.text('Тёмная'));
+        await tester.pump();
+        expect(find.text('Светлая'), findsOneWidget);
+      },
+    );
   });
 }
 

@@ -224,9 +224,9 @@ class _QuickDoneButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: done ? 'Задача выполнена' : 'Отметить выполненной',
-      child: GestureDetector(
+      child: PressableScale(
         onTap: done ? null : onTap,
-        behavior: HitTestBehavior.opaque,
+        scale: 0.92,
         child: AnimatedContainer(
           duration: motion ? Motion.micro : Duration.zero,
           curve: Motion.easeOut,

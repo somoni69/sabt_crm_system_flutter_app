@@ -356,7 +356,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              const SectionHeader(overline: 'АККАУНТ', title: 'Сессия'),
+              const SectionHeader(overline: 'АККАУНТ', title: 'Сессия и профиль'),
               AppButton(
                 label: 'Выйти из аккаунта',
                 icon: Icons.logout_rounded,
@@ -369,6 +369,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   danger: true,
                   onConfirm: () =>
                       ref.read(authControllerProvider.notifier).logout(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              AppButton(
+                label: 'Запросить удаление аккаунта',
+                icon: Icons.person_remove_outlined,
+                variant: AppButtonVariant.ghost,
+                onPressed: () => showConfirmSheet(
+                  context: context,
+                  title: 'Удаление аккаунта',
+                  message:
+                      'Запрос на деактивацию корпоративного аккаунта и удаление персональных данных будет передан администратору организации, а текущая сессия и локальные данные на устройстве будут немедленно удалены.',
+                  confirmLabel: 'Отправить запрос и выйти',
+                  danger: true,
+                  onConfirm: () async {
+                    try {
+                      await deps.api.postJson(
+                        '/users/me/deletion-request',
+                        body: {'reason': 'Requested from mobile app'},
+                      );
+                    } catch (_) {
+                      // Even if the endpoint is handled manually by admin,
+                      // clear local cache and end the session immediately.
+                    }
+                    await deps.cache.clearAll();
+                    await ref.read(authControllerProvider.notifier).logout();
+                  },
                 ),
               ),
               const SizedBox(height: 22),

@@ -8,8 +8,24 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Sabt</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Sabt использует камеру для съёмки фото профиля и прикрепления материалов к задачам и отчётам.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Sabt использует фото профиля и файлы задач, чтобы команда видела актуальные материалы.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Sabt сохраняет экспортированные материалы и отчёты проектов в медиатеку устройства.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Sabt запрашивает доступ к микрофону при записи видеоматериалов для задач и сторис.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tg</string>
+		<string>https</string>
+		<string>http</string>
+		<string>tel</string>
+		<string>mailto</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -34,6 +50,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIRequiresFullScreen</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

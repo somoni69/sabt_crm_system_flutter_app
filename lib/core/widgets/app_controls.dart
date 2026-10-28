@@ -10,6 +10,8 @@ import 'app_surfaces.dart';
 
 enum AppButtonVariant { primary, secondary, ghost, danger }
 
+typedef ButtonVariant = AppButtonVariant;
+
 class AppButton extends StatefulWidget {
   const AppButton({
     super.key,
@@ -17,11 +19,14 @@ class AppButton extends StatefulWidget {
     this.onPressed,
     this.icon,
     this.variant = AppButtonVariant.primary,
-    this.expanded = true,
+    bool? expanded,
+    bool? expand,
     this.compact = false,
-    this.loading = false,
+    bool? loading,
+    bool? busy,
     this.trailing,
-  });
+  }) : expanded = expanded ?? expand ?? true,
+       loading = loading ?? busy ?? false;
 
   final String label;
   final VoidCallback? onPressed;
@@ -94,19 +99,49 @@ class _AppButtonState extends State<AppButton> {
         ),
     };
 
+    final depressed = _pressed && _enabled && animate;
+    final activeDuration = animate
+        ? (_pressed ? Motion.press : Motion.release)
+        : Duration.zero;
+    final secondaryLip = palette.isDark
+        ? const Color(0xFF06080E)
+        : const Color(0xFFD6DCEC);
+
     final shadows = switch (widget.variant) {
       AppButtonVariant.primary => [
           BoxShadow(
-            color: palette.brandPurple.withValues(alpha: _enabled ? 0.28 : 0.08),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
+            color: const Color(0xFF392B6E).withValues(alpha: _enabled ? 1 : 0.4),
+            blurRadius: 0,
+            offset: Offset(0, depressed ? 1.0 : 2.5),
+          ),
+          BoxShadow(
+            color: palette.brandPurple.withValues(
+              alpha: _enabled ? (depressed ? 0.16 : 0.26) : 0.08,
+            ),
+            blurRadius: depressed ? 12 : 20,
+            offset: Offset(0, depressed ? 4 : 9),
           ),
         ],
       AppButtonVariant.danger => [
           BoxShadow(
-            color: palette.danger.withValues(alpha: 0.22),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            color: Color.alphaBlend(
+              Colors.black.withValues(alpha: 0.34),
+              palette.danger,
+            ),
+            blurRadius: 0,
+            offset: Offset(0, depressed ? 1.0 : 2.5),
+          ),
+          BoxShadow(
+            color: palette.danger.withValues(alpha: depressed ? 0.14 : 0.22),
+            blurRadius: depressed ? 10 : 18,
+            offset: Offset(0, depressed ? 4 : 8),
+          ),
+        ],
+      AppButtonVariant.secondary => [
+          BoxShadow(
+            color: secondaryLip,
+            blurRadius: 0,
+            offset: Offset(0, depressed ? 1.0 : 2.0),
           ),
         ],
       _ => null,
@@ -161,9 +196,12 @@ class _AppButtonState extends State<AppButton> {
       ],
     );
 
-    Widget inner = Container(
+    Widget inner = AnimatedContainer(
+      duration: activeDuration,
+      curve: Motion.easeOut,
       height: height,
       width: widget.expanded ? double.infinity : null,
+      transform: Matrix4.translationValues(0, depressed ? 1.5 : 0.0, 0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
         boxShadow: shadows,
@@ -223,8 +261,8 @@ class _AppButtonState extends State<AppButton> {
         widget.onPressed!();
       },
       child: AnimatedScale(
-        scale: _pressed && animate ? Motion.pressScale : 1,
-        duration: animate ? Motion.press : Duration.zero,
+        scale: depressed ? Motion.pressScale : 1,
+        duration: activeDuration,
         curve: Motion.easeOut,
         child: inner,
       ),
@@ -265,7 +303,7 @@ class AppIconButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(radius),
           child: GlassRim(
             radius: radius,
-            child: DecoratedBox(
+            child: Container(
               decoration: BoxDecoration(
                 color: filled
                     ? palette.surface3
@@ -341,6 +379,7 @@ class GlassSegmentedControl<T> extends StatelessWidget {
     return GlassSurface(
       radius: height / 2,
       blur: GlassTokens.blurSmall,
+      blurBackdrop: false,
       shadow: false,
       padding: const EdgeInsets.all(3.5),
       child: SizedBox(

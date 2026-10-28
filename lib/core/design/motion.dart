@@ -4,16 +4,28 @@ import 'package:flutter/material.dart';
 
 /// Shared motion for Sabt. Mapped from a transform-and-opacity ladder onto
 /// Flutter: short fades for frequent actions, 150–250ms ease-out for sheets
-/// and routes, springs only on the nav gesture.
+/// and routes, springs only on the nav gesture and interactive drag surfaces.
 ///
 /// Entrances start at [enterScale], never at 0. Reduced motion
 /// (`MediaQuery.disableAnimations`) resolves to zero duration.
 abstract final class Motion {
   static const Duration press = Duration(milliseconds: 100);
   static const Duration micro = Duration(milliseconds: 120);
+
+  /// Asymmetric release after a press-down: slightly gentler than [press]
+  /// so tactile controls rebound with physical weight instead of snapping.
+  static const Duration release = Duration(milliseconds: 140);
+
   static const Duration standard = Duration(milliseconds: 200);
   static const Duration sheet = Duration(milliseconds: 240);
   static const Duration exit = Duration(milliseconds: 160);
+
+  /// Per-item stagger step for list/card cascades, capped so the last item
+  /// never starts more than 210ms after the first.
+  static const Duration stagger = Duration(milliseconds: 35);
+
+  static Duration staggerDelay(int index, {int maxItems = 6}) =>
+      Duration(milliseconds: index.clamp(0, maxItems) * stagger.inMilliseconds);
 
   /// Route push, modelled on the native iOS push: the incoming page
   /// slides over a parallaxing previous page. Occasional, spatial —
@@ -22,10 +34,10 @@ abstract final class Motion {
   static const Duration page = Duration(milliseconds: 300);
   static const Duration pageExit = Duration(milliseconds: 260);
 
-  /// Spring for gesture-carrying elements (the nav lens). Underdamped
-  /// (ratio ~0.69), so a flick lands with one soft overshoot, exactly
-  /// like UIKit's interruptible springs. Only for elements the finger
-  /// can still be holding when the target changes.
+  /// Spring for gesture-carrying elements (the nav lens and interactive
+  /// preview cards). Underdamped (ratio ~0.69), so a flick lands with one
+  /// soft overshoot, exactly like UIKit's interruptible springs. Only for
+  /// elements the finger can still be holding when the target changes.
   static const SpringDescription springSnap = SpringDescription(
     mass: 1,
     stiffness: 380,
@@ -363,26 +375,28 @@ class StaggeredEntrance extends StatelessWidget {
   }
 }
 
-/// Cross-fade (and optional scale) when [child]'s key changes.
-/// Size snaps. Layout geometry is not animated.
+/// Cross-fade (and optional scale / height glide) when [child]'s key changes.
 class MotionSwap extends StatelessWidget {
   const MotionSwap({
     super.key,
     required this.child,
     this.duration = Motion.standard,
     this.scale = true,
+    this.animateSize = false,
     this.alignment = Alignment.topCenter,
   });
 
   final Widget child;
   final Duration duration;
   final bool scale;
+  final bool animateSize;
   final Alignment alignment;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: Motion.duration(context, duration),
+    final effectiveDuration = Motion.duration(context, duration);
+    Widget switcher = AnimatedSwitcher(
+      duration: effectiveDuration,
       switchInCurve: Motion.easeOut,
       switchOutCurve: Motion.easeOut,
       layoutBuilder: (current, previous) {
@@ -406,6 +420,15 @@ class MotionSwap extends StatelessWidget {
         );
       },
       child: child,
+    );
+
+    if (!animateSize || !Motion.allowed(context)) return switcher;
+    return AnimatedSize(
+      duration: effectiveDuration,
+      curve: Motion.drawer,
+      alignment: alignment,
+      clipBehavior: Clip.none,
+      child: switcher,
     );
   }
 }

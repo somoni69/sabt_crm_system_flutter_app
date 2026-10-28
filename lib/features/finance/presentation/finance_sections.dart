@@ -240,12 +240,10 @@ class FinanceSalaryPage extends ConsumerWidget {
                   done: row.frozen || row.toPay <= 0,
                   late: false,
                   onTap: row.frozen || row.toPay <= 0
-                      ? null
+                      ? () => context.push('/finance/salary/${row.id}')
                       : () => _pay(context, ref, row, 'Зарплата', row.toPay),
-                  secondary: row.frozen
-                      ? null
-                      : () => _pay(context, ref, row, 'Аванс', row.toPay > 0 ? row.toPay : row.salary),
-                  secondaryLabel: 'Аванс',
+                  secondary: () => context.push('/finance/salary/${row.id}'),
+                  secondaryLabel: 'История',
                 ),
             ],
           );

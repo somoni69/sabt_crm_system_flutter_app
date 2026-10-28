@@ -17,6 +17,7 @@ class EmployeeModel {
     this.isStoryMaker = false,
     this.userId,
     this.role = 'employee',
+    this.secondaryRole,
     this.bio,
     this.hireDate,
     this.tasksCompleted = 0,
@@ -40,6 +41,7 @@ class EmployeeModel {
   final bool isStoryMaker;
   final String? userId;
   final String role;
+  final String? secondaryRole;
   final String? bio;
   final DateTime? hireDate;
   final int tasksCompleted;
@@ -75,7 +77,8 @@ class EmployeeModel {
       isSubAdmin: asBool(json['isSubAdmin']),
       isStoryMaker: asBool(json['isStoryMaker']),
       userId: asString(json['userId'] ?? user?['id']),
-      role: asStringOr(user?['role'], 'employee'),
+      role: asStringOr(user?['role'] ?? json['role'], 'employee'),
+      secondaryRole: asString(user?['secondaryRole'] ?? json['secondaryRole']),
       bio: asString(json['bio']),
       hireDate: BizDate.parse(json['hireDate']),
       tasksCompleted: asIntOr(json['tasksCompleted'], 0),

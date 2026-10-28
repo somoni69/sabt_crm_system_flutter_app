@@ -6,17 +6,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Living backdrop for the sign-in screen — and only for it.
+/// Editorial studio backdrop for the sign-in screen.
 ///
-/// The app shell keeps its ambient background static on purpose (a
-/// full-screen ticker behind every page would keep the GPU awake all
-/// day). The login screen is the one place where motion earns its cost:
-/// three drifting orbs in the brand hue, a slow diagonal light beam and
-/// a field of rising particles, all drawn by a single painter.
-///
-/// The layer paints the graphite base itself and then translucent light
-/// over it, lives in its own [RepaintBoundary], and freezes completely
-/// under reduced motion.
+/// Replaces generic dark-purple AI aurora blobs with a grounded,
+/// high-craft studio canvas:
+/// * warm porcelain in light mode, deep obsidian in dark mode;
+/// * a subtle radial dot-matrix architectural grid across the upper
+///   stage that fades smoothly into the canvas;
+/// * gentle ambient studio light at the top edge, isolated inside its
+///   own [RepaintBoundary] and frozen under reduced motion.
 class LoginBackground extends StatefulWidget {
   const LoginBackground({super.key});
 
@@ -38,7 +36,7 @@ class _LoginBackgroundState extends State<LoginBackground>
       if (!_controller.isAnimating) _controller.repeat();
     } else {
       _controller.stop();
-      _controller.value = 0.35;
+      _controller.value = 0.25;
     }
   }
 
@@ -56,10 +54,10 @@ class _LoginBackgroundState extends State<LoginBackground>
         animation: _controller,
         builder: (context, _) {
           return CustomPaint(
-            painter: _AuroraPainter(_controller.value, palette),
+            painter: _StudioStagePainter(_controller.value, palette),
             size: Size.infinite,
             isComplex: true,
-            willChange: true,
+            willChange: Motion.allowed(context),
           );
         },
       ),
@@ -67,10 +65,9 @@ class _LoginBackgroundState extends State<LoginBackground>
   }
 }
 
-class _AuroraPainter extends CustomPainter {
-  _AuroraPainter(this.t, this.palette);
+class _StudioStagePainter extends CustomPainter {
+  _StudioStagePainter(this.t, this.palette);
 
-  /// Loop phase, 0..1.
   final double t;
   final AppPalette palette;
 
@@ -78,110 +75,98 @@ class _AuroraPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final phase = t * math.pi * 2;
+    final isDark = palette.isDark;
 
-    // Graphite base, matching the shell's ambient canvas. Painting it
-    // here makes the login screen self-contained: the orbs below are
-    // translucent light and would wash out over any foreign backdrop.
+    // 1. Grounded editorial canvas base.
     canvas.drawRect(
       rect,
-      Paint()
-        ..shader =  LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: palette.isDark ? const [Color(0xFF090C14), Color(0xFF06080E), Color(0xFF05070C)] : [const Color(0xFFF8F9FC), palette.background, palette.backgroundDeep],
-          stops: [0.0, 0.48, 1.0],
-        ).createShader(rect),
-    );
-
-    _orb(
-      canvas,
-      center: Offset(
-        size.width * (0.84 + math.sin(phase) * 0.05),
-        size.height * (0.08 + math.cos(phase) * 0.03),
-      ),
-      radius: size.width * 0.85,
-      color: palette.accent.withValues(alpha: palette.isDark ? 0.14 : 0.18),
-    );
-    _orb(
-      canvas,
-      center: Offset(
-        size.width * (-0.10 - math.cos(phase) * 0.04),
-        size.height * (0.55 + math.sin(phase) * 0.04),
-      ),
-      radius: size.width * 0.75,
-      color: palette.ice.withValues(alpha: palette.isDark ? 0.06 : 0.10),
-    );
-    _orb(
-      canvas,
-      center: Offset(
-        size.width * (0.35 + math.sin(phase + 1.4) * 0.06),
-        size.height * (1.02 + math.cos(phase + 1.4) * 0.02),
-      ),
-      radius: size.width * 0.60,
-      color: palette.brandPurple.withValues(alpha: 0.10),
-    );
-
-    // Diagonal light beam, breathing across the upper third.
-    final beam = Rect.fromLTWH(
-      -size.width * 0.2,
-      size.height * (0.02 + math.sin(phase) * 0.015),
-      size.width * 1.4,
-      size.height * 0.30,
-    );
-    canvas.save();
-    canvas.translate(size.width / 2, size.height / 2);
-    canvas.rotate(-0.32);
-    canvas.translate(-size.width / 2, -size.height / 2);
-    canvas.drawRect(
-      beam,
       Paint()
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withValues(alpha: 0),
-            palette.accentBright.withValues(alpha: 0.05),
-            Colors.white.withValues(alpha: 0),
-          ],
-        ).createShader(beam),
+          colors: isDark
+              ? const [
+                  Color(0xFF0B0F1A),
+                  Color(0xFF070A11),
+                  Color(0xFF05070C),
+                ]
+              : const [
+                  Color(0xFFFBF9FE),
+                  Color(0xFFF4F2FA),
+                  Color(0xFFECEFF7),
+                ],
+          stops: const [0.0, 0.52, 1.0],
+        ).createShader(rect),
     );
-    canvas.restore();
 
-    // Readability vignette: darker at the very bottom where the
-    // footnote and keyboard live.
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = ui.Gradient.linear(
-          Offset(0, size.height * 0.55),
-          Offset(0, size.height),
-          palette.isDark
-              ? const [Color(0x00000000), Color(0x59000000)]
-              : const [Color(0x00000000), Color(0x120F1830)],
-        ),
+    // 2. Soft top-stage daylight wash (gives the floating hero cards
+    //    a distinct stage without looking like neon glow).
+    final topLightCenter = Offset(
+      size.width * (0.50 + math.sin(phase) * 0.03),
+      size.height * (0.14 + math.cos(phase) * 0.015),
     );
-  }
-
-  void _orb(
-    Canvas canvas, {
-    required Offset center,
-    required double radius,
-    required Color color,
-  }) {
+    final topLightRadius = size.width * 0.92;
     canvas.drawCircle(
-      center,
-      radius,
+      topLightCenter,
+      topLightRadius,
       Paint()
         ..shader = ui.Gradient.radial(
-          center,
-          radius,
-          [color, color.withValues(alpha: 0)],
-          const [0.0, 1.0],
+          topLightCenter,
+          topLightRadius,
+          [
+            palette.brandPurple.withValues(alpha: isDark ? 0.14 : 0.09),
+            palette.ice.withValues(alpha: isDark ? 0.04 : 0.05),
+            palette.brandPurple.withValues(alpha: 0),
+          ],
+          const [0.0, 0.55, 1.0],
         ),
     );
+
+    // 3. Secondary warm/cool periphery accent on the upper right.
+    final warmCenter = Offset(
+      size.width * (0.86 - math.cos(phase) * 0.03),
+      size.height * 0.08,
+    );
+    canvas.drawCircle(
+      warmCenter,
+      size.width * 0.48,
+      Paint()
+        ..shader = ui.Gradient.radial(
+          warmCenter,
+          size.width * 0.48,
+          [
+            palette.brandRed.withValues(alpha: isDark ? 0.06 : 0.045),
+            palette.brandRed.withValues(alpha: 0),
+          ],
+        ),
+    );
+
+    // 4. Architectural dot matrix across the upper hero stage, masked
+    //    radially so it frames the floating cards cleanly.
+    const step = 24.0;
+    final maxY = size.height * 0.46;
+    final focal = Offset(size.width * 0.5, size.height * 0.20);
+    final maxDist = size.width * 0.62;
+    final dotBase = isDark ? Colors.white : const Color(0xFF161B2D);
+
+    for (double y = 18; y < maxY; y += step) {
+      for (double x = 18; x < size.width - 12; x += step) {
+        final pt = Offset(x, y);
+        final dist = (pt - focal).distance;
+        if (dist >= maxDist) continue;
+        final fade = (1.0 - (dist / maxDist)).clamp(0.0, 1.0);
+        final alpha = (isDark ? 0.08 : 0.07) * fade * fade;
+        if (alpha <= 0.005) continue;
+        canvas.drawCircle(
+          pt,
+          1.15,
+          Paint()..color = dotBase.withValues(alpha: alpha),
+        );
+      }
+    }
   }
 
   @override
-  bool shouldRepaint(covariant _AuroraPainter oldDelegate) =>
+  bool shouldRepaint(covariant _StudioStagePainter oldDelegate) =>
       oldDelegate.t != t || oldDelegate.palette != palette;
 }

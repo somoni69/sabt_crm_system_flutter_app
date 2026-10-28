@@ -18,6 +18,7 @@ import '../../auth/domain/user.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../clients/presentation/clients_page.dart';
 import '../../dashboard/presentation/dashboard_page.dart';
+import '../../dev_board/presentation/dev_board_page.dart';
 import '../../projects/presentation/projects_page.dart';
 import '../../smm/presentation/content_form_sheet.dart';
 import '../../smm/presentation/smm_page.dart';
@@ -119,6 +120,31 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
     ];
 
+    final isPureStoriesChecker = user != null &&
+        user.isStoriesChecker &&
+        !canManageAccess(user) &&
+        user.role != 'smm_director';
+
+    if (isPureStoriesChecker) {
+      if (canCheckStories(user)) {
+        tabs.add(const _ShellTab(
+          id: 'checks',
+          label: 'Проверки',
+          icon: Icons.fact_check_outlined,
+          activeIcon: Icons.fact_check_rounded,
+          page: StoriesCheckPage(embedded: true),
+        ));
+      }
+      tabs.add(const _ShellTab(
+        id: 'more',
+        label: 'Ещё',
+        icon: Icons.more_horiz_rounded,
+        activeIcon: Icons.more_rounded,
+        page: MorePage(),
+      ));
+      return tabs;
+    }
+
     if (user != null && userCan(user, Perm.tasksView)) {
       tabs.add(const _ShellTab(
         id: 'tasks',
@@ -138,6 +164,14 @@ class _AppShellState extends ConsumerState<AppShell> {
           activeIcon: Icons.auto_awesome,
           page: SmmPage(),
         ));
+      } else if (canSeeDevSection(user)) {
+        tabs.add(const _ShellTab(
+          id: 'work',
+          label: 'Разработка',
+          icon: Icons.terminal_rounded,
+          activeIcon: Icons.terminal_rounded,
+          page: DevBoardPage(embedded: true),
+        ));
       } else if (canSeeProjects(user)) {
         tabs.add(const _ShellTab(
           id: 'work',
@@ -155,16 +189,6 @@ class _AppShellState extends ConsumerState<AppShell> {
           page: ClientsPage(embedded: true),
         ));
       }
-    }
-
-    if (user != null && user.isStoriesChecker && canCheckStories(user)) {
-      tabs.add(const _ShellTab(
-        id: 'checks',
-        label: 'Проверки',
-        icon: Icons.fact_check_outlined,
-        activeIcon: Icons.fact_check_rounded,
-        page: StoriesCheckPage(embedded: true),
-      ));
     }
 
     tabs.add(const _ShellTab(

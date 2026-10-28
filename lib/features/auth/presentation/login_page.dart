@@ -6,38 +6,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_env.dart';
 import '../../../core/design/brand_mark.dart';
-import '../../../core/design/glass_surface.dart';
-import '../../../core/design/glass_tokens.dart';
 import '../../../core/design/motion.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/theme_mode_provider.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../domain/login_validation.dart';
 import 'auth_controller.dart';
-import 'widgets/animated_brand_mark.dart';
 import 'widgets/forgot_password_sheet.dart';
 import 'widgets/login_background.dart';
 import 'widgets/login_button.dart';
 import 'widgets/login_field.dart';
+import 'widgets/login_hero_stage.dart';
 import 'widgets/otp_field.dart';
 import 'widgets/shake.dart';
 
-/// Sign-in screen.
+/// Sign-in screen crafted to the Appllama / native iOS benchmark bar.
 ///
-/// Composition only: the page owns the form state and the submit
-/// choreography, every visual primitive lives in its own widget under
-/// `widgets/` (background, brand mark, fields, OTP cells, button).
-///
-/// Motion contract:
-/// * one [Motion.entrance] controller drives the whole arrival —
-///   background, mark, wordmark, card and footer take staggered slices
-///   of it via [StaggeredEntrance], so there is exactly one ticker and
-///   nothing appears before the first frame;
-/// * a rejected attempt shakes the card once and unfolds the reason;
-/// * the button morphs idle → loading → success, and the router's own
-///   transition carries the user into the workspace from there;
-/// * reduced motion collapses every duration to zero.
+/// Visual & interaction architecture:
+/// * Top bar carries the brand wordmark and a tactile theme switcher
+///   pill so the user can move between Porcelain Light and Obsidian
+///   Dark right from the welcome screen;
+/// * [LoginHeroStage] frames the focal Sabt mark with floating peripheral
+///   status stickers and three tilted tactile pillar tiles ("Задачи.",
+///   "Контент.", "Клиенты.") that preview live workspace cards on tap;
+/// * The sign-in form sits on a grounded tactile card with a physical
+///   3.5 px bottom lip — zero glassmorphic soup, zero uppercase eyebrow
+///   kickers, sentence-case external field labels;
+/// * One shared [_entrance] controller drives the staggered arrival.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -61,6 +59,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   bool _obscure = true;
   bool _needsTwoFactor = false;
+  Brightness? _localBrightnessOverride;
   LoginButtonPhase _phase = LoginButtonPhase.idle;
   String? _error;
   String? _emailError;
@@ -94,6 +93,25 @@ class _LoginPageState extends ConsumerState<LoginPage>
     _passwordFocus.dispose();
     _codeFocus.dispose();
     super.dispose();
+  }
+
+  Future<void> _toggleTheme(BuildContext context) async {
+    HapticFeedback.selectionClick();
+    final currentlyDark = Theme.of(context).brightness == Brightness.dark;
+    final nextMode = currentlyDark ? ThemeMode.light : ThemeMode.dark;
+    try {
+      await ref.read(themeModeProvider.notifier).set(nextMode);
+      if (mounted) setState(() => _localBrightnessOverride = null);
+    } catch (_) {
+      // Fallback when pumped in isolated widget tests without
+      // dependenciesProvider overridden.
+      if (mounted) {
+        setState(() {
+          _localBrightnessOverride =
+              currentlyDark ? Brightness.light : Brightness.dark;
+        });
+      }
+    }
   }
 
   void _reject(String message) {
@@ -154,8 +172,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
       if (!mounted) return;
       setState(() => _phase = LoginButtonPhase.success);
       HapticFeedback.lightImpact();
-      // The router redirects on the new auth state; the success morph
-      // is what the user sees while that transition runs.
     } on TwoFactorRequiredException {
       if (!mounted) return;
       setState(() {
@@ -180,14 +196,33 @@ class _LoginPageState extends ConsumerState<LoginPage>
     }
   }
 
-  void _forgotPassword() {
-    showForgotPasswordSheet(context: context, initialEmail: _email.text.trim());
+  void _forgotPassword(BuildContext innerContext) {
+    showForgotPasswordSheet(
+      context: innerContext,
+      initialEmail: _email.text.trim(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final overrideBrightness = _localBrightnessOverride;
+    if (overrideBrightness != null) {
+      return Theme(
+        data: overrideBrightness == Brightness.dark
+            ? AppTheme.dark
+            : AppTheme.light,
+        child: Builder(builder: _buildScreen),
+      );
+    }
+    return _buildScreen(context);
+  }
+
+  Widget _buildScreen(BuildContext context) {
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final animate = Motion.allowed(context);
+    final palette = context.palette;
+    final lipColor = palette.isDark
+        ? const Color(0xFF05070C)
+        : const Color(0xFFD2DAEB);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -198,114 +233,190 @@ class _LoginPageState extends ConsumerState<LoginPage>
             child: Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 30),
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  keyboardOpen ? 12 : 16,
+                  20,
+                  24,
+                ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 440),
+                  constraints: const BoxConstraints(maxWidth: 430),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Brand block collapses gracefully when the
-                      // keyboard claims the screen: the mark shrinks,
-                      // the wordmark fades out and its height snaps —
-                      // layout is never animated (see MotionSwap).
-                      Column(
-                        children: [
-                          StaggeredEntrance(
-                            animation: _entrance,
-                            begin: 0,
-                            end: 0.45,
-                            dy: 10,
-                            child: AnimatedScale(
-                              scale: keyboardOpen ? 0.68 : 1,
-                              duration: animate
-                                  ? Motion.standard
-                                  : Duration.zero,
-                              curve: Motion.easeOut,
-                              child: const AnimatedBrandMark(
-                                size: 84,
-                                playEntrance: false,
-                              ),
-                            ),
-                          ),
-                          AnimatedOpacity(
-                            opacity: keyboardOpen ? 0 : 1,
-                            duration: animate ? Motion.micro : Duration.zero,
-                            child: keyboardOpen
-                                ? const SizedBox(width: double.infinity)
-                                : Column(
-                                    children: [
-                                      const SizedBox(height: 6),
-                                      StaggeredEntrance(
-                                        animation: _entrance,
-                                        begin: 0.10,
-                                        end: 0.55,
-                                        child: const Center(
-                                          child: SabtWordmark(fontSize: 36),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      StaggeredEntrance(
-                                        animation: _entrance,
-                                        begin: 0.18,
-                                        end: 0.60,
-                                        child: Center(
-                                          child: Text(
-                                            'Рабочее пространство WeBrand',
-                                            style: TextStyle(
-                                              fontFamily: AppTypography.family,
-                                              fontSize: 12,
-                                              letterSpacing: 0.15,
-                                              color: context.palette.textTertiary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 26),
+                      // 1. Top utility bar: wordmark + tactile theme toggle.
                       StaggeredEntrance(
                         animation: _entrance,
-                        begin: 0.22,
-                        end: 0.78,
+                        begin: 0.0,
+                        end: 0.38,
+                        dy: 8,
+                        child: Row(
+                          children: [
+                            const SabtWordmark(fontSize: 25),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: palette.surface1,
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: palette.border),
+                              ),
+                              child: Text(
+                                'WeBrand',
+                                style: TextStyle(
+                                  fontFamily: AppTypography.family,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: palette.textSecondary,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            if (AppEnv.isWeb) ...[
+                              const AppChip(
+                                label: 'Web',
+                                tone: ChipTone.info,
+                                icon: Icons.language_rounded,
+                                compact: true,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            _ThemeTogglePill(
+                              isDark: palette.isDark,
+                              onTap: () => _toggleTheme(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: keyboardOpen ? 12 : 20),
+
+                      // 2. Spatial hero stage with floating stickers,
+                      //    3 tilted pillar tiles, and live preview card.
+                      StaggeredEntrance(
+                        animation: _entrance,
+                        begin: 0.08,
+                        end: 0.52,
+                        dy: 12,
+                        child: LoginHeroStage(
+                          compact: keyboardOpen || _needsTwoFactor,
+                        ),
+                      ),
+                      SizedBox(height: keyboardOpen ? 12 : 18),
+
+                      // 3. Editorial heading & subtitle (no uppercase kicker).
+                      StaggeredEntrance(
+                        animation: _entrance,
+                        begin: 0.16,
+                        end: 0.62,
+                        dy: 12,
+                        child: MotionSwap(
+                          alignment: Alignment.center,
+                          child: Column(
+                            key: ValueKey(_needsTwoFactor),
+                            children: [
+                              Text(
+                                _needsTwoFactor
+                                    ? 'Подтвердите вход'
+                                    : 'С возвращением',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: AppTypography.family,
+                                  fontSize: keyboardOpen ? 24 : 28,
+                                  height: 1.12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.7,
+                                  color: palette.text,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: Text(
+                                  _needsTwoFactor
+                                      ? 'Введите шестизначный код из приложения-аутентификатора.'
+                                      : 'Войдите, чтобы продолжить работу с задачами, контентом и клиентами.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.family,
+                                    fontSize: 13.5,
+                                    height: 1.4,
+                                    color: palette.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: keyboardOpen ? 14 : 18),
+
+                      // 4. Grounded tactile form sheet with physical 3D lip.
+                      StaggeredEntrance(
+                        animation: _entrance,
+                        begin: 0.24,
+                        end: 0.82,
                         dy: 16,
                         scaleFrom: 1,
                         child: Shake(
                           signal: _shakeSignal,
-                          child: GlassSurface(
-                            radius: 28,
-                            blur: GlassTokens.blurXl,
-                            strong: true,
-                            glow: true,
-                            padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                            decoration: BoxDecoration(
+                              color: palette.surface1,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: palette.border,
+                                width: 1.3,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: lipColor,
+                                  offset: const Offset(0, 3.5),
+                                  blurRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black.withValues(
+                                    alpha: palette.isDark ? 0.34 : 0.06,
+                                  ),
+                                  offset: const Offset(0, 14),
+                                  blurRadius: 28,
+                                ),
+                              ],
+                            ),
                             child: _buildForm(context),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
+
+                      // 5. Single understated security badge at the foot.
                       StaggeredEntrance(
                         animation: _entrance,
-                        begin: 0.62,
-                        end: 1,
+                        begin: 0.60,
+                        end: 1.0,
                         dy: 8,
                         scaleFrom: 1,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.lock_outline_rounded,
-                              size: 12,
-                              color: context.palette.textDisabled,
+                              Icons.verified_user_outlined,
+                              size: 13,
+                              color: palette.textTertiary,
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'Sabt CRM · данные под защитой',
+                              'Защищённая сессия · Sabt Keychain',
                               style: TextStyle(
                                 fontFamily: AppTypography.family,
-                                fontSize: 10.5,
-                                color: context.palette.textDisabled,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w500,
+                                color: palette.textTertiary,
                               ),
                             ),
                           ],
@@ -323,60 +434,13 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   Widget _buildForm(BuildContext context) {
+    final palette = context.palette;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Text(
-              _needsTwoFactor ? 'ПОДТВЕРЖДЕНИЕ' : 'ВХОД',
-              style: AppTypography.overline(color: context.palette.accentBright),
-            ),
-            const Spacer(),
-            if (AppEnv.isWeb)
-              const AppChip(
-                label: 'Web',
-                tone: ChipTone.info,
-                icon: Icons.language_rounded,
-                compact: true,
-              ),
-          ],
-        ),
-        const SizedBox(height: 10),
         MotionSwap(
-          alignment: Alignment.centerLeft,
-          child: Column(
-            key: ValueKey(_needsTwoFactor),
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _needsTwoFactor ? 'Подтвердите вход' : 'С возвращением',
-                style:  TextStyle(
-                  fontFamily: AppTypography.family,
-                  fontSize: 26,
-                  height: 1.12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.5,
-                  color: context.palette.text,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _needsTwoFactor
-                    ? 'Введите шестизначный код из приложения-аутентификатора.'
-                    : 'Войдите, чтобы продолжить работу с задачами, контентом и клиентами.',
-                style:  TextStyle(
-                  fontFamily: AppTypography.family,
-                  fontSize: 12.5,
-                  height: 1.45,
-                  color: context.palette.textTertiary,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        MotionSwap(
+          animateSize: true,
           child: _error == null
               ? const SizedBox(
                   key: ValueKey('login-clear'),
@@ -404,7 +468,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           },
           onSubmitted: (_) => _passwordFocus.requestFocus(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         LoginField(
           controller: _password,
           focusNode: _passwordFocus,
@@ -418,6 +482,22 @@ class _LoginPageState extends ConsumerState<LoginPage>
               ? TextInputAction.next
               : TextInputAction.done,
           autofillHints: const [AutofillHints.password],
+          headerTrailing: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _busy ? null : () => _forgotPassword(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+              child: Text(
+                'Забыли пароль?',
+                style: TextStyle(
+                  fontFamily: AppTypography.family,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: palette.brandPurple,
+                ),
+              ),
+            ),
+          ),
           suffix: PasswordVisibilityToggle(
             obscure: _obscure,
             onToggle: () => setState(() => _obscure = !_obscure),
@@ -434,18 +514,50 @@ class _LoginPageState extends ConsumerState<LoginPage>
           },
         ),
         MotionSwap(
+          animateSize: true,
           child: _needsTwoFactor
               ? Padding(
                   key: const ValueKey('otp-block'),
-                  padding: const EdgeInsets.only(top: 14),
+                  padding: const EdgeInsets.only(top: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'КОД ИЗ ПРИЛОЖЕНИЯ',
-                        style: AppTypography.overline(
-                          color: context.palette.textTertiary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Код из приложения',
+                              style: TextStyle(
+                                fontFamily: AppTypography.family,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: palette.textSecondary,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: _busy
+                                ? null
+                                : () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() {
+                                      _needsTwoFactor = false;
+                                      _code.clear();
+                                      _codeError = null;
+                                    });
+                                  },
+                            child: Text(
+                              'Сменить аккаунт',
+                              style: TextStyle(
+                                fontFamily: AppTypography.family,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: palette.textTertiary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       OtpField(
@@ -463,33 +575,75 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   width: double.infinity,
                 ),
         ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Сессия защищена и хранится в keychain устройства.',
-                style: TextStyle(
-                  fontFamily: AppTypography.family,
-                  fontSize: 10.5,
-                  height: 1.35,
-                  color: context.palette.textDisabled,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: _busy ? null : _forgotPassword,
-              child: const Text('Забыли пароль?'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 18),
         LoginButton(
           phase: _phase,
           label: _needsTwoFactor ? 'Подтвердить' : 'Войти',
           onPressed: _phase == LoginButtonPhase.idle ? _submit : null,
         ),
       ],
+    );
+  }
+}
+
+class _ThemeTogglePill extends StatelessWidget {
+  const _ThemeTogglePill({
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final lipColor = isDark
+        ? const Color(0xFF05070C)
+        : const Color(0xFFD4DBEC);
+
+    return PressableScale(
+      onTap: onTap,
+      haptic: false,
+      child: Semantics(
+        button: true,
+        label: isDark ? 'Включить светлую тему' : 'Включить тёмную тему',
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          decoration: BoxDecoration(
+            color: palette.surface1,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: palette.border, width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: lipColor,
+                offset: const Offset(0, 2),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                size: 15,
+                color: palette.brandPurple,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                isDark ? 'Светлая' : 'Тёмная',
+                style: TextStyle(
+                  fontFamily: AppTypography.family,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: palette.text,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

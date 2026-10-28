@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/design/motion.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
@@ -20,7 +21,9 @@ import '../../tasks/domain/task.dart';
 import '../../tasks/presentation/task_actions.dart';
 import '../../tasks/presentation/tasks_providers.dart';
 import '../../tasks/presentation/widgets/task_card.dart';
+import '../../work_shifts/presentation/work_shift_card.dart';
 import 'dashboard_providers.dart';
+import '../../shell/presentation/global_search_sheet.dart';
 import '../../shell/presentation/navigation_helpers.dart';
 
 class DashboardPage extends ConsumerWidget {
@@ -101,6 +104,10 @@ class DashboardPage extends ConsumerWidget {
                     ? user.combinedRoleLabel
                     : '${user.displayPosition} · ${user.combinedRoleLabel}',
               ),
+              if (!user.isFounder) ...[
+                const WorkShiftBannerCard(),
+                const SizedBox(height: 14),
+              ],
               if (!online ||
                   (tasksSnapshot?.error != null &&
                       tasksSnapshot!.fromCache)) ...[
@@ -371,6 +378,12 @@ class _DashboardHeader extends StatelessWidget {
         onTap: onAvatar,
       ),
       actions: [
+        AppIconButton(
+          icon: Icons.search_rounded,
+          size: 40,
+          onPressed: () => showGlobalSearchSheet(context),
+          tooltip: 'Поиск',
+        ),
         if (onCalendar != null)
           AppIconButton(
             icon: Icons.calendar_month_outlined,
@@ -741,13 +754,18 @@ class _StoryTrackerCardState extends ConsumerState<_StoryTrackerCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  '$_count',
-                  style: AppTypography.number(
-                    size: 34,
-                    color: complete
-                        ? context.palette.success
-                        : context.palette.text,
+                MotionSwap(
+                  duration: Motion.micro,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    '$_count',
+                    key: ValueKey(_count),
+                    style: AppTypography.number(
+                      size: 34,
+                      color: complete
+                          ? context.palette.success
+                          : context.palette.text,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 5),
@@ -822,9 +840,9 @@ class _StepperButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return PressableScale(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
+      scale: 0.92,
       child: Opacity(
         opacity: onTap == null ? 0.45 : 1,
         child: Container(

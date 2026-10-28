@@ -6,11 +6,8 @@ import '../../../../core/design/brand_mark.dart';
 import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Official Sabt icon on the splash and login screens.
-///
-/// Entrance is a spring scale and fade. A slow float and halo keep the
-/// screen awake while the user waits or types. The mark itself is the
-/// launcher asset, not a drawn letter.
+/// Official Sabt icon on the splash and login screens, mounted inside a
+/// tactile 3D squircle pedestal with a physical bottom ledge.
 ///
 /// Tickers stop under reduced motion and when the route is covered.
 class AnimatedBrandMark extends StatefulWidget {
@@ -34,7 +31,7 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
   );
   late final AnimationController _breath = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 3400),
+    duration: const Duration(milliseconds: 3600),
   );
 
   @override
@@ -69,17 +66,22 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
+    final palette = context.palette;
+    final radius = size * 0.25;
+    final lipColor = palette.isDark
+        ? const Color(0xFF04060B)
+        : const Color(0xFFD0D8EA);
+
     return RepaintBoundary(
       child: SizedBox(
-        width: size * 1.24,
-        height: size * 1.24,
+        width: size * 1.18,
+        height: size * 1.18,
         child: AnimatedBuilder(
           animation: Listenable.merge([_entrance, _breath]),
           builder: (context, _) {
             final enter = Motion.easeOut.transform(_entrance.value.clamp(0, 1));
             final breath = Motion.easeInOut.transform(_breath.value);
-            final floatY = math.sin(breath * math.pi) * -2;
-            final glowScale = 1 + breath * 0.04;
+            final floatY = math.sin(breath * math.pi) * -2.0;
 
             return Opacity(
               opacity: enter.clamp(0, 1),
@@ -88,30 +90,35 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
                 child: Transform.scale(
                   scale: 0.96 + 0.04 * enter,
                   filterQuality: FilterQuality.high,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Breathing halo behind the sphere.
-                      Transform.scale(
-                        scale: glowScale,
-                        child: Container(
-                          width: size * 1.18,
-                          height: size * 1.18,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                context.palette.accent.withValues(
-                                  alpha: 0.16 + breath * 0.06,
-                                ),
-                                context.palette.accent.withValues(alpha: 0),
-                              ],
-                            ),
-                          ),
+                  child: Center(
+                    child: Container(
+                      width: size + 8,
+                      height: size + 8,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: palette.surface1,
+                        borderRadius: BorderRadius.circular(radius + 3),
+                        border: Border.all(
+                          color: palette.border,
+                          width: 1.4,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: lipColor,
+                            offset: const Offset(0, 3.5),
+                            blurRadius: 0,
+                          ),
+                          BoxShadow(
+                            color: palette.brandPurple.withValues(
+                              alpha: palette.isDark ? 0.24 : 0.14,
+                            ),
+                            offset: const Offset(0, 12),
+                            blurRadius: 24,
+                          ),
+                        ],
                       ),
-                      SabtGlassMark(size: size),
-                    ],
+                      child: SabtGlassMark(size: size),
+                    ),
                   ),
                 ),
               ),

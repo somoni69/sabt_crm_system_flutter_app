@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../design/glass_surface.dart';
-import '../design/glass_tokens.dart';
 import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
@@ -189,6 +187,11 @@ class _AppBannerHostState extends State<AppBannerHost>
   @override
   Widget build(BuildContext context) {
     final banner = _current;
+    final palette = context.palette;
+    final lipColor = palette.isDark
+        ? const Color(0xFF05070C)
+        : const Color(0xFFD5DCEB);
+
     return Positioned(
       top: 0,
       left: 0,
@@ -209,74 +212,115 @@ class _AppBannerHostState extends State<AppBannerHost>
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: banner == null
                         ? const SizedBox.shrink()
-                        : GestureDetector(
-                            onVerticalDragEnd: (details) {
-                              if ((details.primaryVelocity ?? 0) < -260) {
-                                _dismiss();
-                              }
-                            },
-                            child: GlassSurface(
-                              radius: 22,
-                              blur: GlassTokens.blurXl,
-                              strong: true,
-                              padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 38,
-                                    height: 38,
-                                    decoration: BoxDecoration(
-                                      color: _toneColor(banner.tone)
-                                          .withValues(alpha: 0.14),
-                                      borderRadius: BorderRadius.circular(13),
-                                      border: Border.all(
-                                        color: _toneColor(banner.tone)
-                                            .withValues(alpha: 0.28),
+                        : Material(
+                            type: MaterialType.transparency,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: banner.link == null
+                                  ? null
+                                  : () {
+                                      final link = banner.link;
+                                      _dismiss();
+                                      widget.onOpen(link);
+                                    },
+                              onVerticalDragEnd: (details) {
+                                if ((details.primaryVelocity ?? 0) < -260) {
+                                  _dismiss();
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  11,
+                                  8,
+                                  11,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: palette.surface1,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: palette.border,
+                                    width: 1.2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: lipColor,
+                                      offset: const Offset(0, 2.5),
+                                      blurRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: palette.isDark ? 0.34 : 0.08,
+                                      ),
+                                      offset: const Offset(0, 10),
+                                      blurRadius: 22,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 38,
+                                      height: 38,
+                                      decoration: BoxDecoration(
+                                        color: _toneColor(
+                                          banner.tone,
+                                        ).withValues(alpha: 0.14),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: _toneColor(
+                                            banner.tone,
+                                          ).withValues(alpha: 0.28),
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        banner.icon ?? LucideIcons.bellRing,
+                                        size: 18,
+                                        color: _toneColor(banner.tone),
                                       ),
                                     ),
-                                    child: Icon(
-                                      banner.icon ?? LucideIcons.bellRing,
-                                      size: 18,
-                                      color: _toneColor(banner.tone),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 11),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          banner.title,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style:  TextStyle(
-                                            fontFamily: AppTypography.family,
-                                            fontSize: 13.5,
-                                            height: 1.2,
-                                            fontWeight: FontWeight.w600,
-                                            color: context.palette.text,
+                                    const SizedBox(width: 11),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            banner.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontFamily: AppTypography.family,
+                                              fontSize: 13.5,
+                                              height: 1.2,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: -0.15,
+                                              decoration: TextDecoration.none,
+                                              color: palette.text,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          banner.message,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style:  TextStyle(
-                                            fontFamily: AppTypography.family,
-                                            fontSize: 12,
-                                            height: 1.3,
-                                            color: context.palette.textSecondary,
+                                          const SizedBox(height: 2.5),
+                                          Text(
+                                            banner.message,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontFamily: AppTypography.family,
+                                              fontSize: 12,
+                                              height: 1.3,
+                                              fontWeight: FontWeight.w500,
+                                              decoration: TextDecoration.none,
+                                              color: palette.textSecondary,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  AppBannerCloseButton(onTap: _dismiss),
-                                ],
+                                    const SizedBox(width: 6),
+                                    AppBannerCloseButton(onTap: _dismiss),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

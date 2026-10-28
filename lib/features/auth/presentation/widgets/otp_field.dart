@@ -208,32 +208,43 @@ class _OtpCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+    final lipColor = hasError
+        ? palette.danger.withValues(alpha: 0.35)
+        : active
+        ? palette.brandPurple.withValues(alpha: 0.45)
+        : (palette.isDark ? const Color(0xFF06080E) : const Color(0xFFD6DCEC));
+
     return AnimatedContainer(
       duration: animate ? Motion.micro : Duration.zero,
       curve: Motion.easeOut,
-      height: 58,
+      height: 56,
       decoration: BoxDecoration(
-        color: filled ? context.palette.surface3 : context.palette.surface2,
+        color: filled || active ? palette.surface1 : palette.surface2,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: hasError
-              ? context.palette.danger.withValues(alpha: 0.75)
+              ? palette.danger
               : active
-              ? context.palette.accent.withValues(alpha: 0.9)
+              ? palette.brandPurple
               : filled
-              ? context.palette.borderStrong
-              : context.palette.borderSoft,
-          width: active || hasError ? 1.3 : 1,
+              ? palette.borderStrong
+              : palette.border,
+          width: active || hasError ? 1.5 : 1.2,
         ),
-        boxShadow: active
-            ? [
-                BoxShadow(
-                  color: context.palette.accent.withValues(alpha: 0.16),
-                  blurRadius: 16,
-                  offset: const Offset(0, 5),
-                ),
-              ]
-            : null,
+        boxShadow: [
+          BoxShadow(
+            color: lipColor,
+            offset: const Offset(0, 2.0),
+            blurRadius: 0,
+          ),
+          if (active)
+            BoxShadow(
+              color: palette.brandPurple.withValues(alpha: 0.14),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+        ],
       ),
       child: Center(
         child: AnimatedSwitcher(

@@ -13,6 +13,7 @@ import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../notifications/presentation/notifications_providers.dart';
+import '../../work_shifts/presentation/work_shift_card.dart';
 import 'navigation_helpers.dart';
 
 class MorePage extends ConsumerWidget {
@@ -66,7 +67,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Лиды, статусы и контакты',
           onTap: () => context.push('/clients'),
         ),
-      if (user.role == 'sales_manager_dev' || user.secondaryRole == 'sales_manager_dev')
+      if (isSalesManagerRole(user) && canClients)
         _MenuRow(
           icon: Icons.filter_alt_outlined,
           color: context.palette.accentBright,
@@ -74,7 +75,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Воронка клиентов и запуск',
           onTap: () => context.push('/onboarding'),
         ),
-      if (canEmployees)
+      if (canEmployees) ...[
         _MenuRow(
           icon: Icons.badge_outlined,
           color: context.palette.warning,
@@ -82,6 +83,37 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Команда, контакты и загрузка',
           onTap: () => context.push('/employees'),
         ),
+        _MenuRow(
+          icon: Icons.account_tree_outlined,
+          color: context.palette.ice,
+          title: 'Оргструктура',
+          subtitle: 'Отделы и руководители компании',
+          onTap: () => context.push('/employees/org'),
+        ),
+        if (canManageAccess(user)) ...[
+          _MenuRow(
+            icon: Icons.speed_rounded,
+            color: context.palette.success,
+            title: 'KPI сотрудников',
+            subtitle: 'Рейтинг и выполнение норм',
+            onTap: () => context.push('/employees/kpi'),
+          ),
+          _MenuRow(
+            icon: Icons.calendar_view_week_rounded,
+            color: context.palette.info,
+            title: 'Задачи недели',
+            subtitle: 'Распределение нагрузки по дням',
+            onTap: () => context.push('/employees/week'),
+          ),
+          _MenuRow(
+            icon: Icons.history_toggle_off_rounded,
+            color: context.palette.accentBright,
+            title: 'Активность и смены',
+            subtitle: 'Табель месяца, смены и лента команды',
+            onTap: () => context.push('/employees/activity'),
+          ),
+        ],
+      ],
       if (user.isFounder)
         _MenuRow(
           icon: Icons.flag_outlined,
@@ -90,7 +122,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Суммы менеджеров на месяц',
           onTap: () => context.push('/employees/sales-plan'),
         ),
-      if (user.isAdmin || user.isFounder)
+      if (canManageAccess(user))
         _MenuRow(
           icon: Icons.admin_panel_settings_outlined,
           color: context.palette.ice,
@@ -98,7 +130,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Матрица прав и персональные гранты',
           onTap: () => context.push('/employee-access'),
         ),
-      if (checks || userCan(user, Perm.storiesManage))
+      if (checks)
         _MenuRow(
           icon: Icons.fact_check_outlined,
           color: context.palette.warning,
@@ -106,7 +138,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Дневная норма по проектам',
           onTap: () => context.push('/stories-check'),
         ),
-      if (userCan(user, Perm.storiesView) || userCan(user, Perm.storiesManage))
+      if (canSmm)
         _MenuRow(
           icon: Icons.checklist_rounded,
           color: context.palette.success,
@@ -114,7 +146,7 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Здоровье проектов и публикации',
           onTap: () => context.push('/smm/control'),
         ),
-      if (user.isStoryMaker && userCan(user, Perm.notesUse))
+      if (userCan(user, Perm.notesUse))
         _MenuRow(
           icon: Icons.sticky_note_2_outlined,
           color: context.palette.accent,
@@ -164,7 +196,7 @@ class MorePage extends ConsumerWidget {
         subtitle: 'Компенсации за рабочие поездки',
         onTap: () => context.push('/transport'),
       ),
-      if (canSeeDevSection(user) || userCan(user, Perm.devTrackerView))
+      if (canSeeDevSection(user) || userCan(user, Perm.devTrackerView)) ...[
         _MenuRow(
           icon: Icons.terminal_rounded,
           color: context.palette.ice,
@@ -172,6 +204,14 @@ class MorePage extends ConsumerWidget {
           subtitle: 'Канбан разработки',
           onTap: () => context.push('/dev-board'),
         ),
+        _MenuRow(
+          icon: Icons.code_rounded,
+          color: context.palette.accentBright,
+          title: 'Проекты разработки',
+          subtitle: 'Этапы, сроки сдачи и команда',
+          onTap: () => context.push('/dev/projects'),
+        ),
+      ],
       if (userCan(user, Perm.filesView))
         _MenuRow(
           icon: Icons.folder_open_rounded,
@@ -242,6 +282,10 @@ class MorePage extends ConsumerWidget {
                   compact: true,
                 ),
               ),
+              if (!user.isFounder) ...[
+                const WorkShiftBannerCard(),
+                const SizedBox(height: 18),
+              ],
               if (workspace.isNotEmpty) ...[
                 const SectionHeader(
                   overline: 'РАБОТА',

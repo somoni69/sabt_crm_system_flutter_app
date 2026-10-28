@@ -379,14 +379,19 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
               opacity: keyboard ? 0 : 1,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: SizedBox(
-                  height: _barHeight,
-                  child: Row(
-                    children: [
-                      Expanded(child: _buildCapsule()),
-                      const SizedBox(width: 12),
-                      _buildAction(),
-                    ],
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 620),
+                    child: SizedBox(
+                      height: _barHeight,
+                      child: Row(
+                        children: [
+                          Expanded(child: _buildCapsule()),
+                          const SizedBox(width: 12),
+                          _buildAction(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

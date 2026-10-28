@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sabt_crm/core/cache/snapshot.dart';
 import 'package:sabt_crm/features/analytics/domain/analytics_data.dart';
 import 'package:sabt_crm/features/analytics/presentation/analytics_page.dart';
 import 'package:sabt_crm/features/analytics/presentation/analytics_providers.dart';
@@ -10,10 +11,15 @@ import 'package:sabt_crm/features/archive/presentation/archive_providers.dart';
 import 'package:sabt_crm/features/dev_board/domain/dev_task.dart';
 import 'package:sabt_crm/features/dev_board/presentation/dev_board_page.dart';
 import 'package:sabt_crm/features/dev_board/presentation/dev_board_providers.dart';
+import 'package:sabt_crm/features/dev_board/presentation/dev_board_subpages.dart';
+import 'package:sabt_crm/features/employees/domain/employee.dart';
+import 'package:sabt_crm/features/employees/presentation/employees_providers.dart';
+import 'package:sabt_crm/features/employees/presentation/employees_subpages.dart';
 import 'package:sabt_crm/features/files/domain/app_file.dart';
 import 'package:sabt_crm/features/files/presentation/files_page.dart';
 import 'package:sabt_crm/features/files/presentation/files_providers.dart';
 import 'package:sabt_crm/features/finance/domain/finance_models.dart';
+import 'package:sabt_crm/features/finance/presentation/finance_extra_pages.dart';
 import 'package:sabt_crm/features/finance/presentation/finance_page.dart';
 import 'package:sabt_crm/features/finance/presentation/finance_providers.dart';
 import 'package:sabt_crm/features/projects/domain/project.dart';
@@ -240,6 +246,179 @@ void main() {
 
       expect(find.text('Архив'), findsOneWidget);
       expect(find.text('Старый проект 2025'), findsOneWidget);
+    });
+
+    testWidgets('EmployeesOrgPage renders org structure without layout exceptions', (tester) async {
+      final mockEmployees = [
+        const EmployeeModel(
+          id: 'emp-1',
+          userId: 'user-1',
+          fullName: 'Фарзод Сафаров',
+          position: 'CEO / Founder',
+          department: 'management',
+          role: 'founder',
+          status: 'active',
+        ),
+        const EmployeeModel(
+          id: 'emp-2',
+          userId: 'user-2',
+          fullName: 'Алишер Каримов',
+          position: 'Senior Flutter Dev',
+          department: 'dev',
+          role: 'developer',
+          status: 'active',
+        ),
+      ];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            employeesProvider.overrideWith(
+              (ref) => Stream.value(
+                Snapshot(
+                  data: mockEmployees,
+                ),
+              ),
+            ),
+          ],
+          child: const MaterialApp(
+            home: EmployeesOrgPage(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Оргструктура'), findsOneWidget);
+      expect(find.text('Фарзод Сафаров'), findsOneWidget);
+      expect(find.text('Алишер Каримов'), findsOneWidget);
+    });
+
+    testWidgets('DevProjectsPage renders without layout exceptions', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            devProjectsProvider.overrideWith(
+              (ref) async => [
+                {
+                  'id': 'dev-proj-1',
+                  'name': 'SABT Mobile App',
+                  'status': 'in_progress',
+                  'projectType': 'mobile_app',
+                  'devStage': 60,
+                  'progress': 60,
+                },
+              ],
+            ),
+          ],
+          child: const MaterialApp(
+            home: DevProjectsPage(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Проекты разработки'), findsOneWidget);
+      expect(find.text('SABT Mobile App'), findsOneWidget);
+    });
+
+    testWidgets('DevBoardKpiPage renders without layout exceptions', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            devBoardKpiProvider.overrideWith(
+              (ref) async => {
+                'team': {
+                  'total': 22,
+                  'done': 18,
+                  'inProgress': 4,
+                  'overdue': 0,
+                  'onTimeRate': 94,
+                  'avgCycleDays': 2.4,
+                },
+                'members': [
+                  {
+                    'id': 'dev-1',
+                    'name': 'Алишер Каримов',
+                    'total': 22,
+                    'done': 18,
+                    'inProgress': 4,
+                    'overdue': 0,
+                    'onTimeRate': 94,
+                  },
+                ],
+              },
+            ),
+          ],
+          child: const MaterialApp(
+            home: DevBoardKpiPage(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('KPI разработки'), findsOneWidget);
+      expect(find.text('Алишер Каримов'), findsOneWidget);
+    });
+
+    testWidgets('FinanceInventoryPage renders without layout exceptions', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            financeAssetsProvider.overrideWith(
+              (ref) async => [
+                {
+                  'id': 'asset-1',
+                  'name': 'Sony A7 IV',
+                  'category': 'Камеры',
+                  'price': 28000,
+                  'residual': 21000,
+                  'monthlyDep': 777,
+                  'status': 'in_use',
+                  'assignee': 'Оператор',
+                },
+              ],
+            ),
+          ],
+          child: const MaterialApp(
+            home: FinanceInventoryPage(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Инвентарь'), findsOneWidget);
+      expect(find.text('Sony A7 IV'), findsOneWidget);
+    });
+
+    testWidgets('FinanceActivityPage renders without layout exceptions', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            financeActivityProvider.overrideWith(
+              (ref) async => [
+                {
+                  'id': 'act-1',
+                  'action': 'Создана транзакция +15 000 с.',
+                  'userName': 'Фарзод',
+                  'createdAt': '2026-10-28T10:00:00Z',
+                },
+              ],
+            ),
+          ],
+          child: const MaterialApp(
+            home: FinanceActivityPage(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Активность финансов'), findsOneWidget);
+      expect(find.text('Создана транзакция +15 000 с.'), findsOneWidget);
     });
   });
 }

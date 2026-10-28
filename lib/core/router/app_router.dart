@@ -12,10 +12,13 @@ import '../../features/calendar/presentation/calendar_page.dart';
 import '../../features/clients/presentation/client_detail_page.dart';
 import '../../features/clients/presentation/clients_page.dart';
 import '../../features/dev_board/presentation/dev_board_page.dart';
+import '../../features/dev_board/presentation/dev_board_subpages.dart';
 import '../../features/employees/presentation/employee_detail_page.dart';
 import '../../features/employees/presentation/employees_page.dart';
+import '../../features/employees/presentation/employees_subpages.dart';
 import '../../features/employees/presentation/sales_plan_page.dart';
 import '../../features/files/presentation/files_page.dart';
+import '../../features/finance/presentation/finance_extra_pages.dart';
 import '../../features/finance/presentation/finance_page.dart';
 import '../../features/finance/presentation/finance_sections.dart';
 import '../../features/finance/presentation/finance_transport_page.dart';
@@ -38,6 +41,7 @@ import '../../features/tariffs/presentation/tariffs_page.dart';
 import '../../features/tasks/presentation/task_detail_page.dart';
 import '../../features/transport/presentation/transport_page.dart';
 import '../dependencies.dart';
+import '../rbac/permissions.dart';
 import 'motion_page.dart';
 
 /// The router is created once and refreshed by auth transitions. The auth
@@ -61,6 +65,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final session = auth.value;
       if (session == null) return location == '/login' ? null : '/login';
       if (location == '/login' || location == '/splash') return '/';
+      if (!canAccessRoute(session.user, location)) return '/';
       return null;
     },
     routes: [
@@ -177,6 +182,46 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/employees/org',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeesOrgPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/employees/week',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeesWeekPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/employees/activity',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeesActivityPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/team-activity',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeesActivityPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/employees/kpi',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const EmployeesKpiPage(),
+        ),
+      ),
+      GoRoute(
         path: '/employees/:id',
         pageBuilder: (context, state) => motionPage(
           context: context,
@@ -277,11 +322,95 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/finance/planning',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinancePlanningPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/finance/inventory',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceInventoryPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/finance/activity',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceActivityPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/finance/settings',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const FinanceSettingsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/finance/salary/:id',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: FinanceEmployeeSalaryPage(
+            employeeId: state.pathParameters['id'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/dev/projects',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const DevProjectsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/dev/projects/:id',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: DevProjectDetailPage(
+            projectId: state.pathParameters['id'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
         path: '/dev-board',
         pageBuilder: (context, state) => motionPage(
           context: context,
           pageKey: state.pageKey,
           child: const DevBoardPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/dev-board/kpi',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const DevBoardKpiPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/dev-board/reports',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: const DevBoardReportsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/dev-board/task/:id',
+        pageBuilder: (context, state) => motionPage(
+          context: context,
+          pageKey: state.pageKey,
+          child: DevTaskDetailPage(taskId: state.pathParameters['id'] ?? ''),
         ),
       ),
       GoRoute(

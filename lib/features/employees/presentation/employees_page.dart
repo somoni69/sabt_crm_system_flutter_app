@@ -90,6 +90,52 @@ class _EmployeesPageState extends ConsumerState<EmployeesPage> {
                   message: 'У вашей роли нет доступа к справочнику сотрудников.',
                 )
               else ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      AppFilterChip(
+                        label: 'Оргструктура',
+                        icon: Icons.account_tree_outlined,
+                        active: false,
+                        onTap: () => context.push('/employees/org'),
+                      ),
+                      if (canManageAccess(user)) ...[
+                        const SizedBox(width: 8),
+                        AppFilterChip(
+                          label: 'KPI',
+                          icon: Icons.speed_rounded,
+                          active: false,
+                          onTap: () => context.push('/employees/kpi'),
+                        ),
+                        const SizedBox(width: 8),
+                        AppFilterChip(
+                          label: 'Задачи недели',
+                          icon: Icons.calendar_view_week_rounded,
+                          active: false,
+                          onTap: () => context.push('/employees/week'),
+                        ),
+                        const SizedBox(width: 8),
+                        AppFilterChip(
+                          label: 'Активность и смены',
+                          icon: Icons.history_toggle_off_rounded,
+                          active: false,
+                          onTap: () => context.push('/employees/activity'),
+                        ),
+                      ],
+                      if (user?.isFounder ?? false) ...[
+                        const SizedBox(width: 8),
+                        AppFilterChip(
+                          label: 'План продаж',
+                          icon: Icons.flag_outlined,
+                          active: false,
+                          onTap: () => context.push('/employees/sales-plan'),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
                 AppSearchField(
                   controller: _search,
                   hint: 'Имя, должность или отдел',

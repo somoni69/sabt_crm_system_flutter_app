@@ -58,7 +58,9 @@ class _PressableScaleState extends State<PressableScale> {
             },
       child: AnimatedScale(
         scale: _pressed && animate ? widget.scale : 1,
-        duration: animate ? Motion.press : Duration.zero,
+        duration: animate
+            ? (_pressed ? Motion.press : Motion.release)
+            : Duration.zero,
         curve: Motion.easeOut,
         child: widget.child,
       ),
@@ -95,6 +97,10 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final motion = Motion.allowed(context);
+    final palette = context.palette;
+    final restLipColor = palette.isDark
+        ? const Color(0xFF06080E)
+        : const Color(0xFFE1E6F2);
     final card = AnimatedContainer(
       duration: motion ? Motion.standard : Duration.zero,
       curve: Motion.easeOut,
@@ -102,23 +108,29 @@ class AppCard extends StatelessWidget {
       padding: padding,
       clipBehavior: clip ? Clip.antiAlias : Clip.none,
       decoration: BoxDecoration(
-        color: color ?? context.palette.surface1,
+        color: color ?? palette.surface1,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(
           color: selected
-              ? context.palette.accent.withValues(alpha: 0.55)
-              : (borderColor ?? context.palette.borderSoft),
+              ? palette.accent.withValues(alpha: 0.55)
+              : (borderColor ?? palette.borderSoft),
           width: selected ? 1.3 : 1,
         ),
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: context.palette.accent.withValues(alpha: 0.10),
-                  blurRadius: 24,
-                  offset: const Offset(0, 10),
+                  color: palette.accent.withValues(alpha: 0.14),
+                  blurRadius: 22,
+                  offset: const Offset(0, 8),
                 ),
               ]
-            : null,
+            : [
+                BoxShadow(
+                  color: restLipColor,
+                  offset: const Offset(0, 1.5),
+                  blurRadius: 0,
+                ),
+              ],
       ),
       child: child,
     );
@@ -175,6 +187,7 @@ class AppFilterChip extends StatelessWidget {
     required this.label,
     required this.active,
     required this.onTap,
+    this.icon,
     this.count,
     this.tone = ChipTone.accent,
   });
@@ -182,6 +195,7 @@ class AppFilterChip extends StatelessWidget {
   final String label;
   final bool active;
   final VoidCallback onTap;
+  final IconData? icon;
 
   /// Shown as `label · count` when non-null.
   final int? count;
@@ -225,7 +239,10 @@ class AppFilterChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isBrand) ...[
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: fg),
+              const SizedBox(width: 6),
+            ] else if (!isBrand) ...[
               Container(
                 width: 6,
                 height: 6,
@@ -780,27 +797,29 @@ class _SkeletonBoxState extends State<SkeletonBox>
         ),
       );
     }
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        final x = _controller.value * 2 - 1;
-        return Container(
-          width: widget.width,
-          height: widget.height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(widget.radius),
-            gradient: LinearGradient(
-              begin: Alignment(x - 1, 0),
-              end: Alignment(x + 1, 0),
-              colors: [
-                context.palette.surface2,
-                context.palette.surface3,
-                context.palette.surface2,
-              ],
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final x = _controller.value * 2 - 1;
+          return Container(
+            width: widget.width,
+            height: widget.height,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(widget.radius),
+              gradient: LinearGradient(
+                begin: Alignment(x - 1, 0),
+                end: Alignment(x + 1, 0),
+                colors: [
+                  context.palette.surface2,
+                  context.palette.surface3,
+                  context.palette.surface2,
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

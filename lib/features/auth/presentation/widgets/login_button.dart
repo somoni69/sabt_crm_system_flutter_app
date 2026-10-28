@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../core/design/glass_surface.dart';
 import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 
 enum LoginButtonPhase { idle, loading, success }
 
-/// Primary sign-in button with three choreographed states.
+/// Tactile primary sign-in button with a physical 3D bottom lip and
+/// three choreographed states (`idle` → `loading` → `success`).
 ///
-/// * idle — label and arrow, ready;
-/// * loading — the arrow gives way to a spinner and the label becomes
-///   "Входим…", so the user reads progress, not just motion;
-/// * success — a check is drawn stroke-by-stroke inside a ring before
-///   the router carries the user into the workspace.
-///
-/// Content cross-fades with a small scale settle; the plate itself
-/// never resizes, so nothing below it jumps. Press feedback matches
-/// the shared [Motion.pressScale] ladder.
+/// Pressing the button physically depresses the plate onto its bottom
+/// ledge (2 px vertical travel + lip compression), matching the tactile
+/// hardware feel of benchmark iOS onboarding/login buttons.
 class LoginButton extends StatefulWidget {
   const LoginButton({
     super.key,
@@ -44,7 +38,20 @@ class _LoginButtonState extends State<LoginButton> {
   @override
   Widget build(BuildContext context) {
     final animate = Motion.allowed(context);
+    final palette = context.palette;
     final success = widget.phase == LoginButtonPhase.success;
+    final depressed = _pressed && _enabled && animate;
+
+    final baseColor = success
+        ? const Color(0xFF1F9D63)
+        : palette.brandPurple;
+    final topColor = Color.alphaBlend(
+      Colors.white.withValues(alpha: 0.14),
+      baseColor,
+    );
+    final lipColor = success
+        ? const Color(0xFF12633D)
+        : const Color(0xFF392B6E);
 
     final content = switch (widget.phase) {
       LoginButtonPhase.idle => Row(
@@ -55,17 +62,25 @@ class _LoginButtonState extends State<LoginButton> {
             widget.label,
             style: const TextStyle(
               fontFamily: AppTypography.family,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.05,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.1,
               color: Colors.white,
             ),
           ),
-          const SizedBox(width: 9),
-          const Icon(
-            Icons.arrow_forward_rounded,
-            size: 18,
-            color: Colors.white,
+          const SizedBox(width: 10),
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.arrow_forward_rounded,
+              size: 16,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
@@ -86,8 +101,9 @@ class _LoginButtonState extends State<LoginButton> {
             'Входим…',
             style: TextStyle(
               fontFamily: AppTypography.family,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.1,
               color: Colors.white,
             ),
           ),
@@ -103,8 +119,9 @@ class _LoginButtonState extends State<LoginButton> {
             'Добро пожаловать',
             style: TextStyle(
               fontFamily: AppTypography.family,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.1,
               color: Colors.white,
             ),
           ),
@@ -112,86 +129,58 @@ class _LoginButtonState extends State<LoginButton> {
       ),
     };
 
+    final activeDuration = animate
+        ? (_pressed ? Motion.press : Motion.release)
+        : Duration.zero;
+
     final plate = AnimatedContainer(
-      duration: animate ? Motion.standard : Duration.zero,
+      duration: activeDuration,
       curve: Motion.easeOut,
-      height: 54,
+      height: 56,
+      transform: Matrix4.translationValues(0, depressed ? 2.0 : 0.0, 0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        colors: success
-            ? const [Color(0xFF3ECF8E), Color(0xFF1F9D63)]
-            : [
-                Color.alphaBlend(
-                  Colors.white.withValues(alpha: 0.16),
-                  context.palette.brandPurple,
-                ),
-                context.palette.brandPurple,
-                context.palette.accentDeep,
-              ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [topColor, baseColor],
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.18),
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: (success ? context.palette.success : context.palette.accent).withValues(
-              alpha: 0.30,
-            ),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+            color: lipColor,
+            offset: Offset(0, depressed ? 1.5 : 3.5),
+            blurRadius: 0,
+          ),
+          BoxShadow(
+            color: baseColor.withValues(alpha: depressed ? 0.16 : 0.28),
+            blurRadius: depressed ? 12 : 22,
+            offset: Offset(0, depressed ? 4 : 10),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: GlassRim(
-          radius: 16,
-          child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            top: 1,
-            left: 16,
-            right: 16,
-            child: Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0),
-                    Colors.white.withValues(alpha: 0.32),
-                    Colors.white.withValues(alpha: 0),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(1),
+      child: Opacity(
+        opacity: _enabled || widget.phase != LoginButtonPhase.idle ? 1 : 0.5,
+        child: AnimatedSwitcher(
+          duration: animate ? Motion.standard : Duration.zero,
+          switchInCurve: Motion.easeOut,
+          switchOutCurve: Motion.easeOut,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(
+                  begin: Motion.enterScale,
+                  end: 1,
+                ).animate(animation),
+                child: child,
               ),
-            ),
-          ),
-          Opacity(
-            opacity: _enabled || widget.phase != LoginButtonPhase.idle
-                ? 1
-                : 0.45,
-            child: AnimatedSwitcher(
-              duration: animate ? Motion.standard : Duration.zero,
-              switchInCurve: Motion.easeOut,
-              switchOutCurve: Motion.easeOut,
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: Tween<double>(
-                      begin: Motion.enterScale,
-                      end: 1,
-                    ).animate(animation),
-                    child: child,
-                  ),
-                );
-              },
-              child: content,
-            ),
-          ),
-        ],
-          ),
+            );
+          },
+          child: content,
         ),
       ),
     );
@@ -213,8 +202,8 @@ class _LoginButtonState extends State<LoginButton> {
           widget.onPressed!();
         },
         child: AnimatedScale(
-          scale: _pressed && animate ? Motion.pressScale : 1,
-          duration: animate ? Motion.press : Duration.zero,
+          scale: depressed ? 0.985 : 1,
+          duration: activeDuration,
           curve: Motion.easeOut,
           child: plate,
         ),
