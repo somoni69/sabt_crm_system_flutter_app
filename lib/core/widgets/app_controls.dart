@@ -147,125 +147,136 @@ class _AppButtonState extends State<AppButton> {
       _ => null,
     };
 
-    final content = Row(
-      mainAxisSize: widget.expanded ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        MotionSwap(
-          duration: Motion.micro,
-          scale: false,
-          child: widget.loading
-              ? SizedBox(
-                  key: const ValueKey('busy'),
-                  width: 17,
-                  height: 17,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: fg),
-                )
-              : widget.icon != null
-              ? Icon(
-                  widget.icon,
-                  key: const ValueKey('icon'),
-                  size: 18,
-                  color: fg,
-                )
-              : const SizedBox.shrink(key: ValueKey('idle')),
-        ),
-        if (widget.loading || widget.icon != null) const SizedBox(width: 9),
-        Flexible(
-          child: Text(
-            widget.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: AppTypography.family,
-              fontSize: widget.compact ? 13.5 : 14.5,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.05,
-              height: 1,
-              color: fg,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shouldExpand = widget.expanded && constraints.hasBoundedWidth;
+        final content = Row(
+          mainAxisSize: shouldExpand ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            MotionSwap(
+              duration: Motion.micro,
+              scale: false,
+              child: widget.loading
+                  ? SizedBox(
+                      key: const ValueKey('busy'),
+                      width: 17,
+                      height: 17,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: fg,
+                      ),
+                    )
+                  : widget.icon != null
+                  ? Icon(
+                      widget.icon,
+                      key: const ValueKey('icon'),
+                      size: 18,
+                      color: fg,
+                    )
+                  : const SizedBox.shrink(key: ValueKey('idle')),
             ),
-          ),
-        ),
-        if (widget.trailing != null) ...[
-          const SizedBox(width: 8),
-          IconTheme(
-            data: IconThemeData(color: fg, size: 18),
-            child: widget.trailing!,
-          ),
-        ],
-      ],
-    );
+            if (widget.loading || widget.icon != null) const SizedBox(width: 9),
+            Flexible(
+              child: Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: AppTypography.family,
+                  fontSize: widget.compact ? 13.5 : 14.5,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.05,
+                  height: 1,
+                  color: fg,
+                ),
+              ),
+            ),
+            if (widget.trailing != null) ...[
+              const SizedBox(width: 8),
+              IconTheme(
+                data: IconThemeData(color: fg, size: 18),
+                child: widget.trailing!,
+              ),
+            ],
+          ],
+        );
 
-    Widget inner = AnimatedContainer(
-      duration: activeDuration,
-      curve: Motion.easeOut,
-      height: height,
-      width: widget.expanded ? double.infinity : null,
-      transform: Matrix4.translationValues(0, depressed ? 1.5 : 0.0, 0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-        boxShadow: shadows,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: GlassRim(
-          radius: radius,
-          child: DecoratedBox(
-            decoration: BoxDecoration(gradient: fill),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (widget.variant == AppButtonVariant.primary ||
-                    widget.variant == AppButtonVariant.danger)
-                  Positioned(
-                    top: 1,
-                    left: 18,
-                    right: 18,
-                    child: IgnorePointer(
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white.withValues(alpha: 0),
-                              Colors.white.withValues(alpha: 0.45),
-                              Colors.white.withValues(alpha: 0),
-                            ],
+        Widget inner = AnimatedContainer(
+          duration: activeDuration,
+          curve: Motion.easeOut,
+          height: height,
+          width: shouldExpand ? double.infinity : null,
+          transform: Matrix4.translationValues(0, depressed ? 1.5 : 0.0, 0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            boxShadow: shadows,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: GlassRim(
+              radius: radius,
+              child: DecoratedBox(
+                decoration: BoxDecoration(gradient: fill),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (widget.variant == AppButtonVariant.primary ||
+                        widget.variant == AppButtonVariant.danger)
+                      Positioned(
+                        top: 1,
+                        left: 18,
+                        right: 18,
+                        child: IgnorePointer(
+                          child: Container(
+                            height: 1,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withValues(alpha: 0),
+                                  Colors.white.withValues(alpha: 0.45),
+                                  Colors.white.withValues(alpha: 0),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: widget.compact ? 16 : 20,
+                      ),
+                      child: Opacity(
+                        opacity: _enabled ? 1 : 0.72,
+                        child: content,
+                      ),
                     ),
-                  ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: widget.compact ? 16 : 20,
-                  ),
-                  child: Opacity(opacity: _enabled ? 1 : 0.72, child: content),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        );
 
-    if (!_enabled) return inner;
+        if (!_enabled) return inner;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _setPressed(true),
-      onTapCancel: () => _setPressed(false),
-      onTapUp: (_) => _setPressed(false),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        widget.onPressed!();
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => _setPressed(true),
+          onTapCancel: () => _setPressed(false),
+          onTapUp: (_) => _setPressed(false),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            widget.onPressed!();
+          },
+          child: AnimatedScale(
+            scale: depressed ? Motion.pressScale : 1,
+            duration: activeDuration,
+            curve: Motion.easeOut,
+            child: inner,
+          ),
+        );
       },
-      child: AnimatedScale(
-        scale: depressed ? Motion.pressScale : 1,
-        duration: activeDuration,
-        curve: Motion.easeOut,
-        child: inner,
-      ),
     );
   }
 }

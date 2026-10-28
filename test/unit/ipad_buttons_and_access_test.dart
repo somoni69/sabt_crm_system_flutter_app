@@ -9,6 +9,9 @@ import 'package:sabt_crm/features/access/data/access_repository.dart';
 import 'package:sabt_crm/features/access/domain/access_models.dart';
 import 'package:sabt_crm/features/access/presentation/access_providers.dart';
 import 'package:sabt_crm/features/access/presentation/employee_access_page.dart';
+import 'package:sabt_crm/features/auth/domain/user.dart';
+import 'package:sabt_crm/features/auth/presentation/auth_controller.dart';
+import 'package:sabt_crm/features/work_shifts/presentation/work_shift_card.dart';
 
 void main() {
   group('iPad Button & Sheet Hit-Testing Across Resolutions', () {
@@ -239,6 +242,51 @@ void main() {
       expect(find.text('Права: Дилноза Рахимова'), findsOneWidget);
       expect(find.text('Сохранить права'), findsOneWidget);
       expect(find.text('Сбросить к роли'), findsOneWidget);
+    });
+
+    testWidgets('WorkShiftBannerCard renders status text and action button inside Row without BoxConstraints(w=Infinity) crash', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentUserProvider.overrideWithValue(
+              const UserModel(
+                id: 'dev-1',
+                name: 'Фарзод',
+                email: 'farzod@sabt.tj',
+                role: 'developer',
+              ),
+            ),
+            myWorkShiftProvider.overrideWith(
+              (ref) async => const WorkShiftData(
+                state: 'working',
+                todayMinutes: 145,
+                closedMinutes: 145,
+                normMinutes: 480,
+                normStart: '09:00',
+                normEnd: '18:00',
+                paidBreakMinutes: 30,
+                isLate: false,
+                dayStartedLabel: '09:05',
+              ),
+            ),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light,
+            home: const Scaffold(
+              body: Padding(
+                padding: EdgeInsets.all(16),
+                child: WorkShiftBannerCard(),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('2 ч 25 м · идёт смена'), findsOneWidget);
+      expect(find.text('Смена'), findsOneWidget);
     });
   });
 }

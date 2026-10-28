@@ -278,6 +278,7 @@ class _WorkShiftBannerCardState extends ConsumerState<WorkShiftBannerCard> {
               label: 'Начать',
               icon: Icons.play_arrow_rounded,
               compact: true,
+              expanded: false,
               busy: _busy,
               onPressed: () => _act('start'),
             )
@@ -286,6 +287,7 @@ class _WorkShiftBannerCardState extends ConsumerState<WorkShiftBannerCard> {
               label: 'Продолжить',
               icon: Icons.play_arrow_rounded,
               compact: true,
+              expanded: false,
               busy: _busy,
               onPressed: () => _act('start'),
             )
@@ -294,6 +296,7 @@ class _WorkShiftBannerCardState extends ConsumerState<WorkShiftBannerCard> {
               label: 'Смена',
               variant: ButtonVariant.secondary,
               compact: true,
+              expanded: false,
               busy: _busy,
               onPressed: () => showWorkShiftSheet(context, ref),
             ),

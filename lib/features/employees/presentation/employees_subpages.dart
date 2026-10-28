@@ -1402,6 +1402,7 @@ class _TodayShiftsSection extends ConsumerWidget {
                       AppButton(
                         label: 'Ок',
                         compact: true,
+                        expanded: false,
                         onPressed: () =>
                             _decide(ref, 'notices', asStringOr(n['id'], ''), true),
                       ),
@@ -1410,6 +1411,7 @@ class _TodayShiftsSection extends ConsumerWidget {
                         label: 'Отказ',
                         variant: ButtonVariant.danger,
                         compact: true,
+                        expanded: false,
                         onPressed: () => _decide(
                           ref,
                           'notices',
@@ -1462,6 +1464,7 @@ class _TodayShiftsSection extends ConsumerWidget {
                       AppButton(
                         label: 'Ок',
                         compact: true,
+                        expanded: false,
                         onPressed: () =>
                             _decide(ref, 'edits', asStringOr(e['id'], ''), true),
                       ),
@@ -1470,6 +1473,7 @@ class _TodayShiftsSection extends ConsumerWidget {
                         label: 'Отказ',
                         variant: ButtonVariant.danger,
                         compact: true,
+                        expanded: false,
                         onPressed: () =>
                             _decide(ref, 'edits', asStringOr(e['id'], ''), false),
                       ),

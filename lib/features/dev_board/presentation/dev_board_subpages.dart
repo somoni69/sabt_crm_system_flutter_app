@@ -931,6 +931,7 @@ class _DevTaskDetailPageState extends ConsumerState<DevTaskDetailPage> {
                           label: 'Отправить',
                           icon: Icons.send_rounded,
                           compact: true,
+                          expanded: false,
                           busy: _busy,
                           onPressed: _sendComment,
                         ),

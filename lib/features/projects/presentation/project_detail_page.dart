@@ -283,6 +283,7 @@ class _ProjectBody extends ConsumerWidget {
                 label: 'Новая задача',
                 icon: Icons.add_task_rounded,
                 compact: true,
+                expanded: false,
                 onPressed: () =>
                     showTaskForm(context, ref, projectId: project.id),
               ),
@@ -292,6 +293,7 @@ class _ProjectBody extends ConsumerWidget {
                 icon: Icons.code_rounded,
                 variant: AppButtonVariant.secondary,
                 compact: true,
+                expanded: false,
                 onPressed: () => context.push('/dev/projects/${project.id}'),
               ),
           ],
