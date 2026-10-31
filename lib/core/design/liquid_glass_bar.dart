@@ -566,28 +566,39 @@ class _NavTab extends StatelessWidget {
       label: item.label,
       onTap: onTap,
       excludeSemantics: true,
-      child: Center(
-        child: Transform.scale(
-          scale: scale,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
+      child: Padding(
+        // Inset keeps a long label such as «Разработка» inside the lens.
+        // The lens is tabWidth − 10, so 8px on each side stays inside it.
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Transform.scale(
+              scale: scale,
+              child: Icon(
                 emphasized ? item.activeIcon : item.icon,
                 size: 20.5,
                 color: color,
               ),
-              const SizedBox(height: 3),
-              Text(
-                item.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: (emphasized ? _labelStyleActive : _labelStyle).copyWith(
-                  color: color,
+            ),
+            const SizedBox(height: 3),
+            SizedBox(
+              height: 12,
+              width: double.infinity,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  softWrap: false,
+                  textAlign: TextAlign.center,
+                  style: (emphasized ? _labelStyleActive : _labelStyle)
+                      .copyWith(color: color),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

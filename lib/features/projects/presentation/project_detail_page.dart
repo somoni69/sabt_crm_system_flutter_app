@@ -77,7 +77,6 @@ class ProjectDetailPage extends ConsumerWidget {
             AppIconButton(
               icon: Icons.add_task_rounded,
               size: 40,
-              filled: true,
               onPressed: () =>
                   showTaskForm(context, ref, projectId: project.id),
               tooltip: 'Задача в проект',

@@ -135,8 +135,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             AppIconButton(
               icon: Icons.add_rounded,
               size: 40,
-              filled: true,
-              color: Colors.white,
               onPressed: () => showTaskForm(
                 context,
                 ref,

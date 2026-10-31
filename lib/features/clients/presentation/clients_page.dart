@@ -128,8 +128,6 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
             AppIconButton(
               icon: Icons.person_add_alt_1_rounded,
               size: 40,
-              filled: true,
-              color: Colors.white,
               onPressed: () async {
                 final id = await showClientForm(context, ref);
                 if (id != null && id.isNotEmpty && context.mounted) {

@@ -112,8 +112,6 @@ class _TasksPageState extends ConsumerState<TasksPage> {
             AppIconButton(
               icon: Icons.add_rounded,
               size: 40,
-              filled: true,
-              color: Colors.white,
               onPressed: () async {
                 final id = await showTaskForm(context, ref);
                 if (id != null && id.isNotEmpty && context.mounted) {

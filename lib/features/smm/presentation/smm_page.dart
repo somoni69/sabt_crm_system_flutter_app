@@ -198,8 +198,6 @@ class _SmmPageState extends ConsumerState<SmmPage> {
             AppIconButton(
               icon: Icons.add_rounded,
               size: 40,
-              filled: true,
-              color: Colors.white,
               onPressed: () => showContentForm(
                 context,
                 ref,

@@ -14,3 +14,7 @@
 # Flutter Secure Storage / Tink
 -keep class com.google.crypto.tink.** { *; }
 -dontwarn com.google.errorprone.annotations.**
+
+# Flutter Play Store Split / Deferred Components
+-dontwarn com.google.android.play.core.**
+

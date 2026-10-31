@@ -199,32 +199,30 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
                                 ),
                               ],
                               const SizedBox(height: 12),
+                              Text(
+                                'Завершён: ${date != null ? BizDate.dateWithYear(date) : 'В архиве'}',
+                                style: TextStyle(fontSize: 11, color: context.palette.textTertiary),
+                              ),
+                              const SizedBox(height: 10),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    'Завершён: ${date != null ? BizDate.dateWithYear(date) : 'В архиве'}',
-                                    style:  TextStyle(fontSize: 11, color: context.palette.textTertiary),
+                                  Expanded(
+                                    child: AppButton(
+                                      label: 'Восстановить',
+                                      icon: Icons.unarchive_outlined,
+                                      variant: AppButtonVariant.secondary,
+                                      compact: true,
+                                      onPressed: () => _restoreProject(context, ref, project),
+                                    ),
                                   ),
-                                  Row(
-                                    children: [
-                                      AppButton(
-                                        label: 'Восстановить',
-                                        icon: Icons.unarchive_outlined,
-                                        variant: AppButtonVariant.secondary,
-                                        compact: true,
-                                        expanded: false,
-                                        onPressed: () => _restoreProject(context, ref, project),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      AppButton(
-                                        label: 'Открыть',
-                                        icon: Icons.arrow_forward_rounded,
-                                        compact: true,
-                                        expanded: false,
-                                        onPressed: () => context.push('/projects/${project.id}'),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: AppButton(
+                                      label: 'Открыть',
+                                      icon: Icons.arrow_forward_rounded,
+                                      compact: true,
+                                      onPressed: () => context.push('/projects/${project.id}'),
+                                    ),
                                   ),
                                 ],
                               ),

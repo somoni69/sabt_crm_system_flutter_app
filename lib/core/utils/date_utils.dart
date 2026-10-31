@@ -201,7 +201,7 @@ abstract final class BizDate {
     if (isToday(date)) return 'Сегодня';
     if (isTomorrow(date)) return 'Завтра';
     if (isYesterday(date)) return 'Вчера';
-    return '$weekdayShort(date), ${dateShort(date)}';
+    return '${weekdayShort(date)}, ${dateShort(date)}';
   }
 
   static String relative(DateTime date, {bool withTime = false}) {
