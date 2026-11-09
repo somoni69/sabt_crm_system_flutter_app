@@ -223,29 +223,10 @@ class _DevBoardPageState extends ConsumerState<DevBoardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  if (!widget.embedded)
-                    AppIconButton(
-                      icon: Icons.arrow_back_ios_new_rounded,
-                      size: 40,
-                      tooltip: 'Назад',
-                      onPressed: () => context.pop(),
-                    ),
-                  Expanded(
-                    child: Text(
-                      'Доска разработки',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                        color: palette.text,
-                      ),
-                    ),
-                  ),
+              AppHeader(
+                title: 'Доска разработки',
+                onBack: widget.embedded ? null : () => context.pop(),
+                actions: [
                   if (canManage)
                     AppIconButton(
                       icon: Icons.add_rounded,

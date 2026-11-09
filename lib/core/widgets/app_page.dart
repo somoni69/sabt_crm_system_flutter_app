@@ -10,7 +10,7 @@ import 'app_controls.dart';
 
 abstract final class PageInsets {
   static double top(BuildContext context) =>
-      MediaQuery.paddingOf(context).top + 64;
+      MediaQuery.paddingOf(context).top + 80;
 
   static double bottomNav(BuildContext context) =>
       MediaQuery.paddingOf(context).bottom + 72;
@@ -26,6 +26,7 @@ class AppPage extends StatelessWidget {
     required this.slivers,
     this.onRefresh,
     this.controller,
+    this.topPadding,
     this.bottomPadding,
     this.floatingAction,
     this.footer,
@@ -37,6 +38,7 @@ class AppPage extends StatelessWidget {
   final List<Widget> slivers;
   final Future<void> Function()? onRefresh;
   final ScrollController? controller;
+  final double? topPadding;
   final double? bottomPadding;
   final Widget? floatingAction;
 
@@ -49,7 +51,7 @@ class AppPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final top = PageInsets.top(context);
+    final top = topPadding ?? PageInsets.top(context);
     final bottom =
         bottomPadding ??
         (showBottomBarSpace
