@@ -20,15 +20,24 @@ class SabtApp extends ConsumerStatefulWidget {
   ConsumerState<SabtApp> createState() => _SabtAppState();
 }
 
-/// iOS-style scrolling everywhere: elastic bounce, no Android glow.
-/// On iOS this matches the platform; on Android it keeps the glass
-/// surfaces free of the stock overscroll flash.
+/// Platform scroll: bounce on iOS, clamp on Android. The glow stays off
+/// so both platforms share the same quiet edge.
 class _SabtScrollBehavior extends MaterialScrollBehavior {
   const _SabtScrollBehavior();
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
-    return const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+    switch (getPlatform(context)) {
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        return const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        );
+      default:
+        return const ClampingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        );
+    }
   }
 
   @override

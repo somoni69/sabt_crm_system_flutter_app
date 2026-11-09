@@ -44,7 +44,7 @@ class TaskCard extends StatelessWidget {
         12,
         compact ? 12 : 14,
       ),
-      radius: 18,
+      radius: 12,
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,14 +56,6 @@ class TaskCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: task.isDone ? context.palette.success : priorityColor,
               borderRadius: BorderRadius.circular(99),
-              boxShadow: task.isDone
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: priorityColor.withValues(alpha: 0.35),
-                        blurRadius: 10,
-                      ),
-                    ],
             ),
           ),
           const SizedBox(width: 12),

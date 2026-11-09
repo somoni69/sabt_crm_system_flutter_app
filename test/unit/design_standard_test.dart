@@ -92,12 +92,12 @@ void main() {
   });
 
   group('control standard', () {
-    test('one selected colour: brand violet in both themes', () {
-      expect(AppPalette.light.controlSelected, const Color(0xFF59479E));
-      expect(AppPalette.dark.controlSelected, const Color(0xFF59479E));
+    test('selected colour is the web steel primary', () {
+      expect(AppPalette.light.controlSelected, const Color(0xFF1E4263));
+      expect(AppPalette.dark.controlSelected, const Color(0xFF6E96BE));
       expect(
         AppPalette.light.primaryGradient.colors,
-        contains(const Color(0xFF59479E)),
+        contains(const Color(0xFF1E4263)),
       );
     });
 
@@ -128,7 +128,7 @@ void main() {
             .toList();
         final selected = containers.firstWhere(
           (c) =>
-              (c.decoration! as BoxDecoration).color == const Color(0xFF59479E),
+              (c.decoration! as BoxDecoration).color == const Color(0xFF1E4263),
         );
         expect(selected, isNotNull);
         final allText = tester.widgetList<Text>(find.byType(Text)).toList();
@@ -175,7 +175,7 @@ void main() {
             .toList();
         final selected = animated.where((c) {
           final d = c.decoration! as BoxDecoration;
-          return d.color == const Color(0xFF59479E);
+          return d.color == const Color(0xFF1E4263);
         }).toList();
         expect(
           selected,
@@ -209,7 +209,7 @@ void main() {
           .where(
             (b) =>
                 (b.decoration as BoxDecoration).color ==
-                const Color(0xFF59479E),
+                const Color(0xFF1E4263),
           )
           .toList();
       expect(boxes, hasLength(1));

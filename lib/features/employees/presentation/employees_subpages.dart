@@ -38,7 +38,7 @@ class EmployeesOrgPage extends ConsumerWidget {
       key: 'video',
       title: 'Видеография',
       head: null,
-      members: ['videographer', 'video_editor'],
+      members: ['videographer', 'video_editor', 'producer'],
     ),
     (
       key: 'dev',

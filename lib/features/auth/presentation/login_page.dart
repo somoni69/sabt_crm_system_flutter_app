@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/config/app_env.dart';
 import '../../../core/design/brand_mark.dart';
 import '../../../core/design/motion.dart';
 import '../../../core/network/api_exception.dart';
@@ -16,26 +15,13 @@ import '../../../core/widgets/app_surfaces.dart';
 import '../domain/login_validation.dart';
 import 'auth_controller.dart';
 import 'widgets/forgot_password_sheet.dart';
-import 'widgets/login_background.dart';
 import 'widgets/login_button.dart';
 import 'widgets/login_field.dart';
-import 'widgets/login_hero_stage.dart';
 import 'widgets/otp_field.dart';
 import 'widgets/shake.dart';
 
-/// Sign-in screen crafted to the Appllama / native iOS benchmark bar.
-///
-/// Visual & interaction architecture:
-/// * Top bar carries the brand wordmark and a tactile theme switcher
-///   pill so the user can move between Porcelain Light and Obsidian
-///   Dark right from the welcome screen;
-/// * [LoginHeroStage] frames the focal Sabt mark with floating peripheral
-///   status stickers and three tilted tactile pillar tiles ("Задачи.",
-///   "Контент.", "Клиенты.") that preview live workspace cards on tap;
-/// * The sign-in form sits on a grounded tactile card with a physical
-///   3.5 px bottom lip — zero glassmorphic soup, zero uppercase eyebrow
-///   kickers, sentence-case external field labels;
-/// * One shared [_entrance] controller drives the staggered arrival.
+/// Вход в том же виде, что экран авторизации на вебе: слово sabt,
+/// карточка с полями и стальная кнопка.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -218,217 +204,79 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   Widget _buildScreen(BuildContext context) {
-    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     final palette = context.palette;
-    final lipColor = palette.isDark
-        ? const Color(0xFF05070C)
-        : const Color(0xFFD2DAEB);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: LoginBackground()),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  keyboardOpen ? 12 : 16,
-                  20,
-                  24,
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 430),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // 1. Top utility bar: wordmark + tactile theme toggle.
-                      StaggeredEntrance(
-                        animation: _entrance,
-                        begin: 0.0,
-                        end: 0.38,
-                        dy: 8,
-                        child: Row(
-                          children: [
-                            const SabtWordmark(fontSize: 25),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: palette.surface1,
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(color: palette.border),
-                              ),
-                              child: Text(
-                                'WeBrand',
-                                style: TextStyle(
-                                  fontFamily: AppTypography.family,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: palette.textSecondary,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            if (AppEnv.isWeb) ...[
-                              const AppChip(
-                                label: 'Web',
-                                tone: ChipTone.info,
-                                icon: Icons.language_rounded,
-                                compact: true,
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            _ThemeTogglePill(
-                              isDark: palette.isDark,
-                              onTap: () => _toggleTheme(context),
-                            ),
-                          ],
-                        ),
+      backgroundColor: palette.background,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Column(
+                children: [
+                  const SabtWordmark(fontSize: 34),
+                  const SizedBox(height: 22),
+                  Shake(
+                    signal: _shakeSignal,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                      decoration: BoxDecoration(
+                        color: palette.surface1,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: palette.border),
                       ),
-                      SizedBox(height: keyboardOpen ? 12 : 20),
-
-                      // 2. Spatial hero stage with floating stickers,
-                      //    3 tilted pillar tiles, and live preview card.
-                      StaggeredEntrance(
-                        animation: _entrance,
-                        begin: 0.08,
-                        end: 0.52,
-                        dy: 12,
-                        child: LoginHeroStage(
-                          compact: keyboardOpen || _needsTwoFactor,
-                        ),
-                      ),
-                      SizedBox(height: keyboardOpen ? 12 : 18),
-
-                      // 3. Editorial heading & subtitle (no uppercase kicker).
-                      StaggeredEntrance(
-                        animation: _entrance,
-                        begin: 0.16,
-                        end: 0.62,
-                        dy: 12,
-                        child: MotionSwap(
-                          alignment: Alignment.center,
-                          child: Column(
-                            key: ValueKey(_needsTwoFactor),
-                            children: [
-                              Text(
-                                _needsTwoFactor
-                                    ? 'Подтвердите вход'
-                                    : 'С возвращением',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: AppTypography.family,
-                                  fontSize: keyboardOpen ? 24 : 28,
-                                  height: 1.12,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.7,
-                                  color: palette.text,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: Text(
-                                  _needsTwoFactor
-                                      ? 'Введите шестизначный код из приложения-аутентификатора.'
-                                      : 'Войдите, чтобы продолжить работу с задачами, контентом и клиентами.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: AppTypography.family,
-                                    fontSize: 13.5,
-                                    height: 1.4,
-                                    color: palette.textSecondary,
-                                  ),
-                                ),
-                              ),
-                            ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            _needsTwoFactor ? 'Подтвердите вход' : 'Войти',
+                            style: TextStyle(
+                              fontFamily: AppTypography.family,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: palette.text,
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: keyboardOpen ? 14 : 18),
-
-                      // 4. Grounded tactile form sheet with physical 3D lip.
-                      StaggeredEntrance(
-                        animation: _entrance,
-                        begin: 0.24,
-                        end: 0.82,
-                        dy: 16,
-                        scaleFrom: 1,
-                        child: Shake(
-                          signal: _shakeSignal,
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                            decoration: BoxDecoration(
-                              color: palette.surface1,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: palette.border,
-                                width: 1.3,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: lipColor,
-                                  offset: const Offset(0, 3.5),
-                                  blurRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Colors.black.withValues(
-                                    alpha: palette.isDark ? 0.34 : 0.06,
-                                  ),
-                                  offset: const Offset(0, 14),
-                                  blurRadius: 28,
-                                ),
-                              ],
-                            ),
-                            child: _buildForm(context),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // 5. Single understated security badge at the foot.
-                      StaggeredEntrance(
-                        animation: _entrance,
-                        begin: 0.60,
-                        end: 1.0,
-                        dy: 8,
-                        scaleFrom: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.verified_user_outlined,
-                              size: 13,
-                              color: palette.textTertiary,
-                            ),
-                            const SizedBox(width: 6),
+                          if (_needsTwoFactor) ...[
+                            const SizedBox(height: 6),
                             Text(
-                              'Защищённая сессия · Sabt Keychain',
+                              'Введите шестизначный код из приложения-аутентификатора.',
                               style: TextStyle(
                                 fontFamily: AppTypography.family,
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w500,
-                                color: palette.textTertiary,
+                                fontSize: 13,
+                                height: 1.35,
+                                color: palette.textSecondary,
                               ),
                             ),
                           ],
-                        ),
+                          const SizedBox(height: 14),
+                          _buildForm(context),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '© ${DateTime.now().year} WeBrand · Sabt CRM',
+                    style: TextStyle(
+                      fontFamily: AppTypography.family,
+                      fontSize: 12,
+                      color: palette.textTertiary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _ThemeTogglePill(
+                    isDark: palette.isDark,
+                    onTap: () => _toggleTheme(context),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -455,8 +303,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
         LoginField(
           controller: _email,
           focusNode: _emailFocus,
-          label: 'Логин или почта',
-          hint: 'name@webbrand.tj',
+          label: 'Логин или email',
+          hint: 'логин или email',
           icon: Icons.alternate_email_rounded,
           enabled: !_busy && _phase != LoginButtonPhase.success,
           errorText: _emailError,

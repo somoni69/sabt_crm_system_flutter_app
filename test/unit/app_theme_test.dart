@@ -23,9 +23,9 @@ import 'package:sabt_crm/core/widgets/app_banner.dart';
 
 void main() {
   group('AppPalette presets', () {
-    test('dark and light keep the canonical Sabt violet as anchor', () {
-      expect(AppPalette.dark.brandPurple, const Color(0xFF59479E));
-      expect(AppPalette.light.brandPurple, const Color(0xFF59479E));
+    test('dark and light use the web steel accent', () {
+      expect(AppPalette.dark.brandPurple, const Color(0xFF6E96BE));
+      expect(AppPalette.light.brandPurple, const Color(0xFF1E4263));
       expect(AppPalette.dark.brightness, Brightness.dark);
       expect(AppPalette.light.brightness, Brightness.light);
     });

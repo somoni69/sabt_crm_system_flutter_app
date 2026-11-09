@@ -55,8 +55,8 @@ class _AppButtonState extends State<AppButton> {
   Widget build(BuildContext context) {
     final animate = !MediaQuery.disableAnimationsOf(context);
     final palette = context.palette;
-    final height = widget.compact ? 42.0 : 52.0;
-    final radius = widget.compact ? 13.0 : 16.0;
+    final height = widget.compact ? 36.0 : 40.0;
+    final radius = 8.0;
 
     final fg = switch (widget.variant) {
       AppButtonVariant.primary || AppButtonVariant.danger => Colors.white,

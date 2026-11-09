@@ -64,6 +64,20 @@ void main() {
       expect(canAccessRoute(smmDirector, '/smm/control'), isTrue);
     });
 
+    test('producer works in SMM like a specialist but does not mark stories', () {
+      final producer = _user('producer');
+
+      expect(canSeeSmmSection(producer), isTrue);
+      expect(isStoryWriter(producer), isFalse);
+      expect(isSmmViewOnly(producer), isFalse);
+      expect(userCan(producer, Perm.tasksCreate), isTrue);
+      expect(userCan(producer, Perm.contentPlanEdit), isTrue);
+      expect(userCan(producer, Perm.projectsCreate), isTrue);
+      expect(canAccessRoute(producer, '/smm/control'), isTrue);
+      expect(canCheckStories(producer), isFalse);
+      expect(canSeeDevSection(producer), isFalse);
+    });
+
     test('smm_specialist can publish stories and view SMM control, but cannot access stories-check audit', () {
       final smmSpec = _user('smm_specialist');
 

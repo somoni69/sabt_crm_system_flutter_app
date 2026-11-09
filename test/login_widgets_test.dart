@@ -172,10 +172,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('С возвращением'), findsOneWidget);
-      expect(find.text('Войти'), findsOneWidget);
+      expect(find.text('Войти'), findsNWidgets(2));
 
-      await tester.tap(find.text('Войти'));
+      await tester.tap(find.widgetWithText(LoginButton, 'Войти'));
       await tester.pump();
 
       expect(find.text('Введите логин или почту'), findsOneWidget);
@@ -207,7 +206,7 @@ void main() {
         '  farzod@webbrand.tj ',
       );
       await tester.enterText(find.byType(TextField).at(1), 'secret');
-      await tester.tap(find.text('Войти'));
+      await tester.tap(find.widgetWithText(LoginButton, 'Войти'));
       await tester.pump();
 
       expect(fake.loginCalls, 1);
@@ -237,14 +236,14 @@ void main() {
         'farzod@webbrand.tj',
       );
       await tester.enterText(find.byType(TextField).at(1), 'secret');
-      await tester.tap(find.text('Войти'));
+      await tester.tap(find.widgetWithText(LoginButton, 'Войти'));
       await tester.pump();
 
       expect(find.text('Подтвердите вход'), findsOneWidget);
       expect(find.byType(OtpField), findsOneWidget);
     });
 
-    testWidgets('interactive hero pillars switch the workspace preview card', (
+    testWidgets('theme pill toggles brightness on the web sign-in card', (
       tester,
     ) async {
       usePhoneViewport(tester);
@@ -263,70 +262,12 @@ void main() {
       );
       await tester.pump();
 
-      expect(
-        find.text('Редизайн айдентики и гайдлайна'),
-        findsOneWidget,
-      );
-
-      await tester.tap(find.text('Контент.'));
+      expect(find.text('Войти'), findsWidgets);
+      expect(find.text('Тёмная'), findsOneWidget);
+      await tester.tap(find.text('Тёмная'));
       await tester.pump();
-
-      expect(
-        find.text('Сетка Reels и проверка сторис'),
-        findsOneWidget,
-      );
-
-      await tester.tap(find.text('Клиенты.'));
-      await tester.pump();
-
-      expect(
-        find.text('Аналитика, тарифы и отчёты'),
-        findsOneWidget,
-      );
+      expect(find.text('Светлая'), findsOneWidget);
     });
-
-    testWidgets(
-      'horizontal drag on workspace preview card switches pillar and theme pill toggles brightness',
-      (tester) async {
-        usePhoneViewport(tester);
-        final fake = _FakeAuthController();
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [authControllerProvider.overrideWith(() => fake)],
-            child: MaterialApp(
-              theme: AppTheme.light,
-              home: const MediaQuery(
-                data: MediaQueryData(disableAnimations: true),
-                child: LoginPage(),
-              ),
-            ),
-          ),
-        );
-        await tester.pump();
-
-        expect(
-          find.text('Редизайн айдентики и гайдлайна'),
-          findsOneWidget,
-        );
-
-        await tester.drag(
-          find.text('Редизайн айдентики и гайдлайна'),
-          const Offset(-120, 0),
-        );
-        await tester.pump();
-
-        expect(
-          find.text('Сетка Reels и проверка сторис'),
-          findsOneWidget,
-        );
-
-        // Toggle theme pill from Light -> Dark.
-        expect(find.text('Тёмная'), findsOneWidget);
-        await tester.tap(find.text('Тёмная'));
-        await tester.pump();
-        expect(find.text('Светлая'), findsOneWidget);
-      },
-    );
   });
 }
 

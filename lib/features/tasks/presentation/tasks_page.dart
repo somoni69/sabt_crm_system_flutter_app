@@ -11,6 +11,7 @@ import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../domain/task.dart';
+import 'management_tasks_page.dart';
 import 'task_actions.dart';
 import 'task_form_sheet.dart';
 import 'tasks_providers.dart';
@@ -63,6 +64,9 @@ class _TasksPageState extends ConsumerState<TasksPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    if (user != null && !isDevLead(user)) {
+      return const ManagementTasksPage();
+    }
     final canCreate = canCreateTask(user);
     final async = ref.watch(tasksProvider(_feed));
     final snapshot = async.value;

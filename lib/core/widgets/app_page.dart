@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../design/glass_surface.dart';
 import '../design/glass_tokens.dart';
 import '../design/motion.dart';
 import '../theme/app_colors.dart';
@@ -10,10 +9,10 @@ import 'app_controls.dart';
 
 abstract final class PageInsets {
   static double top(BuildContext context) =>
-      MediaQuery.paddingOf(context).top + 92;
+      MediaQuery.paddingOf(context).top + 64;
 
   static double bottomNav(BuildContext context) =>
-      MediaQuery.paddingOf(context).bottom + 112;
+      MediaQuery.paddingOf(context).bottom + 72;
 
   static double bottomPlain(BuildContext context) =>
       MediaQuery.paddingOf(context).bottom + 28;
@@ -102,11 +101,14 @@ class AppPage extends StatelessWidget {
             top: 0,
             left: horizontalInset,
             right: horizontalInset,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: header,
+            child: ColoredBox(
+              color: context.palette.background,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                  child: header,
+                ),
               ),
             ),
           ),
@@ -152,13 +154,12 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassSurface(
-      radius: 24,
-      blur: blur,
-      blurBackdrop: false,
-      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+    final palette = context.palette;
+    assert(blur >= 0);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 2, 2, 6),
       child: SizedBox(
-        height: 54,
+        height: subtitle == null ? 40 : 48,
         child: Row(
           children: [
             if (onBack != null)
@@ -184,11 +185,11 @@ class AppHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: AppTypography.family,
-                      fontSize: 16.5,
+                      fontSize: 20,
                       height: 1.15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.25,
-                      color: context.palette.text,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.3,
+                      color: palette.text,
                     ),
                   ),
                   if (subtitle != null && subtitle!.isNotEmpty) ...[
@@ -260,7 +261,10 @@ class PageIntro extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 9),
-                Text(title, style: Theme.of(context).textTheme.headlineMedium),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 7),
                   Text(
@@ -314,14 +318,15 @@ Future<T?> showGlassSheet<T>({
           constraints: BoxConstraints(
             maxHeight: media.size.height * maxHeightFactor,
           ),
-          child: GlassSurface(
-            radius: 28,
-            blur: GlassTokens.blurXl,
-            // The sheet already slides and follows the finger. A live blur
-            // on that layer recomposites every frame of the gesture.
-            blurBackdrop: false,
-            strong: true,
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+          child: Material(
+            color: sheetContext.palette.surface1,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: sheetContext.palette.border),
+            ),
+            child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -348,11 +353,12 @@ Future<T?> showGlassSheet<T>({
                 ),
                 if (actions.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  GlassHairline(opacity: 0.10),
+                  Divider(height: 1, color: sheetContext.palette.border),
                   const SizedBox(height: 14),
                   ...actions,
                 ],
               ],
+            ),
             ),
           ),
         ),

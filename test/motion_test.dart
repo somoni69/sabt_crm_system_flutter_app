@@ -104,7 +104,7 @@ void main() {
     final slide = tester.widget<SlideTransition>(
       find.descendant(of: transition, matching: find.byType(SlideTransition)),
     );
-    expect(slide.position.value, const Offset(1, 0));
+    expect(slide.position.value, const Offset(0.06, 0));
     controller.value = 1;
     await tester.pump();
     expect(slide.position.value, Offset.zero);

@@ -84,6 +84,7 @@ class TaskModel {
     this.tags = const [],
     this.acceptanceCriteria = const [],
     this.assignees = const [],
+    this.devStage,
   });
 
   final String id;
@@ -117,6 +118,10 @@ class TaskModel {
   final List<AcceptanceItem> acceptanceCriteria;
   final List<TaskPerson> assignees;
 
+  /// Этап доски разработки. Карточка этапа — это не обычное поручение.
+  final int? devStage;
+
+  bool get isDevBoardCard => (devStage ?? 0) >= 1;
   bool get isDone => status == 'done';
   bool get isCancelled => status == 'cancelled';
   bool get isClosed => isDone || isCancelled;
@@ -179,6 +184,7 @@ class TaskModel {
         tags: tags,
         acceptanceCriteria: acceptanceCriteria,
         assignees: assignees,
+        devStage: devStage,
       );
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
@@ -241,6 +247,7 @@ class TaskModel {
       tags: asStringList(json['tags']),
       acceptanceCriteria: acceptance,
       assignees: people,
+      devStage: asInt(json['devStage']),
     );
   }
 }

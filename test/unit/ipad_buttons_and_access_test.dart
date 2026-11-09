@@ -122,7 +122,7 @@ void main() {
       );
     }
 
-    testWidgets('LiquidGlassNavBar tabs and quick-create (+) button are tappable on iPad Pro 1366x1024', (tester) async {
+    testWidgets('LiquidGlassNavBar tabs are tappable on iPad Pro 1366x1024', (tester) async {
       tester.view.physicalSize = const Size(1366, 1024);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -131,7 +131,6 @@ void main() {
       });
 
       int selectedTab = 0;
-      bool plusTapped = false;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -147,7 +146,6 @@ void main() {
                     child: LiquidGlassNavBar(
                       selectedIndex: selectedTab,
                       onSelected: (index) => setState(() => selectedTab = index),
-                      onAction: () => plusTapped = true,
                       items: const [
                         GlassNavItem(
                           icon: Icons.grid_view_outlined,
@@ -184,10 +182,7 @@ void main() {
       await tester.tap(find.text('Проекты'));
       await tester.pumpAndSettle();
       expect(selectedTab, 2);
-
-      await tester.tap(find.byIcon(Icons.add_rounded));
-      await tester.pumpAndSettle();
-      expect(plusTapped, isTrue);
+      expect(find.byIcon(Icons.add_rounded), findsNothing);
     });
 
     testWidgets('EmployeeAccessPage renders roles audit and opens 3-state permissions sheet on iPad', (tester) async {

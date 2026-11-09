@@ -176,6 +176,7 @@ class UserModel {
     'developer': 'Разработчик',
     'videographer': 'Видеограф',
     'video_editor': 'Монтажёр',
+    'producer': 'Продюсер',
     'targetologist': 'Таргетолог',
     'stories_checker': 'Проверяющий сторис',
     'employee': 'Сотрудник',

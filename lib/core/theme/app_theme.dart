@@ -118,8 +118,8 @@ class AppTheme {
         filled: true,
         fillColor: palette.surface2,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: 12,
+          vertical: 10,
         ),
         hintStyle: TextStyle(
           fontFamily: AppTypography.family,
@@ -136,23 +136,23 @@ class AppTheme {
         prefixIconColor: palette.textTertiary,
         suffixIconColor: palette.textTertiary,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: palette.borderSoft),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: palette.borderSoft),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: palette.accent, width: 1.3),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: palette.danger, width: 1.2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: palette.danger, width: 1.4),
         ),
         errorStyle: TextStyle(
@@ -212,7 +212,7 @@ class AppTheme {
           fontSize: 14,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: palette.border),
         ),
         elevation: 0,

@@ -59,7 +59,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Dev-доска'), findsOneWidget);
+      expect(find.text('Доска разработки'), findsOneWidget);
       expect(find.text('Тестовая задача'), findsOneWidget);
       expect(find.text('SABT CRM'), findsOneWidget);
     });

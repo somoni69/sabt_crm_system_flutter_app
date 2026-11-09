@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// The app's colour tokens as a [ThemeExtension].
+/// Colour tokens copied from the web CRM (`frontend/src/index.css`).
 ///
-/// Widgets read colours through `context.palette`, never from a static
-/// palette, so the whole tree can switch between [AppPalette.dark]
-/// ("liquid graphite") and [AppPalette.light] ("liquid porcelain")
-/// without a restart. Both presets keep the canonical Sabt violet
-/// #59479e as their anchor; only its tints move, enough to stay legible
-/// on each canvas.
+/// Widgets read colours through `context.palette`. Dark is the web
+/// graphite workspace, light is the web porcelain workspace. The action
+/// colour is the web steel blue, not a separate violet.
 ///
 /// [AppColors] remains the dark preset's constant source (used by the
 /// few places without a build context) — new UI must not read it.
@@ -101,63 +98,63 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   static const AppPalette dark = AppPalette(
     brightness: Brightness.dark,
-    background: Color(0xFF06080E),
-    backgroundDeep: Color(0xFF04060A),
-    backgroundLift: Color(0xFF0A0E17),
-    surface1: Color(0xFF0F1420),
-    surface2: Color(0xFF151B2A),
-    surface3: Color(0xFF1C2435),
-    surface4: Color(0xFF232D42),
-    border: Color(0xFF243047),
-    borderSoft: Color(0xFF1A2334),
-    borderStrong: Color(0xFF344260),
-    text: Color(0xFFF3F6FC),
-    textSecondary: Color(0xFFA8B2C6),
-    textTertiary: Color(0xFF71809A),
-    textDisabled: Color(0xFF4E5A70),
-    brandPurple: Color(0xFF59479E),
+    background: Color(0xFF191C22),
+    backgroundDeep: Color(0xFF14171D),
+    backgroundLift: Color(0xFF22262E),
+    surface1: Color(0xFF22262E),
+    surface2: Color(0xFF2A303A),
+    surface3: Color(0xFF30353F),
+    surface4: Color(0xFF3E4553),
+    border: Color(0xFF3E4553),
+    borderSoft: Color(0xFF30353F),
+    borderStrong: Color(0xFF5A6574),
+    text: Color(0xFFF4F7FA),
+    textSecondary: Color(0xFFC5CED8),
+    textTertiary: Color(0xFF8792A2),
+    textDisabled: Color(0xFF5C6776),
+    brandPurple: Color(0xFF6E96BE),
     brandRed: Color(0xFFEF4444),
-    accent: Color(0xFF8B6CF6),
-    accentBright: Color(0xFFB49BFF),
-    accentDeep: Color(0xFF5B3EC8),
-    ice: Color(0xFF7EC8FF),
-    iceDeep: Color(0xFF2E6E9E),
-    danger: Color(0xFFFF5C63),
-    dangerSoft: Color(0x33FF5C63),
-    success: Color(0xFF35D07F),
-    successSoft: Color(0x2E35D07F),
+    accent: Color(0xFF6E96BE),
+    accentBright: Color(0xFF9BB8D4),
+    accentDeep: Color(0xFF3E6A90),
+    ice: Color(0xFF8FB4D4),
+    iceDeep: Color(0xFF3E6A90),
+    danger: Color(0xFFF07178),
+    dangerSoft: Color(0x33F07178),
+    success: Color(0xFF3DDC84),
+    successSoft: Color(0x2E3DDC84),
     warning: Color(0xFFF5B84B),
     warningSoft: Color(0x2EF5B84B),
-    info: Color(0xFF6AA6FF),
-    infoSoft: Color(0x2E6AA6FF),
-    glassTint: Color(0xB3131824),
-    glassTintLight: Color(0x1AFFFFFF),
-    glassRim: Color(0x40FFFFFF),
+    info: Color(0xFF7EB6E0),
+    infoSoft: Color(0x2E7EB6E0),
+    glassTint: Color(0xFF22262E),
+    glassTintLight: Color(0xFF2A303A),
+    glassRim: Color(0xFF3E4553),
   );
 
   static const AppPalette light = AppPalette(
     brightness: Brightness.light,
-    background: Color(0xFFF3F4F9),
-    backgroundDeep: Color(0xFFE9EBF3),
-    backgroundLift: Color(0xFFFFFFFF),
+    background: Color(0xFFF3F5F8),
+    backgroundDeep: Color(0xFFE2E7ED),
+    backgroundLift: Color(0xFFFCFDFE),
     surface1: Color(0xFFFFFFFF),
-    surface2: Color(0xFFF7F8FC),
-    surface3: Color(0xFFEEF0F7),
-    surface4: Color(0xFFE2E7F2),
-    border: Color(0xFFD6DCEC),
-    borderSoft: Color(0xFFE3E8F2),
-    borderStrong: Color(0xFFB9C4DC),
-    text: Color(0xFF161B2D),
-    textSecondary: Color(0xFF49536D),
-    textTertiary: Color(0xFF75809A),
-    textDisabled: Color(0xFFA9B1C5),
-    brandPurple: Color(0xFF59479E),
+    surface2: Color(0xFFF3F5F8),
+    surface3: Color(0xFFE2E7ED),
+    surface4: Color(0xFFCBD3DD),
+    border: Color(0xFFE2E7ED),
+    borderSoft: Color(0xFFE2E7ED),
+    borderStrong: Color(0xFFCBD3DD),
+    text: Color(0xFF141A22),
+    textSecondary: Color(0xFF3E4C5C),
+    textTertiary: Color(0xFF6C798A),
+    textDisabled: Color(0xFF9AA5B3),
+    brandPurple: Color(0xFF1E4263),
     brandRed: Color(0xFFD92D20),
-    accent: Color(0xFF59479E),
-    accentBright: Color(0xFF6D5BD0),
-    accentDeep: Color(0xFF473A85),
-    ice: Color(0xFF2E7FC2),
-    iceDeep: Color(0xFF7EC8FF),
+    accent: Color(0xFF1E4263),
+    accentBright: Color(0xFF345A7C),
+    accentDeep: Color(0xFF14304A),
+    ice: Color(0xFF345A7C),
+    iceDeep: Color(0xFF8FB4D4),
     danger: Color(0xFFD92D20),
     dangerSoft: Color(0x1FD92D20),
     success: Color(0xFF12805C),
@@ -166,9 +163,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
     warningSoft: Color(0x1FB54708),
     info: Color(0xFF175CD3),
     infoSoft: Color(0x1F175CD3),
-    glassTint: Color(0xC7FFFFFF),
-    glassTintLight: Color(0x0F161B2D),
-    glassRim: Color(0x2E161B2D),
+    glassTint: Color(0xFFFFFFFF),
+    glassTintLight: Color(0xFFF3F5F8),
+    glassRim: Color(0xFFE2E7ED),
   );
 
   Color priority(String priority) => switch (priority) {
@@ -192,24 +189,13 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   List<BoxShadow> get cardShadow => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: isDark ? 0.34 : 0.10),
-      blurRadius: 22,
-      offset: const Offset(0, 10),
+      color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+      blurRadius: 2,
+      offset: const Offset(0, 1),
     ),
   ];
 
-  List<BoxShadow> get glassShadow => [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: isDark ? 0.42 : 0.07),
-      blurRadius: isDark ? 30 : 20,
-      offset: Offset(0, isDark ? 14 : 8),
-    ),
-    BoxShadow(
-      color: accent.withValues(alpha: isDark ? 0.08 : 0.05),
-      blurRadius: isDark ? 40 : 28,
-      offset: Offset(0, isDark ? 10 : 6),
-    ),
-  ];
+  List<BoxShadow> get glassShadow => cardShadow;
 
   /// Glass rim light. On dark glass the rim is white light; on light
   /// glass it is a white top sheen over a slate edge.
@@ -232,83 +218,39 @@ class AppPalette extends ThemeExtension<AppPalette> {
     stops: const [0.0, 0.36, 0.72, 1.0],
   );
 
-  /// The one hero surface, shared by every detail/dashboard header.
-  ///
-  /// The hero follows the app theme instead of staying black: in dark
-  /// mode it is the graphite gradient, in light mode a white porcelain
-  /// plate with a whisper of the brand violet. Because the surface moves
-  /// with the theme, children can always read `text`, `textSecondary`
-  /// etc. from the ambient palette — white-on-light and dark-on-dark
-  /// are impossible by construction, and no page needs an `OnDark`
-  /// scope or its own hardcoded gradient again.
-  LinearGradient get heroGradient => isDark
-      ? const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1B2338), Color(0xFF111624), Color(0xFF19122E)],
-          stops: [0, 0.55, 1],
-        )
-      : LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            surface1,
-            Color.alphaBlend(accent.withValues(alpha: 0.045), surface1),
-            Color.alphaBlend(accent.withValues(alpha: 0.09), surface1),
-          ],
-        );
-
-  Color get heroBorder => isDark
-      ? borderSoft
-      : Color.alphaBlend(accent.withValues(alpha: 0.20), border);
-
-  List<BoxShadow> get heroShadow => [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.08),
-      blurRadius: 24,
-      offset: const Offset(0, 12),
-    ),
-    BoxShadow(
-      color: accent.withValues(alpha: isDark ? 0.07 : 0.08),
-      blurRadius: 32,
-      offset: const Offset(0, 8),
-    ),
-  ];
-
-  /// Primary-button gradient: the canonical Sabt violet #59479e in both
-  /// themes, lightened only at the top edge. Never introduce a second
-  /// accent hue here.
-  LinearGradient get primaryGradient => LinearGradient(
+  /// Flat web card. Stops stay uniform so text contrast does not depend
+  /// on a decorative wash.
+  LinearGradient get heroGradient => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color.alphaBlend(Colors.white.withValues(alpha: 0.20), brandPurple),
-      brandPurple,
-      accentDeep,
+      isDark ? background : surface1,
+      isDark ? background : surface1,
+      isDark ? background : surface1,
     ],
-    stops: const [0, 0.55, 1],
   );
 
-  /// Selected state for every segmented / choice / filter control.
-  /// One colour (the brand violet) in both themes, so a selected pill
-  /// means the same thing on every screen.
+  Color get heroBorder => border;
+
+  List<BoxShadow> get heroShadow => cardShadow;
+
+  /// Flat web primary. The middle stop is the button colour tests look for.
+  LinearGradient get primaryGradient => LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [accent, brandPurple, accentDeep],
+  );
+
+  /// Selected chips and segments: the same steel as a web `bg-primary-600`.
   Color get controlSelected => brandPurple;
   Color get onControlSelected => Colors.white;
 
   LinearGradient surfaceGradient({Color? tint, bool strong = false}) {
-    final base = tint ?? glassTint;
+    final base = tint ?? (strong ? surface2 : surface1);
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        Color.alphaBlend(
-          Colors.white.withValues(alpha: strong ? 0.10 : 0.055),
-          base,
-        ),
-        base,
-        Color.alphaBlend(accent.withValues(alpha: strong ? 0.08 : 0.035), base),
-      ],
-      stops: const [0.0, 0.52, 1.0],
+      colors: [base, base, base],
     );
   }
 

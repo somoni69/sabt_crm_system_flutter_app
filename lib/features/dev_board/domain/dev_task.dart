@@ -11,6 +11,7 @@ class DevTask {
     this.type = 'task',
     this.projectId,
     this.projectName,
+    this.assigneeId,
     this.assigneeName,
     this.assigneeAvatar,
     this.deadline,
@@ -25,6 +26,7 @@ class DevTask {
   final String type;
   final String? projectId;
   final String? projectName;
+  final String? assigneeId;
   final String? assigneeName;
   final String? assigneeAvatar;
   final DateTime? deadline;
@@ -43,6 +45,7 @@ class DevTask {
       type: asStringOr(json['type'], 'task'),
       projectId: asString(json['projectId'] ?? project?['id']),
       projectName: asString(project?['name'] ?? json['projectName']),
+      assigneeId: asString(json['assigneeId'] ?? assignee?['id']),
       assigneeName: asString(assignee?['name'] ?? json['assigneeName']),
       assigneeAvatar: asString(assignee?['avatar'] ?? json['assigneeAvatar']),
       deadline: BizDate.parse(json['deadline']),
@@ -65,6 +68,27 @@ class DevTask {
         'testing' => 'Тестирование',
         'done' => 'Готово',
         _ => status,
+      };
+
+  static const Map<String, int> wipLimits = {
+    'in_progress': 3,
+    'testing': 2,
+  };
+
+  bool get isOverdue {
+    if (deadline == null || status == 'done') return false;
+    final day = DateTime(deadline!.year, deadline!.month, deadline!.day);
+    final today = BizDate.today();
+    return day.isBefore(DateTime(today.year, today.month, today.day));
+  }
+
+  static String priorityLabel(String priority) => switch (priority) {
+        'low' => 'Низкий',
+        'medium' => 'Средний',
+        'high' => 'Высокий',
+        'critical' => 'Критический',
+        'urgent' => 'Срочный',
+        _ => priority,
       };
 
   static String typeLabel(String type) => switch (type) {

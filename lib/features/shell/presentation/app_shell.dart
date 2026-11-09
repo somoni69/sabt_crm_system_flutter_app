@@ -2,17 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../core/design/liquid_glass_bar.dart';
 import '../../../core/dependencies.dart';
+import '../../../core/design/liquid_glass_bar.dart';
 import '../../../core/rbac/permissions.dart';
 import '../../../core/realtime/realtime_service.dart';
 import '../../../core/state/app_state.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/app_page.dart';
-import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/app_surfaces.dart';
 import '../../auth/domain/user.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -20,11 +15,8 @@ import '../../clients/presentation/clients_page.dart';
 import '../../dashboard/presentation/dashboard_page.dart';
 import '../../dev_board/presentation/dev_board_page.dart';
 import '../../projects/presentation/projects_page.dart';
-import '../../smm/presentation/content_form_sheet.dart';
 import '../../smm/presentation/smm_page.dart';
 import '../../smm/presentation/stories_check_page.dart';
-import '../../smm/presentation/story_sheet.dart';
-import '../../tasks/presentation/task_form_sheet.dart';
 import '../../tasks/presentation/tasks_page.dart';
 import 'more_page.dart';
 
@@ -113,7 +105,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final tabs = <_ShellTab>[
       const _ShellTab(
         id: 'home',
-        label: 'Главная',
+        label: 'Панель',
         icon: Icons.grid_view_outlined,
         activeIcon: Icons.grid_view_rounded,
         page: DashboardPage(),
@@ -145,50 +137,59 @@ class _AppShellState extends ConsumerState<AppShell> {
       return tabs;
     }
 
-    if (user != null && userCan(user, Perm.tasksView)) {
-      tabs.add(const _ShellTab(
-        id: 'tasks',
-        label: 'Задачи',
-        icon: Icons.checklist_outlined,
-        activeIcon: Icons.checklist_rounded,
-        page: TasksPage(),
-      ));
-    }
-
     if (user != null) {
       if (canSeeSmmSection(user)) {
         tabs.add(const _ShellTab(
           id: 'work',
-          label: 'SMM',
-          icon: Icons.auto_awesome_outlined,
-          activeIcon: Icons.auto_awesome,
+          label: 'СММ',
+          icon: Icons.campaign_outlined,
+          activeIcon: Icons.campaign_rounded,
           page: SmmPage(),
         ));
       } else if (canSeeDevSection(user)) {
         tabs.add(const _ShellTab(
           id: 'work',
           label: 'Разработка',
-          icon: Icons.terminal_rounded,
-          activeIcon: Icons.terminal_rounded,
+          icon: Icons.code_rounded,
+          activeIcon: Icons.code_rounded,
           page: DevBoardPage(embedded: true),
         ));
       } else if (canSeeProjects(user)) {
         tabs.add(const _ShellTab(
           id: 'work',
           label: 'Проекты',
-          icon: Icons.workspaces_outline,
-          activeIcon: Icons.workspaces_rounded,
+          icon: Icons.folder_outlined,
+          activeIcon: Icons.folder_rounded,
           page: ProjectsPage(),
         ));
       } else if (canSeeClients(user)) {
         tabs.add(const _ShellTab(
           id: 'work',
           label: 'Клиенты',
-          icon: Icons.people_outline_rounded,
-          activeIcon: Icons.people_rounded,
+          icon: Icons.contacts_outlined,
+          activeIcon: Icons.contacts_rounded,
           page: ClientsPage(embedded: true),
         ));
       }
+      if (canCheckStories(user) && !user.isStoriesChecker) {
+        tabs.add(const _ShellTab(
+          id: 'checks',
+          label: 'Сторис',
+          icon: Icons.fact_check_outlined,
+          activeIcon: Icons.fact_check_rounded,
+          page: StoriesCheckPage(embedded: true),
+        ));
+      }
+    }
+
+    if (user != null && userCan(user, Perm.tasksView)) {
+      tabs.add(_ShellTab(
+        id: 'tasks',
+        label: isDevLead(user) ? 'Задачи' : 'Поручения',
+        icon: Icons.assignment_outlined,
+        activeIcon: Icons.assignment_rounded,
+        page: const TasksPage(),
+      ));
     }
 
     tabs.add(const _ShellTab(
@@ -200,96 +201,6 @@ class _AppShellState extends ConsumerState<AppShell> {
     ));
 
     return tabs.take(5).toList();
-  }
-
-  Future<void> _openQuickCreate() async {
-    final user = ref.read(currentUserProvider);
-    if (user == null) return;
-
-    final actions = <_QuickAction>[
-      if (canCreateTask(user))
-        _QuickAction(
-          icon: Icons.add_task_rounded,
-          color: context.palette.accentBright,
-          title: 'Новая задача',
-          subtitle: 'Поставить задачу себе или команде',
-          onTap: () => showTaskForm(context, ref),
-        ),
-      if (canCreateTask(user))
-        _QuickAction(
-          icon: Icons.videocam_outlined,
-          color: context.palette.ice,
-          title: 'Встреча',
-          subtitle: 'Создать встречу или звонок в календаре',
-          onTap: () => showTaskForm(
-            context,
-            ref,
-            initialKind: 'meeting',
-            initialDeadline: _nextRoundHour(),
-          ),
-        ),
-      if (canSeeSmmSection(user) && !isSmmViewOnly(user))
-        _QuickAction(
-          icon: Icons.auto_awesome_rounded,
-          color: context.palette.accent,
-          title: 'Контент в план',
-          subtitle: 'Рилс, пост или макет на дату',
-          onTap: () => showContentForm(context, ref),
-        ),
-      if (isStoryWriter(user))
-        _QuickAction(
-          icon: Icons.auto_awesome_motion_rounded,
-          color: context.palette.success,
-          title: 'Внести сторис',
-          subtitle: 'Отметить количество историй за сегодня',
-          onTap: () => showStorySheet(context, ref),
-        ),
-      if (canCheckStories(user) && !user.isStoriesChecker)
-        _QuickAction(
-          icon: Icons.fact_check_outlined,
-          color: context.palette.warning,
-          title: 'Проверка сторис',
-          subtitle: 'Кто не закрыл дневную норму',
-          onTap: () => context.push('/stories-check'),
-        ),
-    ];
-
-    if (actions.isEmpty) {
-      ref.read(dependenciesProvider).banners.show(const AppBanner(
-            title: 'Нет доступных действий',
-            message: 'Для вашей роли создание записей недоступно.',
-            tone: BannerTone.info,
-          ));
-      return;
-    }
-
-    await showGlassSheet<void>(
-      context: context,
-      title: 'Быстрое действие',
-      subtitle: 'Создайте запись, не покидая текущий экран',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < actions.length; i++) ...[
-            if (i > 0) const SizedBox(height: 8),
-            _QuickActionRow(
-              action: actions[i],
-              onTap: () {
-                Navigator.of(context).pop();
-                Future<void>.delayed(const Duration(milliseconds: 220), () {
-                  if (mounted) actions[i].onTap();
-                });
-              },
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  DateTime _nextRoundHour() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day, now.hour + 1);
   }
 
   @override
@@ -330,7 +241,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               Positioned(
                 left: 16,
                 right: 16,
-                bottom: MediaQuery.paddingOf(context).bottom + 88,
+                bottom: MediaQuery.paddingOf(context).bottom + 82,
                 child: const IgnorePointer(child: OfflineRibbon()),
               ),
             Positioned(
@@ -348,8 +259,6 @@ class _AppShellState extends ConsumerState<AppShell> {
                 ],
                 selectedIndex: index,
                 onSelected: _select,
-                onAction: _openQuickCreate,
-                actionTooltip: 'Создать',
               ),
             ),
           ],
@@ -375,77 +284,3 @@ class _ShellTab {
   final Widget page;
 }
 
-class _QuickAction {
-  const _QuickAction({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-}
-
-class _QuickActionRow extends StatelessWidget {
-  const _QuickActionRow({required this.action, required this.onTap});
-
-  final _QuickAction action;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: context.palette.surface2,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.palette.borderSoft),
-          ),
-          child: Row(
-            children: [
-              SurfaceIcon(icon: action.icon, color: action.color, size: 40),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      action.title,
-                      style:  TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: context.palette.text,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      action.subtitle,
-                      style:  TextStyle(
-                        fontFamily: AppTypography.family,
-                        fontSize: 11.5,
-                        color: context.palette.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-               Icon(Icons.chevron_right_rounded,
-                  size: 18, color: context.palette.textTertiary),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

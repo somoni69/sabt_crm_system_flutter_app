@@ -25,6 +25,9 @@ import '../../work_shifts/presentation/work_shift_card.dart';
 import 'dashboard_providers.dart';
 import '../../shell/presentation/global_search_sheet.dart';
 import '../../shell/presentation/navigation_helpers.dart';
+import 'dev_team_dashboard.dart';
+import 'office_home_page.dart';
+import 'producer_dashboard.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -33,6 +36,15 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     if (user == null) return const SizedBox.shrink();
+    if (user.role == 'developer') {
+      return const DevTeamDashboard();
+    }
+    if (user.role == 'pm_dev') {
+      return const OfficeHomePage();
+    }
+    if (user.role == 'producer') {
+      return const ProducerDashboard();
+    }
 
     final today = BizDate.today();
     final hasTasks = userCan(user, Perm.tasksView);

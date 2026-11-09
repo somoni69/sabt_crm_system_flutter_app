@@ -76,7 +76,7 @@ class AppCard extends StatelessWidget {
     this.margin,
     this.onTap,
     this.onLongPress,
-    this.radius = 20,
+    this.radius = 12,
     this.color,
     this.borderColor,
     this.selected = false,
@@ -98,9 +98,6 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final motion = Motion.allowed(context);
     final palette = context.palette;
-    final restLipColor = palette.isDark
-        ? const Color(0xFF06080E)
-        : const Color(0xFFE1E6F2);
     final card = AnimatedContainer(
       duration: motion ? Motion.standard : Duration.zero,
       curve: Motion.easeOut,
@@ -116,21 +113,7 @@ class AppCard extends StatelessWidget {
               : (borderColor ?? palette.borderSoft),
           width: selected ? 1.3 : 1,
         ),
-        boxShadow: selected
-            ? [
-                BoxShadow(
-                  color: palette.accent.withValues(alpha: 0.14),
-                  blurRadius: 22,
-                  offset: const Offset(0, 8),
-                ),
-              ]
-            : [
-                BoxShadow(
-                  color: restLipColor,
-                  offset: const Offset(0, 1.5),
-                  blurRadius: 0,
-                ),
-              ],
+        boxShadow: palette.cardShadow,
       ),
       child: child,
     );
@@ -153,7 +136,7 @@ class AppHeroCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.fromLTRB(18, 18, 18, 18),
-    this.radius = 24,
+    this.radius = 12,
   });
 
   final Widget child;

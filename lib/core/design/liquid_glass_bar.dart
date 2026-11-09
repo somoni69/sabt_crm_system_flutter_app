@@ -83,39 +83,16 @@ double navFlingVelocity(double pixelsPerSecond, double tabWidth) {
   return (pixelsPerSecond / tabWidth).clamp(-3.5, 3.5).toDouble();
 }
 
+/// The moving lens is a solid tinted pill with a faint specular rim. It is
+/// not glass itself: only the floating capsule behind it is translucent,
+/// so there is never glass-on-glass.
 BoxDecoration _lensDecoration(AppPalette palette) => BoxDecoration(
-  gradient: LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      palette.accent.withValues(alpha: 0.30),
-      palette.accentDeep.withValues(alpha: 0.42),
-    ],
-  ),
+  color: palette.accent.withValues(alpha: 0.20),
   borderRadius: const BorderRadius.all(Radius.circular(GlassTokens.radiusPill)),
-  border: Border.all(color: palette.glassRim, width: GlassTokens.hairline),
-);
-
-BoxDecoration _actionDecoration(AppPalette palette) => BoxDecoration(
-  shape: BoxShape.circle,
-  gradient: LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [palette.accent, palette.accentDeep],
+  border: Border.all(
+    color: palette.accentBright.withValues(alpha: 0.28),
+    width: 1,
   ),
-  border: Border.all(color: palette.glassRim, width: GlassTokens.hairline),
-  boxShadow: [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.32),
-      blurRadius: 12,
-      offset: const Offset(0, 4),
-    ),
-    BoxShadow(
-      color: palette.accent.withValues(alpha: 0.28),
-      blurRadius: 16,
-      offset: const Offset(0, 8),
-    ),
-  ],
 );
 
 const _labelStyle = TextStyle(
@@ -134,25 +111,23 @@ const _labelStyleActive = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
-const SpringDescription _navSpring = Motion.springSnap;
-
-/// Liquid glass navigation chrome: a floating capsule, a spring-driven
-/// lens, and a detached circular action.
+/// Floating Liquid Glass bottom navigation.
 ///
-/// The plate is opaque glass: [context.palette.glassTint] composited on the
-/// canvas, plus the shared rim. It stays on screen over scrolling pages and
-/// the ambient layer, so a live [BackdropFilter] would recomposite every
-/// frame on low-end GPUs. The lens is a solid tinted capsule. The action
-/// is an opaque fill — its previous frost sat under a nearly solid gradient.
+/// * A detached pill capsule with specular rim and depth shadow. Live
+///   backdrop blur on Apple platforms only; Android gets the opaque
+///   composite of the same tint (see [GlassSurface]).
+/// * A tap slides the lens in 140ms (same curve on both platforms).
+/// * A horizontal drag scrubs the lens under the finger with rubber-band
+///   edges; on release it settles on [Motion.springSnap] and only then
+///   commits the tab, so scrubbing never switches screens mid-gesture.
+/// * Reduced motion snaps everything; high contrast/accessible navigation
+///   drops transparency.
 class LiquidGlassNavBar extends StatefulWidget {
   const LiquidGlassNavBar({
     super.key,
     required this.items,
     required this.selectedIndex,
     required this.onSelected,
-    required this.onAction,
-    this.actionIcon = Icons.add_rounded,
-    this.actionTooltip = 'Создать',
   }) : assert(items.length >= 2 && items.length <= 5);
 
   /// Lens render box, for tests that need to read its position.
@@ -166,9 +141,6 @@ class LiquidGlassNavBar extends StatefulWidget {
   final List<GlassNavItem> items;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
-  final VoidCallback onAction;
-  final IconData actionIcon;
-  final String actionTooltip;
 
   @override
   State<LiquidGlassNavBar> createState() => _LiquidGlassNavBarState();
@@ -178,14 +150,14 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     with TickerProviderStateMixin {
   late final AnimationController _position;
   late final AnimationController _lift;
-  late final AnimationController _actionScale;
 
   late double _goal;
   int _motionTicket = 0;
-  bool _dragging = false;
   bool _reduceMotion = false;
+  bool _dragging = false;
 
-  static const _barHeight = 66.0;
+  static const _barHeight = 62.0;
+  static const _move = Duration(milliseconds: 140);
 
   @override
   void initState() {
@@ -195,15 +167,8 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     _position = AnimationController.unbounded(vsync: this, value: initial);
     _lift = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 140),
-      reverseDuration: const Duration(milliseconds: 180),
-    );
-    _actionScale = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 110),
-      lowerBound: 0.92,
-      upperBound: 1,
-      value: 1,
+      duration: Motion.micro,
+      reverseDuration: Motion.release,
     );
   }
 
@@ -215,17 +180,14 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     final countChanged = oldWidget.items.length != widget.items.length;
     if (!indexChanged && !countChanged) return;
     final target = _clampedIndex(widget.selectedIndex).toDouble();
-    // A scrub already launched this spring, including its release velocity.
-    // Starting again from didUpdateWidget would zero that velocity.
     if (_goal == target) return;
-    _springTo(widget.selectedIndex);
+    _moveTo(widget.selectedIndex);
   }
 
   @override
   void dispose() {
     _position.dispose();
     _lift.dispose();
-    _actionScale.dispose();
     super.dispose();
   }
 
@@ -242,50 +204,97 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_reduceMotion) return;
       _motionTicket++;
-      _lift.value = 0;
-      _actionScale.value = 1;
-      if (_dragging) return;
       _position
         ..stop()
         ..value = _goal;
     });
   }
 
-  void _springTo(int index, {double velocity = 0}) {
+  void _moveTo(int index) {
     final target = _clampedIndex(index).toDouble();
     _goal = target;
     if (_reduceMotion) {
       _motionTicket++;
       _position.stop();
-      _lift.value = 0;
       _position.value = target;
       return;
     }
     final ticket = ++_motionTicket;
-    final simulation = SpringSimulation(
-      _navSpring,
-      _position.value,
-      target,
-      velocity,
-    );
-    _lift.forward();
-    _position.animateWith(simulation).whenComplete(() {
-      if (ticket != _motionTicket || _dragging || !mounted) return;
-      _lift.reverse();
+    _position
+        .animateTo(target, duration: _move, curve: Curves.easeOutCubic)
+        .whenComplete(() {
+      if (ticket != _motionTicket || !mounted) return;
     });
   }
 
-  void _commit(int index, {double velocity = 0, bool heavy = false}) {
+  void _commit(int index) {
     final target = _clampedIndex(index);
-    if (target != widget.selectedIndex) {
-      if (heavy) {
-        HapticFeedback.mediumImpact();
-      } else {
-        HapticFeedback.lightImpact();
-      }
-      widget.onSelected(target);
+    final changed = target != widget.selectedIndex;
+    _moveTo(target);
+    if (!changed) return;
+    HapticFeedback.selectionClick();
+    widget.onSelected(target);
+  }
+
+  double _rawPosition(double x, double tabWidth) => x / tabWidth - 0.5;
+
+  void _dragStart(DragStartDetails details, double tabWidth) {
+    if (tabWidth <= 0) return;
+    _dragging = true;
+    _motionTicket++;
+    _position.stop();
+    if (!_reduceMotion) _lift.forward();
+    HapticFeedback.selectionClick();
+    _position.value = resistNavPosition(
+      _rawPosition(details.localPosition.dx, tabWidth),
+      widget.items.length,
+    );
+  }
+
+  void _dragUpdate(DragUpdateDetails details, double tabWidth) {
+    if (!_dragging || tabWidth <= 0) return;
+    _position.value = resistNavPosition(
+      _rawPosition(details.localPosition.dx, tabWidth),
+      widget.items.length,
+    );
+  }
+
+  void _dragEnd(double pixelsPerSecond, double tabWidth) {
+    if (!_dragging) return;
+    _dragging = false;
+    _lift.reverse();
+    final velocity = navFlingVelocity(pixelsPerSecond, tabWidth);
+    final target = settleNavIndex(
+      position: _position.value,
+      velocityTabs: velocity,
+      itemCount: widget.items.length,
+    );
+    _settleOn(target, velocity);
+  }
+
+  /// Lands the lens on [index] with the shared snap spring, then commits.
+  void _settleOn(int index, double velocityTabs) {
+    final target = _clampedIndex(index);
+    final changed = target != widget.selectedIndex;
+    _goal = target.toDouble();
+    ++_motionTicket;
+    if (_reduceMotion) {
+      _position.stop();
+      _position.value = _goal;
+    } else {
+      _position.animateWith(
+        SpringSimulation(
+          Motion.springSnap,
+          _position.value,
+          _goal,
+          velocityTabs,
+          snapToEnd: true,
+        ),
+      );
     }
-    _springTo(target, velocity: velocity);
+    if (!changed) return;
+    HapticFeedback.selectionClick();
+    widget.onSelected(target);
   }
 
   void _onTap(double x, double tabWidth) {
@@ -294,63 +303,10 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     _commit(index);
   }
 
-  void _trackFinger(double localX, double tabWidth) {
-    if (tabWidth <= 0) return;
-    final raw = localX / tabWidth - 0.5;
-    _position.value = resistNavPosition(raw, widget.items.length);
-  }
-
-  void _onPanStart(DragStartDetails details, double tabWidth) {
-    _dragging = true;
-    _motionTicket++;
-    _position.stop();
-    if (!_reduceMotion) _lift.forward();
-    HapticFeedback.selectionClick();
-    // The accepting sample is not delivered again as an update. A fast scrub
-    // can be one move plus an up, so the lens has to follow this point too.
-    _trackFinger(details.localPosition.dx, tabWidth);
-  }
-
-  void _onPanUpdate(DragUpdateDetails details, double tabWidth) {
-    _trackFinger(details.localPosition.dx, tabWidth);
-  }
-
-  void _onPanEnd(DragEndDetails details, double tabWidth) {
-    _dragging = false;
-    final velocity = navFlingVelocity(
-      details.velocity.pixelsPerSecond.dx,
-      tabWidth,
-    );
-    final target = settleNavIndex(
-      position: _position.value,
-      velocityTabs: velocity,
-      itemCount: widget.items.length,
-    );
-    _commit(target, velocity: velocity, heavy: true);
-  }
-
-  void _onPanCancel() {
-    if (!_dragging) return;
-    _dragging = false;
-    _springTo(widget.selectedIndex);
-  }
-
-  void _setActionPressed(bool pressed) {
-    if (_reduceMotion) return;
-    if (pressed) {
-      _actionScale.reverse();
-    } else {
-      _actionScale.forward();
-    }
-  }
-
   int _visualIndex(double position) {
-    if (!_dragging) return _clampedIndex(widget.selectedIndex);
-    return settleNavIndex(
-      position: position,
-      velocityTabs: 0,
-      itemCount: widget.items.length,
-    );
+    final max = widget.items.length - 1;
+    if (max < 0) return 0;
+    return position.round().clamp(0, max);
   }
 
   @override
@@ -361,8 +317,8 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     final keyboard =
         MediaQueryData.fromView(View.of(context)).viewInsets.bottom > 0;
     final motion = !_reduceMotion;
-    final slide = motion ? Motion.sheet : Duration.zero;
-    final fade = motion ? Motion.exit : Duration.zero;
+    final slide = motion ? const Duration(milliseconds: 120) : Duration.zero;
+    final fade = motion ? const Duration(milliseconds: 80) : Duration.zero;
 
     return ExcludeSemantics(
       excluding: keyboard,
@@ -373,24 +329,21 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
           child: AnimatedSlide(
             duration: slide,
             curve: Motion.drawer,
-            offset: keyboard ? const Offset(0, 1.4) : Offset.zero,
+            offset: keyboard ? const Offset(0, 1.6) : Offset.zero,
             child: AnimatedOpacity(
               duration: fade,
               opacity: keyboard ? 0 : 1,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 620),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: GlassSurface(
+                  radius: GlassTokens.radiusPill,
+                  blur: GlassTokens.blurLarge,
+                  strong: true,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: SizedBox(
                       height: _barHeight,
-                      child: Row(
-                        children: [
-                          Expanded(child: _buildCapsule()),
-                          const SizedBox(width: 12),
-                          _buildAction(),
-                        ],
-                      ),
+                      child: _buildCapsule(),
                     ),
                   ),
                 ),
@@ -411,12 +364,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
           fit: StackFit.expand,
           clipBehavior: Clip.none,
           children: [
-            const GlassSurface(
-              radius: GlassTokens.radiusPill,
-              blurBackdrop: false,
-              padding: EdgeInsets.zero,
-              child: SizedBox.expand(),
-            ),
+            const SizedBox.expand(),
             RepaintBoundary(
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(
@@ -427,15 +375,16 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                   excludeFromSemantics: true,
                   onTapUp: (details) =>
                       _onTap(details.localPosition.dx, tabWidth),
-                  onPanStart: (details) => _onPanStart(details, tabWidth),
-                  onPanUpdate: (details) => _onPanUpdate(details, tabWidth),
-                  onPanEnd: (details) => _onPanEnd(details, tabWidth),
-                  onPanCancel: _onPanCancel,
+                  onHorizontalDragStart: (d) => _dragStart(d, tabWidth),
+                  onHorizontalDragUpdate: (d) => _dragUpdate(d, tabWidth),
+                  onHorizontalDragEnd: (d) =>
+                      _dragEnd(d.primaryVelocity ?? 0, tabWidth),
+                  onHorizontalDragCancel: () => _dragEnd(0, tabWidth),
                   child: AnimatedBuilder(
                     animation: Listenable.merge([_position, _lift]),
                     builder: (context, _) {
                       final pos = _position.value;
-                      final lift = _reduceMotion ? 0.0 : _lift.value;
+                      final lift = _lift.value;
                       final lensWidth = navLensWidth(
                         tabWidth: tabWidth,
                         lift: lift,
@@ -488,44 +437,6 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     );
   }
 
-  Widget _buildAction() {
-    return Tooltip(
-      message: widget.actionTooltip,
-      excludeFromSemantics: true,
-      child: Semantics(
-        button: true,
-        label: widget.actionTooltip,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (_) => _setActionPressed(true),
-          onTapUp: (_) {
-            _setActionPressed(false);
-            HapticFeedback.mediumImpact();
-            widget.onAction();
-          },
-          onTapCancel: () => _setActionPressed(false),
-          child: ScaleTransition(
-            scale: _actionScale,
-            child: RepaintBoundary(
-              child: SizedBox(
-                width: 62,
-                height: 62,
-                child: DecoratedBox(
-                  decoration: _actionDecoration(context.palette),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(widget.actionIcon, color: Colors.white, size: 26),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _NavTab extends StatelessWidget {
@@ -551,9 +462,11 @@ class _NavTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final distance = (position - index).abs().clamp(0.0, 1.0);
     final proximity = 1 - distance;
-    final scale = reduceMotion ? 1.0 : 1 + proximity * 0.09;
+    const scale = 1.0;
     final color = emphasized
         ? context.palette.text
+        : reduceMotion
+        ? context.palette.textTertiary
         : Color.lerp(
             context.palette.textTertiary,
             context.palette.accentBright,

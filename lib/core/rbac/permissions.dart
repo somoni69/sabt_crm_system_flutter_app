@@ -100,6 +100,7 @@ const Map<String, String> roleLabels = {
   'designer': 'Дизайнер',
   'videographer': 'Видеограф',
   'video_editor': 'Видеомонтажёр',
+  'producer': 'Продюсер',
   'targetologist': 'Таргетолог',
   'dev_director': 'Директор по разработке',
   'pm_dev': 'ПМ Разработки',
@@ -274,6 +275,17 @@ const Map<String, Set<String>> _permissions = {
     Perm.filesView, Perm.filesUpload, Perm.filesDelete,
     Perm.storiesView, Perm.timeTrackerView, Perm.notesUse, Perm.aiChat,
   },
+  // Продюсер работает в разделе «СММ» как специалист: правит контент-план
+  // и ставит задачи. Сторис не отмечает.
+  'producer': {
+    Perm.dashboard, Perm.projectsView, Perm.projectsCreate,
+    Perm.projectsBriefManage,
+    Perm.boardView, Perm.contentPlanCreate, Perm.contentPlanEdit,
+    Perm.tasksView, Perm.tasksCreate, Perm.tasksEdit, Perm.tasksDelete,
+    Perm.reportsView, Perm.reportsCreate,
+    Perm.filesView, Perm.filesUpload,
+    Perm.storiesView, Perm.timeTrackerView, Perm.notesUse, Perm.aiChat,
+  },
   'targetologist': {
     Perm.dashboard, Perm.projectsView, Perm.boardView, Perm.contentPlanEdit,
     Perm.tasksView, Perm.tasksCreate, Perm.tasksEdit, Perm.tasksDelete,
@@ -351,6 +363,7 @@ bool canSeeSmmSection(UserModel? user) => _hasRole(user, const [
       'admin',
       'smm_director',
       'smm_specialist',
+      'producer',
       'sales_manager_smm',
       'sales_manager_dev',
     ]);

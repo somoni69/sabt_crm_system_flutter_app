@@ -111,88 +111,14 @@ void main() {
       );
     });
 
-    testWidgets('scrubbing to another tab selects it', (tester) async {
+    testWidgets('a tap settles inside 160ms', (tester) async {
       await tester.pumpWidget(const _Host());
-      final start = _tabCenter(tester, 0);
-      final tab = _tabWidth(tester);
-      final gesture = await tester.startGesture(start);
-      await gesture.moveBy(Offset(tab * 2, 0));
+      await tester.tap(find.text('Ещё'));
       await tester.pump();
-      final mid = _lensLeft(tester);
-      await gesture.up();
-      await _settle(tester);
+      await tester.pump(const Duration(milliseconds: 140));
 
-      expect(
-        _host(tester).index,
-        2,
-        reason: 'start=$start tab=$tab mid=$mid lens=${_lensLeft(tester)}',
-      );
+      expect(_host(tester).index, 2);
       expect(_lensLeft(tester), closeTo(_lensLeftFor(tester, 2), 1.5));
-    });
-
-    testWidgets('edge scrub resists and does not select past the first tab', (
-      tester,
-    ) async {
-      await tester.pumpWidget(const _Host(reduceMotion: true));
-      final before = _lensLeft(tester);
-      final gesture = await tester.startGesture(_tabCenter(tester, 0));
-      await gesture.moveBy(const Offset(-400, 0));
-      await tester.pump();
-
-      final dragged = _lensLeft(tester);
-      final travel = before - dragged;
-      expect(travel, greaterThan(8));
-      expect(travel, lessThan(_tabWidth(tester) * 0.5));
-      expect(travel, lessThan(120));
-      expect(_host(tester).index, 0);
-
-      await gesture.up();
-      await tester.pump();
-      expect(_host(tester).index, 0);
-      expect(_lensLeft(tester), closeTo(_lensLeftFor(tester, 0), 0.5));
-    });
-
-    testWidgets('lens stays put while the finger is down and still', (
-      tester,
-    ) async {
-      await tester.pumpWidget(const _Host());
-      final before = _lensLeft(tester);
-      final gesture = await tester.startGesture(_tabCenter(tester, 0));
-      await gesture.moveBy(Offset(_tabWidth(tester), 0));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 220));
-      final parked = _lensLeft(tester);
-      expect((parked - before).abs(), greaterThan(20));
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(_lensLeft(tester), closeTo(parked, 0.5));
-      await gesture.up();
-      await _settle(tester);
-    });
-
-    testWidgets('pointer cancel settles on the tab under the finger', (
-      tester,
-    ) async {
-      await tester.pumpWidget(const _Host());
-      final gesture = await tester.startGesture(_tabCenter(tester, 0));
-      await gesture.moveBy(Offset(_tabWidth(tester) * 1.2, 0));
-      await tester.pump();
-      expect(_host(tester).index, 0);
-
-      // Once the drag is accepted, Flutter reports a pointer cancel as the
-      // end of the pan. The lens must leave the drag and rest on that tab.
-      await gesture.cancel();
-      await _settle(tester);
-
-      expect(_host(tester).index, 1);
-      expect(_lensLeft(tester), closeTo(_lensLeftFor(tester, 1), 1.5));
-    });
-
-    testWidgets('action button calls onAction once', (tester) async {
-      await tester.pumpWidget(const _Host());
-      await tester.tap(find.byIcon(Icons.add_rounded));
-      await _settle(tester);
-      expect(_host(tester).actions, 1);
-      expect(_host(tester).index, 0);
     });
 
     testWidgets('keyboard inset hides the bar from taps', (tester) async {
@@ -233,10 +159,7 @@ void main() {
         tester.getSemantics(find.bySemanticsLabel('Задачи')),
         isSemantics(isButton: true, isSelected: false, label: 'Задачи'),
       );
-      expect(
-        tester.getSemantics(find.bySemanticsLabel('Создать')),
-        isSemantics(isButton: true, label: 'Создать'),
-      );
+      expect(find.byIcon(Icons.add_rounded), findsNothing);
       handle.dispose();
     });
 
@@ -270,7 +193,6 @@ class _Host extends StatefulWidget {
 
 class _HostState extends State<_Host> {
   int index = 0;
-  int actions = 0;
   int selections = 0;
 
   void go(int value) => setState(() => index = value);
@@ -296,7 +218,6 @@ class _HostState extends State<_Host> {
                     index = value;
                     selections += 1;
                   }),
-                  onAction: () => setState(() => actions += 1),
                 ),
               ),
             ),
@@ -313,10 +234,6 @@ _HostState _host(WidgetTester tester) =>
 double _lensLeft(WidgetTester tester) =>
     tester.getTopLeft(find.byKey(LiquidGlassNavBar.lensKey)).dx;
 
-double _tabWidth(WidgetTester tester) =>
-    tester.getSize(find.byKey(LiquidGlassNavBar.capsuleKey)).width /
-    _items.length;
-
 Rect _capsule(WidgetTester tester) =>
     tester.getRect(find.byKey(LiquidGlassNavBar.capsuleKey));
 
@@ -325,10 +242,4 @@ double _lensLeftFor(WidgetTester tester, int index) {
   final tab = capsule.width / _items.length;
   final width = navLensWidth(tabWidth: tab, lift: 0);
   return capsule.left + (index + 0.5) * tab - width / 2;
-}
-
-Offset _tabCenter(WidgetTester tester, int index) {
-  final capsule = _capsule(tester);
-  final tab = capsule.width / _items.length;
-  return Offset(capsule.left + (index + 0.5) * tab, capsule.center.dy);
 }

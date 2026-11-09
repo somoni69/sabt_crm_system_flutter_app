@@ -29,10 +29,10 @@ abstract final class Motion {
 
   /// Route push, modelled on the native iOS push: the incoming page
   /// slides over a parallaxing previous page. Occasional, spatial —
-  /// it earns its 300ms. The pop is a touch shorter so leaving always
+  /// it earns its 180ms. The pop is a touch shorter so leaving always
   /// feels faster than arriving.
-  static const Duration page = Duration(milliseconds: 300);
-  static const Duration pageExit = Duration(milliseconds: 260);
+  static const Duration page = Duration(milliseconds: 180);
+  static const Duration pageExit = Duration(milliseconds: 140);
 
   /// Spring for gesture-carrying elements (the nav lens and interactive
   /// preview cards). Underdamped (ratio ~0.69), so a flick lands with one
@@ -68,6 +68,14 @@ abstract final class Motion {
 
   static const double enterScale = 0.96;
   static const double pressScale = 0.97;
+
+  /// True on iOS/macOS. Drives platform-specific motion: full parallax push
+  /// and live backdrop blur on Apple, lighter fade+slide and opaque
+  /// surfaces elsewhere, so Android holds frame rate on every tier.
+  static bool isApple(BuildContext context) {
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+  }
 
   static bool allowed(BuildContext context) =>
       !MediaQuery.disableAnimationsOf(context);
@@ -131,7 +139,7 @@ class _MotionPageTransitionState extends State<MotionPageTransition> {
       reverseCurve: Motion.easeOut,
     );
     _slide = Tween<Offset>(
-      begin: const Offset(1, 0),
+      begin: const Offset(0.06, 0),
       end: Offset.zero,
     ).animate(_curved);
   }
@@ -154,6 +162,18 @@ class _MotionPageTransitionState extends State<MotionPageTransition> {
   @override
   Widget build(BuildContext context) {
     final secondary = widget.secondaryAnimation;
+
+    // Non-Apple platforms get a lite variant: short slide + fade, with no
+    // edge shade and no full-page parallax/scrim on the covered page. That
+    // removes two extra full-screen layers per frame, which is what costs
+    // frames on mid/low-end Android, and matches Material's own idiom.
+    if (!Motion.isApple(context)) {
+      return FadeTransition(
+        opacity: _curved,
+        child: SlideTransition(position: _slide, child: widget.child),
+      );
+    }
+
     // Edge shade instead of a BoxShadow: a 28px gradient strip riding
     // the incoming page's left edge, visible only mid-flight. No blur
     // filter ever runs on the page layer.

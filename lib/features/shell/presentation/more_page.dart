@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/config/app_env.dart';
 import '../../../core/rbac/permissions.dart';
-import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_controls.dart';
 import '../../../core/widgets/app_page.dart';
 import '../../../core/widgets/app_surfaces.dart';
@@ -16,11 +13,32 @@ import '../../notifications/presentation/notifications_providers.dart';
 import '../../work_shifts/presentation/work_shift_card.dart';
 import 'navigation_helpers.dart';
 
-class MorePage extends ConsumerWidget {
+class MorePage extends ConsumerStatefulWidget {
   const MorePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MorePage> createState() => _MorePageState();
+}
+
+class _MorePageState extends ConsumerState<MorePage> {
+  final _search = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  bool _visible(_MenuRow row) {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return true;
+    return row.title.toLowerCase().contains(query) ||
+        row.subtitle.toLowerCase().contains(query);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     if (user == null) return const SizedBox.shrink();
 
@@ -31,10 +49,8 @@ class MorePage extends ConsumerWidget {
     final canEmployees = canSeeEmployees(user);
     final canCalendar = canUseCalendar(user);
     final checks = canCheckStories(user);
-    final firebase = ref.watch(firebaseRuntimeProvider);
-    final realtime = ref.watch(realtimeConnectedProvider);
 
-    final workspace = <Widget>[
+    final workspace = <_MenuRow>[
       if (canSmm)
         _MenuRow(
           icon: Icons.auto_awesome_outlined,
@@ -156,7 +172,7 @@ class MorePage extends ConsumerWidget {
         ),
     ];
 
-    final systemTools = <Widget>[
+    final systemTools = <_MenuRow>[
       if (userCan(user, Perm.aiChat))
         _MenuRow(
           icon: Icons.auto_awesome,
@@ -198,19 +214,34 @@ class MorePage extends ConsumerWidget {
       ),
       if (canSeeDevSection(user) || userCan(user, Perm.devTrackerView)) ...[
         _MenuRow(
-          icon: Icons.terminal_rounded,
+          icon: Icons.view_kanban_outlined,
           color: context.palette.ice,
-          title: 'Dev-доска',
+          title: 'Доска',
           subtitle: 'Канбан разработки',
           onTap: () => context.push('/dev-board'),
         ),
         _MenuRow(
-          icon: Icons.code_rounded,
+          icon: Icons.folder_outlined,
           color: context.palette.accentBright,
           title: 'Проекты разработки',
           subtitle: 'Этапы, сроки сдачи и команда',
           onTap: () => context.push('/dev/projects'),
         ),
+        _MenuRow(
+          icon: Icons.speed_rounded,
+          color: context.palette.success,
+          title: 'KPI',
+          subtitle: 'Загрузка команды разработки',
+          onTap: () => context.push('/dev-board/kpi'),
+        ),
+        if (isDevLead(user) || userCan(user, Perm.devTrackerManage))
+          _MenuRow(
+            icon: Icons.summarize_outlined,
+            color: context.palette.warning,
+            title: 'Отчёты',
+            subtitle: 'Сводка по доске разработки',
+            onTap: () => context.push('/dev-board/reports'),
+          ),
       ],
       if (userCan(user, Perm.filesView))
         _MenuRow(
@@ -246,138 +277,81 @@ class MorePage extends ConsumerWidget {
         ),
     ];
 
-    return AppPage(
-      header: AppHeader(
-        title: 'Ещё',
-        subtitle: user.combinedRoleLabel,
-        leading: AppAvatar(
-          name: user.name,
-          avatar: user.avatar,
-          size: 38,
-          ring: true,
-          onTap: () => context.push('/profile'),
-        ),
-        actions: [
-          AppIconButton(
-            icon: Icons.settings_outlined,
-            size: 40,
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
+    final work = workspace.where(_visible).toList();
+    final tools = systemTools.where(_visible).toList();
+    final account = <_MenuRow>[
+      _MenuRow(
+        icon: Icons.person_outline_rounded,
+        color: context.palette.accentBright,
+        title: 'Профиль',
+        subtitle: '${user.email} · ${user.displayPosition}',
+        onTap: () => context.push('/profile'),
       ),
-      bottomPadding: PageInsets.bottomNav(context) + 60,
+      _MenuRow(
+        icon: Icons.notifications_none_rounded,
+        color: context.palette.info,
+        title: 'Уведомления',
+        subtitle: unread > 0 ? '$unread непрочитанных' : 'Всё прочитано',
+        trailingLabel: unread > 0 ? '$unread' : null,
+        onTap: () => context.push('/notifications'),
+      ),
+      _MenuRow(
+        icon: Icons.settings_outlined,
+        color: context.palette.textSecondary,
+        title: 'Настройки',
+        subtitle: 'Тема, кэш и безопасность',
+        onTap: () => context.push('/settings'),
+      ),
+    ].where(_visible).toList();
+    final nothing = _query.trim().isNotEmpty &&
+        work.isEmpty &&
+        tools.isEmpty &&
+        account.isEmpty;
+
+    return AppPage(
+      header: const AppHeader(title: 'Ещё'),
       slivers: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              PageIntro(
-                overline: 'НАВИГАЦИЯ',
-                title: 'Все разделы',
-                subtitle: 'Полный набор рабочих инструментов Sabt в вашем телефоне.',
-                trailing: AppChip(
-                  label: user.roleLabel,
-                  tone: ChipTone.accent,
+              if (!user.isFounder && _query.trim().isEmpty) ...[
+                const WorkShiftBannerCard(),
+                const SizedBox(height: 12),
+              ],
+              AppSearchField(
+                controller: _search,
+                hint: 'Найти раздел',
+                onChanged: (value) => setState(() => _query = value),
+                onClear: () {
+                  _search.clear();
+                  setState(() => _query = '');
+                },
+              ),
+              const SizedBox(height: 14),
+              if (nothing)
+                const EmptyState(
+                  icon: Icons.search_off_rounded,
+                  title: 'Ничего не нашлось',
+                  message: 'Попробуйте короче — например, «доска» или «клиент».',
                   compact: true,
                 ),
-              ),
-              if (!user.isFounder) ...[
-                const WorkShiftBannerCard(),
-                const SizedBox(height: 18),
+              if (work.isNotEmpty) ...[
+                const SectionHeader(title: 'Разделы'),
+                _MenuGroup(children: work),
+                const SizedBox(height: 16),
               ],
-              if (workspace.isNotEmpty) ...[
-                const SectionHeader(
-                  overline: 'РАБОТА',
-                  title: 'Рабочее пространство',
-                ),
-                _MenuGroup(children: workspace),
-                const SizedBox(height: 20),
+              if (account.isNotEmpty) ...[
+                const SectionHeader(title: 'Аккаунт'),
+                _MenuGroup(children: account),
+                const SizedBox(height: 16),
               ],
-              const SectionHeader(
-                overline: 'АККАУНТ',
-                title: 'Профиль и связь',
-              ),
-              _MenuGroup(
-                children: [
-                  _MenuRow(
-                    icon: Icons.person_outline_rounded,
-                    color: context.palette.accentBright,
-                    title: 'Профиль',
-                    subtitle: '${user.email} · ${user.displayPosition}',
-                    onTap: () => context.push('/profile'),
-                  ),
-                  _MenuRow(
-                    icon: Icons.notifications_none_rounded,
-                    color: context.palette.info,
-                    title: 'Уведомления',
-                    subtitle: unread > 0
-                        ? '$unread непрочитанных'
-                        : 'Всё прочитано',
-                    trailingLabel: unread > 0 ? '$unread' : null,
-                    onTap: () => context.push('/notifications'),
-                  ),
-                  _MenuRow(
-                    icon: Icons.settings_outlined,
-                    color: context.palette.textSecondary,
-                    title: 'Настройки',
-                    subtitle: 'Кэш, диагностика, безопасность',
-                    onTap: () => context.push('/settings'),
-                  ),
-                ],
-              ),
-              if (systemTools.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                const SectionHeader(
-                  overline: 'СИСТЕМА',
-                  title: 'Аналитика и сервисы',
-                ),
-                _MenuGroup(children: systemTools),
+              if (tools.isNotEmpty) ...[
+                const SectionHeader(title: 'Сервисы'),
+                _MenuGroup(children: tools),
+                const SizedBox(height: 16),
               ],
-              const SizedBox(height: 22),
-              AppCard(
-                padding: const EdgeInsets.all(15),
-                radius: 18,
-                child: Row(
-                  children: [
-                     SurfaceIcon(
-                      icon: Icons.verified_user_outlined,
-                      color: context.palette.success,
-                      size: 40,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                           Text(
-                            'Защищённое соединение',
-                            style: TextStyle(
-                              fontFamily: AppTypography.family,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: context.palette.text,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Realtime ${realtime ? 'подключён' : 'ожидает'} · '
-                            'Firebase ${firebase.messagingEnabled ? 'включён' : 'локально'} · '
-                            'v${AppEnv.appVersion}',
-                            style:  TextStyle(
-                              fontFamily: AppTypography.family,
-                              fontSize: 10.5,
-                              height: 1.4,
-                              color: context.palette.textTertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 22),
               AppButton(
                 label: 'Выйти из аккаунта',
                 icon: Icons.logout_rounded,
@@ -457,7 +431,14 @@ class _MenuRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
       child: Row(
         children: [
-          SurfaceIcon(icon: icon, color: color, size: 36, radius: 12),
+          Icon(
+            icon,
+            size: 20,
+            color: Color.alphaBlend(
+              color.withValues(alpha: 0.22),
+              context.palette.textSecondary,
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

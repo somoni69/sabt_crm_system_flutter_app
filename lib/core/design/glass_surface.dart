@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_palette.dart';
 import 'glass_tokens.dart';
+import 'motion.dart';
 
 /// One translucent layer per Z-plane. Never nest another [GlassSurface]
 /// inside it — children must be solid surfaces or outline chips.
@@ -54,7 +55,10 @@ class GlassSurface extends StatelessWidget {
     Widget content = child;
 
     if (allowTransparency) {
-      final liveBlur = blurBackdrop && blur > 0;
+      // Live BackdropFilter is a per-frame full readback of what is behind
+      // it. Cheap on Apple GPUs, a common frame-drop source on Android, so
+      // there the plate falls back to the opaque composite (same look).
+      final liveBlur = blurBackdrop && blur > 0 && Motion.isApple(context);
       final rawTint = tint ?? palette.glassTint;
       final plateTint = liveBlur
           ? rawTint

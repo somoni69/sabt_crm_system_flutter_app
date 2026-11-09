@@ -2,48 +2,35 @@ import 'package:flutter/material.dart';
 
 export 'app_palette.dart';
 
-/// Brand palette constants: "liquid graphite" — near-black glass with the
-/// sabt violet and the red brand dot. Red is reserved for overdue/errors,
-/// green for done.
-///
-/// These constants are the DARK preset. Widgets must read colours via
-/// `context.palette` (see [AppPalette]) so the light theme can take
-/// over; this class remains for the dark preset definition and the few
-/// non-widget helpers.
+/// Dark preset of the web CRM palette. Widgets must read colours via
+/// `context.palette` so light mode can take over. Red stays overdue,
+/// green stays done.
 abstract final class AppColors {
-  // Canvas
-  static const Color background = Color(0xFF06080E);
-  static const Color backgroundDeep = Color(0xFF04060A);
-  static const Color backgroundLift = Color(0xFF0A0E17);
+  static const Color background = Color(0xFF191C22);
+  static const Color backgroundDeep = Color(0xFF14171D);
+  static const Color backgroundLift = Color(0xFF22262E);
 
-  // Solid content surfaces (never put glass inside these)
-  static const Color surface1 = Color(0xFF0F1420);
-  static const Color surface2 = Color(0xFF151B2A);
-  static const Color surface3 = Color(0xFF1C2435);
-  static const Color surface4 = Color(0xFF232D42);
+  static const Color surface1 = Color(0xFF22262E);
+  static const Color surface2 = Color(0xFF2A303A);
+  static const Color surface3 = Color(0xFF30353F);
+  static const Color surface4 = Color(0xFF3E4553);
 
-  // Lines
-  static const Color border = Color(0xFF243047);
-  static const Color borderSoft = Color(0xFF1A2334);
-  static const Color borderStrong = Color(0xFF344260);
+  static const Color border = Color(0xFF3E4553);
+  static const Color borderSoft = Color(0xFF30353F);
+  static const Color borderStrong = Color(0xFF5A6574);
 
-  // Text
-  static const Color text = Color(0xFFF3F6FC);
-  static const Color textSecondary = Color(0xFFA8B2C6);
-  static const Color textTertiary = Color(0xFF71809A);
-  static const Color textDisabled = Color(0xFF4E5A70);
+  static const Color text = Color(0xFFF4F7FA);
+  static const Color textSecondary = Color(0xFFC5CED8);
+  static const Color textTertiary = Color(0xFF8792A2);
+  static const Color textDisabled = Color(0xFF5C6776);
 
-  // Brand. The canonical Sabt violet is #59479e — it is the anchor of the
-  // whole accent scale and must not drift. [accent] / [accentBright] /
-  // [accentDeep] are tints and shades of that same hue, lightened only
-  // enough to stay legible on the graphite canvas.
-  static const Color brandPurple = Color(0xFF59479E);
+  static const Color brandPurple = Color(0xFF6E96BE);
   static const Color brandRed = Color(0xFFEF4444);
-  static const Color accent = Color(0xFF8B6CF6);
-  static const Color accentBright = Color(0xFFB49BFF);
-  static const Color accentDeep = Color(0xFF5B3EC8);
-  static const Color ice = Color(0xFF7EC8FF);
-  static const Color iceDeep = Color(0xFF2E6E9E);
+  static const Color accent = Color(0xFF6E96BE);
+  static const Color accentBright = Color(0xFF9BB8D4);
+  static const Color accentDeep = Color(0xFF3E6A90);
+  static const Color ice = Color(0xFF8FB4D4);
+  static const Color iceDeep = Color(0xFF3E6A90);
 
   // Semantics (the product rule: red = overdue/error, green = done)
   static const Color danger = Color(0xFFFF5C63);
