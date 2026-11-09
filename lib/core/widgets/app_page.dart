@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter/services.dart';
 
 import '../design/glass_tokens.dart';
@@ -62,11 +63,11 @@ class AppPage extends StatelessWidget {
     Widget scroll = RepaintBoundary(
       child: CustomScrollView(
         controller: controller,
-        physics:
-            scrollPhysics ??
-            const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
+        // Null falls through to the app ScrollBehavior: bounce on iOS,
+        // clamping on Android. Forcing BouncingScrollPhysics here made
+        // Android scroll and fling like iOS.
+        physics: scrollPhysics,
+        scrollCacheExtent: const ScrollCacheExtent.pixels(600),
         slivers: [
           SliverPadding(
             padding: EdgeInsets.only(
@@ -347,7 +348,6 @@ Future<T?> showGlassSheet<T>({
                 const SizedBox(height: 16),
                 Flexible(
                   child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
                     child: child,
                   ),
                 ),

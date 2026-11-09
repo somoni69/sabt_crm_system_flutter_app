@@ -167,7 +167,6 @@ class _TasksPageState extends ConsumerState<TasksPage> {
               const SizedBox(height: 12),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
                 child: Row(
                   children: [
                     AppFilterChip(

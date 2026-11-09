@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../design/motion.dart';
@@ -728,7 +729,54 @@ class OfflineRibbon extends StatelessWidget {
   }
 }
 
-class SkeletonBox extends StatefulWidget {
+/// One shared clock for every skeleton on screen.
+///
+/// Each box used to own an [AnimationController] plus a gradient shader,
+/// so a loading screen with 30 boxes meant 30 tickers and 30 shader
+/// repaints per frame — a steady source of jank on mid-range Android.
+/// Now a single [Ticker] runs only while at least one box listens, and it
+/// notifies in [steps] discrete phases per period instead of every frame.
+class _SkeletonClock extends ChangeNotifier implements TickerProvider {
+  _SkeletonClock._();
+
+  static final _SkeletonClock instance = _SkeletonClock._();
+
+  static const int steps = 20;
+  static const Duration period = Duration(milliseconds: 1400);
+
+  Ticker? _ticker;
+  int _step = 0;
+
+  /// Pulse position in 0..1 (0 → base tone, 1 → highlight tone).
+  double get pulse {
+    final phase = _step / steps;
+    return phase <= 0.5 ? phase * 2 : (1 - phase) * 2;
+  }
+
+  @override
+  Ticker createTicker(TickerCallback onTick) => Ticker(onTick);
+
+  @override
+  void addListener(VoidCallback listener) {
+    super.addListener(listener);
+    _ticker ??= createTicker((elapsed) {
+      final next =
+          (elapsed.inMicroseconds * steps ~/ period.inMicroseconds) % steps;
+      if (next == _step) return;
+      _step = next;
+      notifyListeners();
+    });
+    if (!_ticker!.isActive) _ticker!.start();
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    super.removeListener(listener);
+    if (!hasListeners) _ticker?.stop();
+  }
+}
+
+class SkeletonBox extends StatelessWidget {
   const SkeletonBox({super.key, this.width, this.height = 14, this.radius = 8});
 
   final double? width;
@@ -736,77 +784,38 @@ class SkeletonBox extends StatefulWidget {
   final double radius;
 
   @override
-  State<SkeletonBox> createState() => _SkeletonBoxState();
-}
-
-class _SkeletonBoxState extends State<SkeletonBox>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _controller.stop();
-      return;
-    }
-    if (!_controller.isAnimating) _controller.repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+    final borderRadius = BorderRadius.circular(radius);
     if (MediaQuery.disableAnimationsOf(context)) {
       return Container(
-        width: widget.width,
-        height: widget.height,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
-          color: context.palette.surface3,
-          borderRadius: BorderRadius.circular(widget.radius),
+          color: palette.surface3,
+          borderRadius: borderRadius,
         ),
       );
     }
     return RepaintBoundary(
       child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          final x = _controller.value * 2 - 1;
-          return Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(widget.radius),
-              gradient: LinearGradient(
-                begin: Alignment(x - 1, 0),
-                end: Alignment(x + 1, 0),
-                colors: [
-                  context.palette.surface2,
-                  context.palette.surface3,
-                  context.palette.surface2,
-                ],
-              ),
+        animation: _SkeletonClock.instance,
+        builder: (context, _) => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: Color.lerp(
+              palette.surface2,
+              palette.surface3,
+              _SkeletonClock.instance.pulse,
             ),
-          );
-        },
+            borderRadius: borderRadius,
+          ),
+        ),
       ),
     );
   }
 }
-
 class KeyValueRow extends StatelessWidget {
   const KeyValueRow({
     super.key,

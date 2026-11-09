@@ -246,7 +246,6 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                 ],
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
                   child: Row(
                     children: [
                       AppFilterChip(

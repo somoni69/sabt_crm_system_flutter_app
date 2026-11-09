@@ -168,7 +168,6 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
                 ],
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
                   child: Row(
                     children: [
                       AppFilterChip(

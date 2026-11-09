@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_palette.dart';
+
 /// Shared motion for Sabt. Mapped from a transform-and-opacity ladder onto
 /// Flutter: short fades for frequent actions, 150–250ms ease-out for sheets
 /// and routes, springs only on the nav gesture and interactive drag surfaces.
@@ -167,10 +169,24 @@ class _MotionPageTransitionState extends State<MotionPageTransition> {
     // edge shade and no full-page parallax/scrim on the covered page. That
     // removes two extra full-screen layers per frame, which is what costs
     // frames on mid/low-end Android, and matches Material's own idiom.
+    // Pages are transparent Scaffolds over a shared background, so the
+    // incoming page must carry its own opaque backing or the covered page
+    // shows through mid-flight. The RepaintBoundary rasterizes the page
+    // once; the slide is then a pure layer translation with no per-frame
+    // repaint of the page subtree.
+    final backed = ColoredBox(
+      color: context.palette.background,
+      child: RepaintBoundary(child: widget.child),
+    );
+
     if (!Motion.isApple(context)) {
-      return FadeTransition(
-        opacity: _curved,
-        child: SlideTransition(position: _slide, child: widget.child),
+      // Slide only: no FadeTransition, which would force an offscreen
+      // saveLayer of the whole page every frame.
+      return SlideTransition(
+        position: _curved.drive(
+          Tween<Offset>(begin: const Offset(0.2, 0), end: Offset.zero),
+        ),
+        child: backed,
       );
     }
 
@@ -181,7 +197,7 @@ class _MotionPageTransitionState extends State<MotionPageTransition> {
       position: _slide,
       child: Stack(
         children: [
-          widget.child,
+          backed,
           Positioned(
             left: 0,
             top: 0,

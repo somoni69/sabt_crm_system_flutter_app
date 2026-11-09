@@ -161,7 +161,6 @@ class DashboardPage extends ConsumerWidget {
                   height: 172,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.only(right: 16),
                     itemCount: storyProjects.length,
                     separatorBuilder: (_, _) => const SizedBox(width: 10),

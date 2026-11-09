@@ -83,6 +83,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.iOS),
         home: MotionPageTransition(
           animation: controller,
           child: const Text('Экран'),
@@ -129,6 +130,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.iOS),
         home: MotionPageTransition(
           animation: primary,
           secondaryAnimation: secondary,
@@ -149,6 +151,43 @@ void main() {
     expect(transform.transform.getTranslation().x, -200);
   });
 
+  testWidgets('android transition is a lite opaque slide without fade', (
+    tester,
+  ) async {
+    final controller = AnimationController(
+      vsync: tester,
+      duration: Motion.page,
+    );
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.android),
+        home: MotionPageTransition(
+          animation: controller,
+          child: const Text('Экран'),
+        ),
+      ),
+    );
+
+    final transition = find.byType(MotionPageTransition);
+    expect(
+      find.descendant(of: transition, matching: find.byType(FadeTransition)),
+      findsNothing,
+    );
+    final slide = tester.widget<SlideTransition>(
+      find.descendant(of: transition, matching: find.byType(SlideTransition)),
+    );
+    expect(slide.position.value, const Offset(0.2, 0));
+    controller.value = 1;
+    await tester.pump();
+    expect(slide.position.value, Offset.zero);
+    // Opaque backing and a cached layer for the page.
+    expect(
+      find.descendant(of: transition, matching: find.byType(ColoredBox)),
+      findsWidgets,
+    );
+  });
   testWidgets('segment thumb moves with a transform', (tester) async {
     var value = 0;
     await tester.pumpWidget(
