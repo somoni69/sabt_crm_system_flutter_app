@@ -204,6 +204,37 @@ void main() {
       expect(find.text('Транспорт и проезд'), findsOneWidget);
       expect(find.text('Mila Coffee'), findsOneWidget);
       expect(find.text('На рассмотрении'), findsNWidgets(2));
+      expect(find.text('Отозвать заявку'), findsOneWidget);
+
+      // Tap + button to open the modal
+      await tester.tap(find.byIcon(Icons.add_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Заявка на транспорт'), findsOneWidget);
+      expect(find.text('СУММА (СОМОНИ)'), findsOneWidget);
+      expect(find.text('КОММЕНТАРИЙ (КУДА, ЦЕЛЬ ПОЕЗДКИ)'), findsOneWidget);
+      expect(find.text('Подать заявку'), findsOneWidget);
+    });
+
+    testWidgets('TransportPage renders empty state with CTA', (tester) async {
+      const emptyData = MyTransportData(
+        totalPaidThisMonth: 0,
+        totalPending: 0,
+        requests: [],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            myTransportProvider.overrideWith((ref) async => emptyData),
+          ],
+          child: const MaterialApp(home: TransportPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Заявок пока нет'), findsOneWidget);
+      expect(find.text('Подать заявку'), findsOneWidget);
     });
 
     testWidgets('OnboardingPage renders client funnel stages', (tester) async {
