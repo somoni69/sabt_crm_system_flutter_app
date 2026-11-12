@@ -5,7 +5,7 @@ import '../dependencies.dart';
 
 /// The user's theme choice, persisted in the prefs box.
 ///
-/// Defaults to [ThemeMode.dark]: Sabt's brand surface is the dark
+/// Defaults to [ThemeMode.dark]: WeBrand's brand surface is the dark
 /// "liquid graphite", and existing users must not wake up to a
 /// different-looking app because their phone is set to light. The
 /// picker in Settings offers dark / light / system.

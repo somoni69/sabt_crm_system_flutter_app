@@ -83,7 +83,7 @@ class AuthController extends AsyncNotifier<AuthSession?> {
       unawaited(_deps.analytics.logLogin(method: 'password'));
       _deps.banners.show(const AppBanner(
         title: 'Добро пожаловать',
-        message: 'Рабочее пространство Sabt готово.',
+        message: 'Рабочее пространство WeBrand готово.',
         tone: BannerTone.accent,
       ));
     } catch (error) {

@@ -265,7 +265,7 @@ class _ChatComposerState extends State<_ChatComposer> {
                     textInputAction: TextInputAction.send,
                     style: TextStyle(color: palette.text, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Спросите что-нибудь у Sabt AI...',
+                      hintText: 'Спросите что-нибудь у WeBrand AI...',
                       hintStyle: TextStyle(
                         color: palette.textTertiary,
                         fontSize: 13,

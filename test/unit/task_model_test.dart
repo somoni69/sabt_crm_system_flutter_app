@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/utils/date_utils.dart';
-import 'package:sabt_crm/features/tasks/domain/task.dart';
+import 'package:webrand_app/core/utils/date_utils.dart';
+import 'package:webrand_app/features/tasks/domain/task.dart';
 
 void main() {
   group('TaskModel', () {

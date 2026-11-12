@@ -24,7 +24,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [dependenciesProvider.overrideWithValue(dependencies)],
-      child: const SabtApp(),
+      child: const WeBrandApp(),
     ),
   );
 }

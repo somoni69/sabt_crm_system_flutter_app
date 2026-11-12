@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/design/liquid_glass_bar.dart';
-import 'package:sabt_crm/core/theme/app_theme.dart';
-import 'package:sabt_crm/core/widgets/app_controls.dart';
-import 'package:sabt_crm/core/widgets/app_page.dart';
-import 'package:sabt_crm/features/access/data/access_repository.dart';
-import 'package:sabt_crm/features/access/domain/access_models.dart';
-import 'package:sabt_crm/features/access/presentation/access_providers.dart';
-import 'package:sabt_crm/features/access/presentation/employee_access_page.dart';
-import 'package:sabt_crm/features/auth/domain/user.dart';
-import 'package:sabt_crm/features/auth/presentation/auth_controller.dart';
-import 'package:sabt_crm/features/work_shifts/presentation/work_shift_card.dart';
+import 'package:webrand_app/core/design/liquid_glass_bar.dart';
+import 'package:webrand_app/core/theme/app_theme.dart';
+import 'package:webrand_app/core/widgets/app_controls.dart';
+import 'package:webrand_app/core/widgets/app_page.dart';
+import 'package:webrand_app/features/access/data/access_repository.dart';
+import 'package:webrand_app/features/access/domain/access_models.dart';
+import 'package:webrand_app/features/access/presentation/access_providers.dart';
+import 'package:webrand_app/features/access/presentation/employee_access_page.dart';
+import 'package:webrand_app/features/auth/domain/user.dart';
+import 'package:webrand_app/features/auth/presentation/auth_controller.dart';
+import 'package:webrand_app/features/work_shifts/presentation/work_shift_card.dart';
 
 void main() {
   group('iPad Button & Sheet Hit-Testing Across Resolutions', () {

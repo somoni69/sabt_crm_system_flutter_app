@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/features/analytics/domain/analytics_data.dart';
-import 'package:sabt_crm/features/dev_board/domain/dev_task.dart';
-import 'package:sabt_crm/features/files/domain/app_file.dart';
-import 'package:sabt_crm/features/finance/domain/finance_models.dart';
-import 'package:sabt_crm/features/tariffs/domain/tariff.dart';
+import 'package:webrand_app/features/analytics/domain/analytics_data.dart';
+import 'package:webrand_app/features/dev_board/domain/dev_task.dart';
+import 'package:webrand_app/features/files/domain/app_file.dart';
+import 'package:webrand_app/features/finance/domain/finance_models.dart';
+import 'package:webrand_app/features/tariffs/domain/tariff.dart';
 
 void main() {
   group('AnalyticsDashboardData model', () {

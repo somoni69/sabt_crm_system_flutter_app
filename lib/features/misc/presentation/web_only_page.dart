@@ -41,7 +41,7 @@ class WebOnlyPage extends StatelessWidget {
       showBottomBarSpace: false,
       header: AppHeader(
         title: 'Веб-версия',
-        subtitle: 'Полный инструмент Sabt',
+        subtitle: 'Полный инструмент WeBrand',
         onBack: () => context.pop(),
       ),
       slivers: [
@@ -117,7 +117,7 @@ class WebOnlyPage extends StatelessWidget {
               AccentNote(
                 icon: Icons.sync_rounded,
                 color: context.palette.success,
-                text: 'Все изменения синхронизируются через один аккаунт Sabt. Авторизуйтесь в браузере тем же логином — данные уже будут на месте.',
+                text: 'Все изменения синхронизируются через один аккаунт WeBrand. Авторизуйтесь в браузере тем же логином — данные уже будут на месте.',
               ),
             ],
           ),

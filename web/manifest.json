@@ -1,11 +1,11 @@
 {
-    "name": "Sabt — CRM WeBrand",
-    "short_name": "Sabt",
+    "name": "WeBrand",
+    "short_name": "WeBrand",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#06080E",
     "theme_color": "#06080E",
-    "description": "Sabt — CRM/ERP агентства WeBrand: задачи, SMM-календарь, сторис и клиенты.",
+    "description": "WeBrand — CRM/ERP агентства WeBrand: задачи, SMM-календарь, сторис и клиенты.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

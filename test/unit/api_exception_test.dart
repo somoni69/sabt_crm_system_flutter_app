@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/network/api_exception.dart';
+import 'package:webrand_app/core/network/api_exception.dart';
 
 void main() {
   group('ApiException hierarchy', () {

@@ -358,7 +358,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 variant: AppButtonVariant.ghost,
                 onPressed: () => showConfirmSheet(
                   context: context,
-                  title: 'Выйти из Sabt?',
+                  title: 'Выйти из WeBrand?',
                   message:
                       'Локальный кэш этого профиля будет очищен. Данные в компании останутся без изменений.',
                   confirmLabel: 'Выйти',
@@ -369,7 +369,7 @@ class _MorePageState extends ConsumerState<MorePage> {
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  'Sabt CRM · WeBrand · Душанбе ${DateTime.now().year}',
+                  'WeBrand CRM · Душанбе ${DateTime.now().year}',
                   style:  TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10,

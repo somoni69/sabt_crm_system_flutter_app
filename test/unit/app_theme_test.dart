@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:sabt_crm/core/cache/cached_json.dart';
-import 'package:sabt_crm/core/cache/response_cache.dart';
-import 'package:sabt_crm/core/connectivity/connectivity_service.dart';
-import 'package:sabt_crm/core/dependencies.dart';
-import 'package:sabt_crm/core/firebase/analytics_service.dart';
-import 'package:sabt_crm/core/firebase/firebase_bootstrap.dart';
-import 'package:sabt_crm/core/firebase/push_service.dart';
-import 'package:sabt_crm/core/navigation/navigation_service.dart';
-import 'package:sabt_crm/core/network/api_client.dart';
-import 'package:sabt_crm/core/network/token_store.dart';
-import 'package:sabt_crm/core/realtime/realtime_service.dart';
-import 'package:sabt_crm/core/session/heartbeat_service.dart';
-import 'package:sabt_crm/core/theme/app_palette.dart';
-import 'package:sabt_crm/core/theme/app_theme.dart';
-import 'package:sabt_crm/core/theme/theme_mode_provider.dart';
-import 'package:sabt_crm/core/widgets/app_banner.dart';
+import 'package:webrand_app/core/cache/cached_json.dart';
+import 'package:webrand_app/core/cache/response_cache.dart';
+import 'package:webrand_app/core/connectivity/connectivity_service.dart';
+import 'package:webrand_app/core/dependencies.dart';
+import 'package:webrand_app/core/firebase/analytics_service.dart';
+import 'package:webrand_app/core/firebase/firebase_bootstrap.dart';
+import 'package:webrand_app/core/firebase/push_service.dart';
+import 'package:webrand_app/core/navigation/navigation_service.dart';
+import 'package:webrand_app/core/network/api_client.dart';
+import 'package:webrand_app/core/network/token_store.dart';
+import 'package:webrand_app/core/realtime/realtime_service.dart';
+import 'package:webrand_app/core/session/heartbeat_service.dart';
+import 'package:webrand_app/core/theme/app_palette.dart';
+import 'package:webrand_app/core/theme/app_theme.dart';
+import 'package:webrand_app/core/theme/theme_mode_provider.dart';
+import 'package:webrand_app/core/widgets/app_banner.dart';
 
 void main() {
   group('AppPalette presets', () {

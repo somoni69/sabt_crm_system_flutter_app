@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_typography.dart';
-
-/// The wordmark used in the web shell: lowercase "sabt" plus the red dot.
-class SabtWordmark extends StatelessWidget {
-  const SabtWordmark({
+/// The official WeBrand horizontal logo / wordmark.
+/// Dynamically displays [webrand_2.png] on dark mode and [webrand_1.png] on light mode.
+class WeBrandWordmark extends StatelessWidget {
+  const WeBrandWordmark({
     super.key,
     this.fontSize = 26,
     this.color,
@@ -18,48 +16,35 @@ class SabtWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          'sabt',
-          style: TextStyle(
-            fontFamily: AppTypography.family,
-            fontSize: fontSize,
-            height: 1,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -1.4,
-            color: color ?? context.palette.text,
-          ),
-        ),
-        if (showDot)
-          Padding(
-            padding: EdgeInsets.only(left: fontSize * 0.055, bottom: fontSize * 0.12),
-            child: Container(
-              width: fontSize * 0.16,
-              height: fontSize * 0.16,
-              decoration: BoxDecoration(
-                color: context.palette.brandRed,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-      ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final asset = isDark
+        ? 'assets/images/webrand_2.png'
+        : 'assets/images/webrand_1.png';
+
+    // Height scaled proportional to requested fontSize
+    final height = fontSize * 1.35;
+
+    return Image.asset(
+      asset,
+      height: height,
+      fit: BoxFit.contain,
+      filterQuality: FilterQuality.high,
+      semanticLabel: 'WeBrand',
     );
   }
 }
 
-/// Official launcher mark. Light theme uses the purple tile, dark theme
-/// the black one. Both carry the same white S and red dot.
-class SabtGlassMark extends StatelessWidget {
-  const SabtGlassMark({super.key, this.size = 72});
+/// Backwards compatibility alias for [WeBrandWordmark].
+typedef SabtWordmark = WeBrandWordmark;
+
+/// Official launcher mark: WeBrand logo icon.
+class WeBrandGlassMark extends StatelessWidget {
+  const WeBrandGlassMark({super.key, this.size = 72});
 
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
     final radius = size * 0.22;
     return SizedBox(
       width: size,
@@ -67,14 +52,17 @@ class SabtGlassMark extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: Image.asset(
-          dark ? 'assets/brand/sabt_icon.png' : 'assets/brand/sabt_icon_android.png',
+          'assets/images/webrand_4.png',
           width: size,
           height: size,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           filterQuality: FilterQuality.high,
-          semanticLabel: 'Sabt',
+          semanticLabel: 'WeBrand',
         ),
       ),
     );
   }
 }
+
+/// Backwards compatibility alias for [WeBrandGlassMark].
+typedef SabtGlassMark = WeBrandGlassMark;

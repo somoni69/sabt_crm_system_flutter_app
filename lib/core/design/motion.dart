@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_palette.dart';
 
-/// Shared motion for Sabt. Mapped from a transform-and-opacity ladder onto
+/// Shared motion for WeBrand. Mapped from a transform-and-opacity ladder onto
 /// Flutter: short fades for frequent actions, 150–250ms ease-out for sheets
 /// and routes, springs only on the nav gesture and interactive drag surfaces.
 ///

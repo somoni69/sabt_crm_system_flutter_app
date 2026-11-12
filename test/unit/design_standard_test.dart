@@ -2,12 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/theme/app_palette.dart';
-import 'package:sabt_crm/core/theme/app_theme.dart';
-import 'package:sabt_crm/core/theme/app_typography.dart';
-import 'package:sabt_crm/core/widgets/app_controls.dart';
-import 'package:sabt_crm/core/widgets/app_form.dart';
-import 'package:sabt_crm/core/widgets/app_surfaces.dart';
+import 'package:webrand_app/core/theme/app_palette.dart';
+import 'package:webrand_app/core/theme/app_theme.dart';
+import 'package:webrand_app/core/theme/app_typography.dart';
+import 'package:webrand_app/core/widgets/app_controls.dart';
+import 'package:webrand_app/core/widgets/app_form.dart';
+import 'package:webrand_app/core/widgets/app_surfaces.dart';
 
 double _luminance(Color c) {
   double channel(double v) =>

@@ -15,7 +15,7 @@ abstract final class AppEnv {
     defaultValue: 'https://sabtcrmsystem-production.up.railway.app',
   );
 
-  /// Browser build of Sabt CRM. Used by the "open in web" hand-off screen.
+  /// Browser build of WeBrand CRM. Used by the "open in web" hand-off screen.
   static const String webBaseUrl = String.fromEnvironment(
     'WEB_BASE_URL',
     defaultValue: 'https://crm.webrand.tj',
@@ -89,5 +89,4 @@ abstract final class AppEnv {
       firebaseSenderId.isNotEmpty &&
       firebaseAppId != null;
 
-  static const String appVersion = '1.0.0';
 }

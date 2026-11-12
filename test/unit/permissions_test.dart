@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/rbac/permissions.dart';
-import 'package:sabt_crm/features/auth/domain/user.dart';
+import 'package:webrand_app/core/rbac/permissions.dart';
+import 'package:webrand_app/features/auth/domain/user.dart';
 
 UserModel _user(
   String role, {

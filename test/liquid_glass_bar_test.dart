@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/design/liquid_glass_bar.dart';
+import 'package:webrand_app/core/design/liquid_glass_bar.dart';
 
 const _items = [
   GlassNavItem(

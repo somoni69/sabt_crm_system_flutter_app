@@ -132,7 +132,7 @@ class PushService {
   }
 
   void _handleForeground(RemoteMessage message) {
-    final title = message.notification?.title ?? message.data['title']?.toString() ?? 'Sabt';
+    final title = message.notification?.title ?? message.data['title']?.toString() ?? 'WeBrand';
     final body = message.notification?.body ?? message.data['body']?.toString() ?? '';
     if (body.isEmpty && title.isEmpty) return;
     final link = message.data['link']?.toString();
@@ -174,8 +174,8 @@ class PushService {
 
       if (defaultTargetPlatform == TargetPlatform.android) {
         const channel = AndroidNotificationChannel(
-          'sabt_push',
-          'Sabt — уведомления',
+          'webrand_push',
+          'WeBrand — уведомления',
           description: 'Задачи, дедлайны, оплаты и упоминания',
           importance: Importance.high,
         );
@@ -202,8 +202,8 @@ class PushService {
         payload: null,
         notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
-            'sabt_push',
-            'Sabt — уведомления',
+            'webrand_push',
+            'WeBrand — уведомления',
             channelDescription: 'Задачи, дедлайны, оплаты и упоминания',
             importance: Importance.high,
             priority: Priority.high,

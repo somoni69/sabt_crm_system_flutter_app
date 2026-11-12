@@ -6,7 +6,7 @@ import '../../../../core/design/brand_mark.dart';
 import '../../../../core/design/motion.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Official Sabt icon on the splash and login screens, mounted inside a
+/// Official WeBrand icon on the splash and login screens, mounted inside a
 /// tactile 3D squircle pedestal with a physical bottom ledge.
 ///
 /// Tickers stop under reduced motion and when the route is covered.
@@ -117,7 +117,7 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
                           ),
                         ],
                       ),
-                      child: SabtGlassMark(size: size),
+                      child: WeBrandGlassMark(size: size),
                     ),
                   ),
                 ),

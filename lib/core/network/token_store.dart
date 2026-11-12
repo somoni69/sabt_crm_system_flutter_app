@@ -11,9 +11,12 @@ import '../utils/json_utils.dart';
 class TokenStore {
   TokenStore(this._prefs);
 
-  static const _accessKey = 'sabt.accessToken';
-  static const _refreshKey = 'sabt.refreshToken';
-  static const _userKey = 'sabt.userSnapshot';
+  static const _accessKey = 'webrand.accessToken';
+  static const _refreshKey = 'webrand.refreshToken';
+  static const _userKey = 'webrand.userSnapshot';
+  static const _legacyAccessKey = 'sabt.accessToken';
+  static const _legacyRefreshKey = 'sabt.refreshToken';
+  static const _legacyUserKey = 'sabt.userSnapshot';
 
   final Box<dynamic> _prefs;
   final FlutterSecureStorage _secure = const FlutterSecureStorage(
@@ -35,16 +38,16 @@ class TokenStore {
 
   Future<void> load() async {
     try {
-      _access = await _secure.read(key: _accessKey);
-      _refresh = await _secure.read(key: _refreshKey);
-      _cachedUserJson = _prefs.get(_userKey) as String?;
+      _access = await _secure.read(key: _accessKey) ?? await _secure.read(key: _legacyAccessKey);
+      _refresh = await _secure.read(key: _refreshKey) ?? await _secure.read(key: _legacyRefreshKey);
+      _cachedUserJson = (_prefs.get(_userKey) ?? _prefs.get(_legacyUserKey)) as String?;
     } catch (error, stack) {
       _secureAvailable = false;
       debugPrint('TokenStore: secure storage unavailable, using local box: $error');
       debugPrintStack(stackTrace: stack);
-      _access = _prefs.get(_accessKey) as String?;
-      _refresh = _prefs.get(_refreshKey) as String?;
-      _cachedUserJson = _prefs.get(_userKey) as String?;
+      _access = (_prefs.get(_accessKey) ?? _prefs.get(_legacyAccessKey)) as String?;
+      _refresh = (_prefs.get(_refreshKey) ?? _prefs.get(_legacyRefreshKey)) as String?;
+      _cachedUserJson = (_prefs.get(_userKey) ?? _prefs.get(_legacyUserKey)) as String?;
     }
   }
 
@@ -109,17 +112,22 @@ class TokenStore {
       try {
         await _secure.delete(key: _accessKey);
         await _secure.delete(key: _refreshKey);
+        await _secure.delete(key: _legacyAccessKey);
+        await _secure.delete(key: _legacyRefreshKey);
       } catch (_) {
         _secureAvailable = false;
       }
     }
     await _prefs.delete(_accessKey);
     await _prefs.delete(_refreshKey);
+    await _prefs.delete(_legacyAccessKey);
+    await _prefs.delete(_legacyRefreshKey);
   }
 
   Future<void> clearAll() async {
     await clear();
     await _prefs.delete(_userKey);
+    await _prefs.delete(_legacyUserKey);
     _cachedUserJson = null;
   }
 }

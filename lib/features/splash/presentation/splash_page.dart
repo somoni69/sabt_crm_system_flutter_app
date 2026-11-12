@@ -31,7 +31,7 @@ class SplashPage extends StatelessWidget {
                   children: [
                     const AnimatedBrandMark(size: 88),
                     const SizedBox(height: 22),
-                    const SabtWordmark(fontSize: 38),
+                    const WeBrandWordmark(fontSize: 38),
                     const SizedBox(height: 10),
                     Text(
                       'Рабочее пространство WeBrand',
@@ -94,7 +94,7 @@ class SplashPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 26),
                     Text(
-                      'Sabt CRM · Душанбе',
+                      'WeBrand CRM · Душанбе',
                       style: TextStyle(
                         fontFamily: AppTypography.family,
                         fontSize: 11,

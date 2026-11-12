@@ -1,4 +1,4 @@
-package com.webbrand.sabt_crm
+package com.webrand.app
 
 import android.os.Build
 import android.os.Bundle

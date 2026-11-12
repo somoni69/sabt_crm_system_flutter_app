@@ -66,7 +66,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       final payload = nested is Map
           ? Map<String, dynamic>.from(nested)
           : raw;
-      final title = '${payload['title'] ?? 'Sabt'}';
+      final title = '${payload['title'] ?? 'WeBrand'}';
       final message = '${payload['message'] ?? payload['body'] ?? ''}';
       if (message.isNotEmpty) {
         deps.banners.notification(

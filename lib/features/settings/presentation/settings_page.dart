@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/config/app_env.dart';
 import '../../../core/dependencies.dart';
@@ -27,6 +28,17 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   late int _cacheEntries = ref.read(dependenciesProvider).cache.entries;
   bool _checking = false;
+  String _versionLabel = 'WeBrand';
+
+  @override
+  void initState() {
+    super.initState();
+    PackageInfo.fromPlatform().then((info) {
+      if (!mounted) return;
+      final build = info.buildNumber.isEmpty ? '' : ' (${info.buildNumber})';
+      setState(() => _versionLabel = 'WeBrand ${info.version}$build');
+    }, onError: (_) {});
+  }
 
   Future<void> _clearCache() async {
     await showConfirmSheet(
@@ -76,7 +88,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       deps.banners.show(
         const AppBanner(
           title: 'Соединение в порядке',
-          message: 'API Sabt отвечает, сессия активна.',
+          message: 'API WeBrand отвечает, сессия активна.',
           tone: BannerTone.success,
           icon: Icons.wifi_rounded,
         ),
@@ -120,7 +132,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       showBottomBarSpace: false,
       header: AppHeader(
         title: 'Настройки',
-        subtitle: 'Sabt ${AppEnv.appVersion}',
+        subtitle: _versionLabel,
         onBack: () => context.pop(),
       ),
       slivers: [
@@ -152,7 +164,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Стекло Sabt',
+                                'Стекло WeBrand',
                                 style: TextStyle(
                                   fontFamily: AppTypography.family,
                                   fontSize: 13.5,
@@ -363,7 +375,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 variant: AppButtonVariant.ghost,
                 onPressed: () => showConfirmSheet(
                   context: context,
-                  title: 'Выйти из Sabt?',
+                  title: 'Выйти из WeBrand?',
                   message: 'Локальный кэш этого профиля будет очищен. Данные в компании останутся без изменений.',
                   confirmLabel: 'Выйти',
                   danger: true,
@@ -401,7 +413,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const SizedBox(height: 22),
               Center(
                 child: Text(
-                  'Sabt CRM · Liquid Glass · ${DateTime.now().year}',
+                  'WeBrand CRM · Liquid Glass · ${DateTime.now().year}',
                   style: TextStyle(
                     fontFamily: AppTypography.family,
                     fontSize: 10,

@@ -13,17 +13,19 @@ import 'core/theme/theme_mode_provider.dart';
 import 'core/widgets/app_banner.dart';
 import 'features/auth/presentation/auth_controller.dart';
 
-class SabtApp extends ConsumerStatefulWidget {
-  const SabtApp({super.key});
+class WeBrandApp extends ConsumerStatefulWidget {
+  const WeBrandApp({super.key});
 
   @override
-  ConsumerState<SabtApp> createState() => _SabtAppState();
+  ConsumerState<WeBrandApp> createState() => _WeBrandAppState();
 }
+
+typedef SabtApp = WeBrandApp;
 
 /// Platform scroll: bounce on iOS, clamp on Android. The glow stays off
 /// so both platforms share the same quiet edge.
-class _SabtScrollBehavior extends MaterialScrollBehavior {
-  const _SabtScrollBehavior();
+class _WeBrandScrollBehavior extends MaterialScrollBehavior {
+  const _WeBrandScrollBehavior();
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
@@ -50,7 +52,7 @@ class _SabtScrollBehavior extends MaterialScrollBehavior {
   }
 }
 
-class _SabtAppState extends ConsumerState<SabtApp> with WidgetsBindingObserver {
+class _WeBrandAppState extends ConsumerState<WeBrandApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -80,7 +82,7 @@ class _SabtAppState extends ConsumerState<SabtApp> with WidgetsBindingObserver {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'Sabt',
+      title: 'WeBrand',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
@@ -92,7 +94,7 @@ class _SabtAppState extends ConsumerState<SabtApp> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      scrollBehavior: const _SabtScrollBehavior(),
+      scrollBehavior: const _WeBrandScrollBehavior(),
       routerConfig: router,
       builder: (context, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -115,7 +117,7 @@ class _SabtAppState extends ConsumerState<SabtApp> with WidgetsBindingObserver {
               children: [
                 const Positioned.fill(
                   child: RepaintBoundary(
-                    child: AmbientBackground(animate: false),
+                    child: AmbientBackground(),
                   ),
                 ),
                 Positioned.fill(child: child ?? const SizedBox.shrink()),

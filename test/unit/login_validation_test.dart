@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/features/auth/domain/login_validation.dart';
+import 'package:webrand_app/features/auth/domain/login_validation.dart';
 
 void main() {
   group('LoginValidation.login', () {

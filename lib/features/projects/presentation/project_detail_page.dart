@@ -252,6 +252,7 @@ class _ProjectBody extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final canCreate = canCreateTask(user);
     final showFinance = canSeeFinance(user);
+    final showDevStages = project.isDev && canSeeDevSection(user);
     final tasks =
         ref.watch(projectTasksProvider(project.id)).value?.data ??
         const <TaskModel>[];
@@ -273,31 +274,60 @@ class _ProjectBody extends ConsumerWidget {
         ],
         _ProjectHero(project: project, completion: completion),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            if (canCreate)
-              AppButton(
-                label: 'Новая задача',
-                icon: Icons.add_task_rounded,
-                compact: true,
-                expanded: false,
-                onPressed: () =>
-                    showTaskForm(context, ref, projectId: project.id),
-              ),
-            if (project.isDev && canSeeDevSection(user))
-              AppButton(
-                label: 'Этапы разработки',
-                icon: Icons.code_rounded,
-                variant: AppButtonVariant.secondary,
-                compact: true,
-                expanded: false,
-                onPressed: () => context.push('/dev/projects/${project.id}'),
-              ),
-          ],
-        ),
-        const SizedBox(height: 14),
+        if (canCreate || showDevStages) ...[
+          if (canCreate && showDevStages)
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    label: 'Новая задача',
+                    icon: Icons.add_task_rounded,
+                    compact: true,
+                    expanded: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    onPressed: () =>
+                        showTaskForm(context, ref, projectId: project.id),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppButton(
+                    label: 'Этапы разработки',
+                    icon: Icons.code_rounded,
+                    variant: AppButtonVariant.secondary,
+                    compact: true,
+                    expanded: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    onPressed: () =>
+                        context.push('/dev/projects/${project.id}'),
+                  ),
+                ),
+              ],
+            )
+          else
+            Align(
+              alignment: Alignment.centerLeft,
+              child: canCreate
+                  ? AppButton(
+                      label: 'Новая задача',
+                      icon: Icons.add_task_rounded,
+                      compact: true,
+                      expanded: false,
+                      onPressed: () =>
+                          showTaskForm(context, ref, projectId: project.id),
+                    )
+                  : AppButton(
+                      label: 'Этапы разработки',
+                      icon: Icons.code_rounded,
+                      variant: AppButtonVariant.secondary,
+                      compact: true,
+                      expanded: false,
+                      onPressed: () =>
+                          context.push('/dev/projects/${project.id}'),
+                    ),
+            ),
+          const SizedBox(height: 14),
+        ],
         Row(
           children: [
             Expanded(

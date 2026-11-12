@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/utils/json_utils.dart';
+import 'package:webrand_app/core/utils/json_utils.dart';
 
 void main() {
   group('json_utils helpers', () {

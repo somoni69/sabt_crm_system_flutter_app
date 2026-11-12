@@ -4,12 +4,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:sabt_crm/core/cache/response_cache.dart';
-import 'package:sabt_crm/core/network/api_client.dart';
-import 'package:sabt_crm/core/network/api_exception.dart';
-import 'package:sabt_crm/core/network/token_store.dart';
-import 'package:sabt_crm/features/files/data/files_repository.dart';
-import 'package:sabt_crm/features/files/presentation/files_providers.dart';
+import 'package:webrand_app/core/cache/response_cache.dart';
+import 'package:webrand_app/core/network/api_client.dart';
+import 'package:webrand_app/core/network/api_exception.dart';
+import 'package:webrand_app/core/network/token_store.dart';
+import 'package:webrand_app/features/files/data/files_repository.dart';
+import 'package:webrand_app/features/files/presentation/files_providers.dart';
 
 void main() {
   late Directory tempDir;

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/network/api_exception.dart';
-import 'package:sabt_crm/core/theme/app_theme.dart';
-import 'package:sabt_crm/features/auth/data/auth_repository.dart';
-import 'package:sabt_crm/features/auth/presentation/auth_controller.dart';
-import 'package:sabt_crm/features/auth/presentation/login_page.dart';
-import 'package:sabt_crm/features/auth/presentation/widgets/login_button.dart';
-import 'package:sabt_crm/features/auth/presentation/widgets/otp_field.dart';
-import 'package:sabt_crm/features/auth/presentation/widgets/shake.dart';
+import 'package:webrand_app/core/network/api_exception.dart';
+import 'package:webrand_app/core/theme/app_theme.dart';
+import 'package:webrand_app/features/auth/data/auth_repository.dart';
+import 'package:webrand_app/features/auth/presentation/auth_controller.dart';
+import 'package:webrand_app/features/auth/presentation/login_page.dart';
+import 'package:webrand_app/features/auth/presentation/widgets/login_button.dart';
+import 'package:webrand_app/features/auth/presentation/widgets/otp_field.dart';
+import 'package:webrand_app/features/auth/presentation/widgets/shake.dart';
 
 void main() {
   group('OtpField', () {

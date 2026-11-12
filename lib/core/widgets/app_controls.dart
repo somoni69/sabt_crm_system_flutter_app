@@ -25,6 +25,7 @@ class AppButton extends StatefulWidget {
     bool? loading,
     bool? busy,
     this.trailing,
+    this.padding,
   }) : expanded = expanded ?? expand ?? true,
        loading = loading ?? busy ?? false;
 
@@ -36,6 +37,7 @@ class AppButton extends StatefulWidget {
   final bool compact;
   final bool loading;
   final Widget? trailing;
+  final EdgeInsetsGeometry? padding;
 
   @override
   State<AppButton> createState() => _AppButtonState();
@@ -243,9 +245,10 @@ class _AppButtonState extends State<AppButton> {
                         ),
                       ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: widget.compact ? 16 : 20,
-                      ),
+                      padding: widget.padding ??
+                          EdgeInsets.symmetric(
+                            horizontal: widget.compact ? 16 : 20,
+                          ),
                       child: Opacity(
                         opacity: _enabled ? 1 : 0.72,
                         child: content,

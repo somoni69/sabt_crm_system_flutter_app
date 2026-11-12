@@ -335,7 +335,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               const SizedBox(height: 20),
               AccentNote(
                 icon: Icons.info_outline_rounded,
-                text: 'Профиль синхронизирован с Sabt CRM для браузера. Фото и пароль меняются сразу для всех устройств.',
+                text: 'Профиль синхронизирован с WeBrand CRM для браузера. Фото и пароль меняются сразу для всех устройств.',
               ),
               const SizedBox(height: 26),
             ],

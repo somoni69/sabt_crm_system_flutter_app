@@ -19,8 +19,8 @@ abstract final class AppBootstrap {
   static Future<AppDependencies> initialize() async {
     await Hive.initFlutter();
 
-    final cacheBox = await Hive.openBox<dynamic>('sabt_cache_v1');
-    final prefs = await Hive.openBox<dynamic>('sabt_prefs_v1');
+    final cacheBox = await Hive.openBox<dynamic>('webrand_cache_v1');
+    final prefs = await Hive.openBox<dynamic>('webrand_prefs_v1');
 
     final tokens = TokenStore(prefs);
     await tokens.load();
@@ -52,7 +52,7 @@ abstract final class AppBootstrap {
 
     if (kDebugMode) {
       debugPrint(
-        'Sabt bootstrap: api=${ApiEnvLog.api}, firebase=${firebase.initialized}, '
+        'WeBrand bootstrap: api=${ApiEnvLog.api}, firebase=${firebase.initialized}, '
         'secureStorage=${tokens.secureAvailable}',
       );
     }

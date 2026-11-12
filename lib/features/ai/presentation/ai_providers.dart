@@ -34,7 +34,7 @@ class AiChatNotifier extends Notifier<AiChatState> {
       messages: [
         AiMessage(
           id: 'welcome',
-          text: 'Здравствуйте! Я ИИ-помощник Sabt CRM. Могу рассказать о статусе ваших задач, проектов, дедлайнах или подготовить сводку. Чем помочь?',
+          text: 'Здравствуйте! Я ИИ-помощник WeBrand CRM. Могу рассказать о статусе ваших задач, проектов, дедлайнах или подготовить сводку. Чем помочь?',
           isUser: false,
           timestamp: DateTime.now(),
         ),

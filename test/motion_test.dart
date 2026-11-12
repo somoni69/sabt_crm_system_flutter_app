@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/design/motion.dart';
-import 'package:sabt_crm/core/widgets/app_controls.dart';
-import 'package:sabt_crm/core/widgets/app_page.dart';
-import 'package:sabt_crm/core/widgets/app_surfaces.dart';
+import 'package:webrand_app/core/design/motion.dart';
+import 'package:webrand_app/core/widgets/app_controls.dart';
+import 'package:webrand_app/core/widgets/app_page.dart';
+import 'package:webrand_app/core/widgets/app_surfaces.dart';
 
 void main() {
   test('durations and curves stay on the entrance ladder', () {

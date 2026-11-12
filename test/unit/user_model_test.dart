@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/features/auth/domain/user.dart';
+import 'package:webrand_app/features/auth/domain/user.dart';
 
 void main() {
   group('UserModel', () {

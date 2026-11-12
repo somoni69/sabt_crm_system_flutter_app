@@ -20,7 +20,7 @@ import 'widgets/login_field.dart';
 import 'widgets/otp_field.dart';
 import 'widgets/shake.dart';
 
-/// Вход в том же виде, что экран авторизации на вебе: слово sabt,
+/// Вход в том же виде, что экран авторизации на вебе: WeBrand,
 /// карточка с полями и стальная кнопка.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -29,19 +29,13 @@ class LoginPage extends ConsumerStatefulWidget {
   ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage>
-    with SingleTickerProviderStateMixin {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _code = TextEditingController();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
   final _codeFocus = FocusNode();
-
-  late final AnimationController _entrance = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 560),
-  );
 
   bool _obscure = true;
   bool _needsTwoFactor = false;
@@ -56,22 +50,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   bool get _busy => _phase == LoginButtonPhase.loading;
 
   @override
-  void initState() {
-    super.initState();
-    _entrance.forward();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!Motion.allowed(context) && _entrance.value != 1) {
-      _entrance.value = 1;
-    }
-  }
-
-  @override
   void dispose() {
-    _entrance.dispose();
     _email.dispose();
     _password.dispose();
     _code.dispose();
@@ -216,7 +195,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               constraints: const BoxConstraints(maxWidth: 400),
               child: Column(
                 children: [
-                  const SabtWordmark(fontSize: 34),
+                  const WeBrandWordmark(fontSize: 34),
                   const SizedBox(height: 22),
                   Shake(
                     signal: _shakeSignal,
@@ -260,7 +239,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '© ${DateTime.now().year} WeBrand · Sabt CRM',
+                    '© ${DateTime.now().year} WeBrand CRM',
                     style: TextStyle(
                       fontFamily: AppTypography.family,
                       fontSize: 12,

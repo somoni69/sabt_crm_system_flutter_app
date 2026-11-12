@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/utils/date_utils.dart';
+import 'package:webrand_app/core/utils/date_utils.dart';
 
 void main() {
   test('business date key is stable for Dushanbe wall clock', () {

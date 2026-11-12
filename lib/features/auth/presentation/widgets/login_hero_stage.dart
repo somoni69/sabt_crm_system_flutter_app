@@ -222,7 +222,7 @@ class _LoginHeroStageState extends State<LoginHeroStage>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Sabt Workspace',
+                'WeBrand Workspace',
                 style: TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 16,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sabt_crm/core/theme/app_theme.dart';
-import 'package:sabt_crm/core/widgets/app_form.dart';
+import 'package:webrand_app/core/theme/app_theme.dart';
+import 'package:webrand_app/core/widgets/app_form.dart';
 
 void main() {
   testWidgets('AppSelectField expands inline, selects, and collapses', (

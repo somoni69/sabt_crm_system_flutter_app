@@ -7,17 +7,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Sabt</string>
+	<string>WeBrand</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Sabt использует камеру для съёмки фото профиля и прикрепления материалов к задачам и отчётам.</string>
+	<string>WeBrand использует камеру для съёмки фото профиля и прикрепления материалов к задачам и отчётам.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Sabt использует фото профиля и файлы задач, чтобы команда видела актуальные материалы.</string>
+	<string>WeBrand использует фото профиля и файлы задач, чтобы команда видела актуальные материалы.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Sabt сохраняет экспортированные материалы и отчёты проектов в медиатеку устройства.</string>
+	<string>WeBrand сохраняет экспортированные материалы и отчёты проектов в медиатеку устройства.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Sabt запрашивает доступ к микрофону при записи видеоматериалов для задач и сторис.</string>
+	<string>WeBrand запрашивает доступ к микрофону при записи видеоматериалов для задач и сторис.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tg</string>
@@ -39,7 +39,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>sabt_crm</string>
+	<string>WeBrand</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
